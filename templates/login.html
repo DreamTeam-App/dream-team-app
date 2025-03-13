@@ -6,13 +6,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-  <title>Flask Template</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home2.css') }}">
+  {% endblock %}
+  <title>Dream Team</title>
   </head>
 
   <body>
-    {% include 'navbar_public.html' %}
+
+    {% block content %}
+      {% include 'navbar_public.html' %}
+    {% endblock %}
 
     <main>
 
@@ -53,6 +58,15 @@
       </div>
 
     </main>
+    <script>
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      mobileMenuBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('active');
+      });
+  </script>
 
     {% include 'footer.html' %}
 

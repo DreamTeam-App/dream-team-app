@@ -70,6 +70,26 @@ def authorize():
 def home():
     return render_template('home.html')
 
+@app.route('/home')
+def home2():
+    team_members = [
+        {"name": "Sara Suarez", "role": "DEVELOPER", "image": "/static/images/home/woman1.svg"},
+        {"name": "Felipe Bolivar", "role": "DEVELOPER", "image": "/static/images/home/man1.svg"},
+        {"name": "María José Gómez", "role": "DEVELOPER", "image": "/static/images/home/woman2.svg"},
+        {"name": "José Torres", "role": "DEVELOPER", "image": "/static/images/home/man2.svg"}
+    ]
+    
+    partners = [
+        {"name": "Google", "image": "/static/images/placeholder.svg"},
+        {"name": "Microsoft", "image": "/static/images/placeholder.svg"},
+        {"name": "Airbnb", "image": "/static/images/placeholder.svg"},
+        {"name": "Facebook", "image": "/static/images/placeholder.svg"},
+        {"name": "Spotify", "image": "/static/images/placeholder.svg"}
+    ]
+    
+    return render_template('home2.html', team_members=team_members, partners=partners)
+
+
 @app.route('/login')
 def login():
     if 'user' in session:
