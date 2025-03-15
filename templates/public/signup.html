@@ -6,16 +6,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}" >
+    <link rel="stylesheet" href="{{ url_for('static', filename='public/signup.css') }}" >
     {% block extra_css %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/home2.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='public/home2.css') }}">
     {% endblock %}
     <title>Flask Template</title>
 
     </head>
     <body>
         {% block content %}
-            {% include 'navbar_public.html' %}
+            {% include 'public/navbar_public.html' %}
         {% endblock %}
         <main>
 
@@ -59,10 +59,10 @@
 
        
 
-        {% include 'footer.html' %}
+        {% include 'public/footer.html' %}
 
-        <script src="{{ url_for('static', filename='login-auth.js') }}" type="module"></script>
-        <script src="{{ url_for('static', filename='scripts.js') }}" type="module"></script>
+        <script src="{{ url_for('static', filename='public/login-auth.js') }}" type="module"></script>
+        <script src="{{ url_for('static', filename='public/scripts.js') }}" type="module"></script>
         <script>
             // Mobile menu toggle
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');

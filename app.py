@@ -6,7 +6,8 @@ from firebase_admin import credentials, firestore, auth
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
-
+from routes.professor import professor_bp
+from routes.authentication import *
 load_dotenv()
 
 
@@ -33,17 +34,7 @@ db = firestore.client()
 """ Authentication and Authorization """
 
 # Decorator for routes that require authentication
-def auth_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Check if user is authenticated
-        if 'user' not in session:
-            return redirect(url_for('login'))
-        
-        else:
-            return f(*args, **kwargs)
-        
-    return decorated_function
+
 
 
 @app.route('/auth', methods=['POST'])
@@ -62,13 +53,19 @@ def authorize():
     except:
         return "Unauthorized", 401
 
+orders = [
+    {"id": "#20462", "product": "Hat", "productImage": "/static/images/placeholder.svg", "customer": "Matt Dickerson", "date": "13/05/2022", "amount": "$4.95", "paymentMode": "Transfer Bank", "status": "Delivered"},
+    {"id": "#18933", "product": "Laptop", "productImage": "/static/images/placeholder.svg", "customer": "Wiktoria", "date": "22/05/2022", "amount": "$8.95", "paymentMode": "Cash on Delivery", "status": "Delivered"},
+    {"id": "#45169", "product": "Phone", "productImage": "/static/images/placeholder.svg", "customer": "Trixie Byrd", "date": "15/06/2022", "amount": "$1,149.95", "paymentMode": "Cash on Delivery", "status": "Process"},
+]
 
 #####################
 """ Public Routes """
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('public/home2.html')
+
 
 @app.route('/home')
 def home2():
@@ -87,7 +84,7 @@ def home2():
         {"name": "Spotify", "image": "/static/images/placeholder.svg"}
     ]
     
-    return render_template('home2.html', team_members=team_members, partners=partners)
+    return render_template('public/home2.html', team_members=team_members, partners=partners)
 
 
 @app.route('/login')
@@ -95,14 +92,14 @@ def login():
     if 'user' in session:
         return redirect(url_for('dashboard'))
     else:
-        return render_template('login.html')
+        return render_template('public/login.html')
 
 @app.route('/signup')
 def signup():
     if 'user' in session:
         return redirect(url_for('dashboard'))
     else:
-        return render_template('signup.html')
+        return render_template('public/signup.html')
 
 
 @app.route('/reset-password')
@@ -110,15 +107,15 @@ def reset_password():
     if 'user' in session:
         return redirect(url_for('dashboard'))
     else:
-        return render_template('forgot_password.html')
+        return render_template('public/forgot_password.html')
 
 @app.route('/terms')
 def terms():
-    return render_template('terms.html')
+    return render_template('public/terms.html')
 
 @app.route('/privacy')
 def privacy():
-    return render_template('privacy.html')
+    return render_template('public/privacy.html')
 
 @app.route('/logout')
 def logout():
@@ -135,8 +132,9 @@ def logout():
 @auth_required
 def dashboard():
 
-    return render_template('dashboard.html')
+    return render_template('public/dashboard.html')
 
+app.register_blueprint(professor_bp, url_prefix="/professor")
 
 
 

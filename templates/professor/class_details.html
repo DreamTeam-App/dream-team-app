@@ -1,0 +1,84 @@
+{% extends "professor/layout.html" %}
+
+{% block title %}{{ selected_class.name }}{% endblock %}
+
+{% block content %}
+<div class="class-details-container">
+    <!-- Class Details Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{{ selected_class.name }}</h2>
+            <p class="card-description">
+                Instructor: {{ selected_class.instructor }} | Schedule: {{ selected_class.schedule }}
+            </p>
+        </div>
+        <div class="card-content">
+            <div class="class-info-grid">
+                <div class="class-info-item">
+                    <h3>Location</h3>
+                    <p>{{ selected_class.location }}</p>
+                </div>
+                <div class="class-info-item">
+                    <h3>Dates</h3>
+                    <p>{{ selected_class.start_date }} - {{ selected_class.end_date }}</p>
+                </div>
+                <div class="class-info-item full-width">
+                    <h3>Description</h3>
+                    <p>{{ selected_class.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Summary -->
+    <div class="summary-grid">
+        <!-- Students Summary -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Students</h2>
+                <p class="card-description">{{ student_count }} students enrolled</p>
+            </div>
+            <div class="card-content">
+                <div class="student-chips">
+                    {% for student in students %}
+                    <div class="student-chip">
+                        <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                        <span>{{ student.name }}</span>
+                    </div>
+                    {% endfor %}
+                    {% if student_count > 5 %}
+                    <div class="more-chip">
+                        +{{ student_count - 5 }} more
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="link-btn">View all students</a>
+            </div>
+        </div>
+
+        <!-- Teams Summary -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Teams</h2>
+                <p class="card-description">{{ team_count }} teams formed</p>
+            </div>
+            <div class="card-content">
+                <div class="team-list">
+                    {% for team in teams %}
+                    <div class="team-item">
+                        <span class="team-name">{{ team.name }}</span>
+                        <span class="badge {{ team.status|replace(' ', '-')|lower }}">{{ team.status }}</span>
+                    </div>
+                    {% endfor %}
+                    {% if team_count > 3 %}
+                    <div class="more-item">
+                        +{{ team_count - 3 }} more
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="link-btn">View all teams</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

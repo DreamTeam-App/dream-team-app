@@ -1,4 +1,4 @@
-import { auth, provider } from "./firebase-config.js";
+import { auth, provider } from "../firebase-config.js";
 
 import { createUserWithEmailAndPassword,
          signInWithEmailAndPassword,
@@ -210,7 +210,7 @@ function loginUser(user, idToken) {
         credentials: 'same-origin'  // Ensures cookies are sent with the request
     }).then(response => {
         if (response.ok) {
-            window.location.href = '/dashboard';
+            window.location.href = '/professor/indexp';
         } else {
             console.error('Failed to login');
             // Handle errors here

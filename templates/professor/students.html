@@ -1,0 +1,116 @@
+{% extends "professor/layout.html" %}
+
+{% block title %}Students - {{ selected_class.name }}{% endblock %}
+
+{% block content %}
+<div class="data-container">
+    <h2 class="page-title">Estudiantes - {{ selected_class.name }}</h2>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <div class="rows-selector">
+            <span>Mostrar</span>
+            <div class="dropdown">
+                <button class="dropdown-btn">
+                    {{ rows_per_page }}
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=10, page=1, search=search_term) }}">10</a>
+                    <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=25, page=1, search=search_term) }}">25</a>
+                    <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=50, page=1, search=search_term) }}">50</a>
+                    <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=100, page=1, search=search_term) }}">100</a>
+                </div>
+            </div>
+            <span>estudiantes</span>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('professor.students', class_id=selected_class.id) }}" method="get">
+                <input type="hidden" name="rows" value="{{ rows_per_page }}">
+                <input type="hidden" name="page" value="1">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Search..." value="{{ search_term }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Enrollment Date</th>
+                    <th>Grade</th>
+                    <th>Attendance</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                    <tr>
+                        <td class="font-medium">{{ student.id }}</td>
+                        <td>
+                            <div class="user-info">
+                                <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                                <span>{{ student.name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.enrollment_date }}</td>
+                        <td>{{ student.grade }}</td>
+                        <td>{{ student.attendance }}</td>
+                        <td>
+                            <span class="badge {{ student.status|lower }}">{{ student.status }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('professor.delete_student', student_id=student.id, class_id=selected_class.id) }}" class="btn btn-icon">
+                                🗑️
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="empty-table">No students found</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if students %}
+    <div class="pagination">
+        <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=rows_per_page, page=page-1, search=search_term) }}" 
+           class="btn btn-outline {% if page == 1 %}disabled{% endif %}">
+            Previous
+        </a>
+        <div class="page-numbers">
+            {% set display_pages = 3 %}
+            {% set start_page = 1 if page <= 2 else (total_pages - 2 if page >= total_pages - 1 else page - 1) %}
+            {% set end_page = start_page + display_pages - 1 if start_page + display_pages - 1 <= total_pages else total_pages %}
+            
+            {% for p in range(start_page, end_page + 1) %}
+            <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=rows_per_page, page=p, search=search_term) }}" 
+               class="page-number {% if p == page %}active{% endif %}">
+                {{ p }}
+            </a>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=rows_per_page, page=page+1, search=search_term) }}" 
+           class="btn btn-outline {% if page == total_pages %}disabled{% endif %}">
+            Next
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

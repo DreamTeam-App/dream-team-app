@@ -1,0 +1,26 @@
+{% extends "professor/layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <h1>Welcome to DreamTeam</h1>
+    <p>Please select a class to view details, students, and teams.</p>
+    
+    <div class="class-grid">
+        {% for class_item in classes %}
+        <a href="{{ url_for('professor.class_details', class_id=class_item.id) }}" class="class-card">
+            <h2>{{ class_item.name }}</h2>
+            <div class="class-info">
+                <p><strong>Instructor:</strong> {{ class_item.instructor }}</p>
+                <p><strong>Schedule:</strong> {{ class_item.schedule }}</p>
+                <p><strong>Location:</strong> {{ class_item.location }}</p>
+            </div>
+            <div class="class-dates">
+                {{ class_item.start_date }} - {{ class_item.end_date }}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
