@@ -141,14 +141,14 @@ def home2():
 @app.route('/login')
 def login():
     if 'user' in session:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('student.home'))
     else:
         return render_template('public/login.html')
 
 @app.route('/signup')
 def signup():
     if 'user' in session:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('student.home'))
     else:
         return render_template('public/signup.html')
 
@@ -156,7 +156,7 @@ def signup():
 @app.route('/reset-password')
 def reset_password():
     if 'user' in session:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('student.home'))
     else:
         return render_template('public/forgot_password.html')
 
