@@ -26,7 +26,7 @@ def role_required(required_role):
                 if user and user.get("role") == "professor":
                     return redirect(url_for("professor.index"))
                 elif user and user.get("role") == "student":
-                    return redirect(url_for("student.index"))
+                    return redirect(url_for("student.home"))
                 else:
                     return redirect(url_for("login"))  # Si no tiene sesión, redirigir a login
 
