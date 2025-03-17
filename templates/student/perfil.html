@@ -1,0 +1,44 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <a href="{{ url_for('student.home') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <h1 class="page-title">Mi Perfil</h1>
+    </div>
+    
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <h2 class="profile-name">{{ user_profile.name }}</h2>
+                <p class="profile-email">{{ user_profile.email }}</p>
+            </div>
+        </div>
+        <div class="profile-content">
+            <div class="profile-details">
+                <div class="profile-detail">
+                    <label class="profile-label">ID de Estudiante</label>
+                    <p>{{ user_profile.studentId }}</p>
+                </div>
+                <div class="profile-detail">
+                    <label class="profile-label">Programa</label>
+                    <p>{{ user_profile.program }}</p>
+                </div>
+                <div class="profile-detail">
+                    <label class="profile-label">Semestre</label>
+                    <p>{{ user_profile.semester }}</p>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <button class="button button-outline full-width">Editar Perfil</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

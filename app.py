@@ -7,6 +7,7 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 from routes.professor import professor_bp
+from routes.student import student_bp
 from routes.authentication import *
 load_dotenv()
 
@@ -41,17 +42,42 @@ db = firestore.client()
 def authorize():
     token = request.headers.get('Authorization')
     if not token or not token.startswith('Bearer '):
-        return "Unauthorized", 401
+        return jsonify({"error": "Unauthorized"}), 401
 
-    token = token[7:]  # Strip off 'Bearer ' to get the actual token
+    token = token[7:]  # Elimina "Bearer "
 
     try:
-        decoded_token = auth.verify_id_token(token, check_revoked=True, clock_skew_seconds=60) # Validate token here
-        session['user'] = decoded_token # Add user to session
-        return redirect(url_for('dashboard'))
-    
-    except:
-        return "Unauthorized", 401
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token["uid"]
+        email = decoded_token["email"]
+
+        # Si el usuario ya está en sesión, devolver los datos sin consultar Firestore
+        if "user" in session:
+            return jsonify({
+                "new_user": False,
+                "name": session["user"]["name"],
+                "role": session["user"]["role"]
+            })
+
+        # Consultar Firestore solo si el usuario no está en sesión
+        user_ref = db.collection("users").document(uid).get()
+        if user_ref.exists:
+            user_data = user_ref.to_dict()
+            session["user"] = user_data  # Guardar en sesión
+            
+            return jsonify({
+                "new_user": False,
+                "name": user_data["name"],
+                "role": user_data["role"]
+            })
+
+        # Si el usuario no existe, guardarlo en sesión temporal
+        session["temp_user"] = {"uid": uid, "email": email}
+        return jsonify({"new_user": True})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 401
+
 
 orders = [
     {"id": "#20462", "product": "Hat", "productImage": "/static/images/placeholder.svg", "customer": "Matt Dickerson", "date": "13/05/2022", "amount": "$4.95", "paymentMode": "Transfer Bank", "status": "Delivered"},
@@ -66,6 +92,31 @@ orders = [
 def home():
     return render_template('public/home2.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    uid = session.get("temp_user", {}).get("uid")
+    email = session.get("temp_user", {}).get("email")
+    name = request.form.get("name")
+    institution_id = request.form.get("institution_id")
+
+    if not uid or not email or not name or not institution_id:
+        return "Faltan datos", 400
+
+    # Guardar en Firestore solo si no existe
+    user_ref = db.collection("users").document(uid)
+    if not user_ref.get().exists:
+        user_ref.set({
+            "email": email,
+            "name": name,
+            "role": "student",  
+            "institution_id": institution_id
+        })
+
+    # Limpiar sesión temporal y guardar usuario en sesión normal
+    session.pop("temp_user", None)
+    session["user"] = {"email": email, "name": name, "role": "student"}
+
+    return redirect(url_for('dashboard'))
 
 @app.route('/home')
 def home2():
@@ -135,7 +186,7 @@ def dashboard():
     return render_template('public/dashboard.html')
 
 app.register_blueprint(professor_bp, url_prefix="/professor")
-
+app.register_blueprint(student_bp, url_prefix="/student")
 
 
 

@@ -1,26 +1,226 @@
 {% extends "professor/layout.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}DreamTeam - Classes{% endblock %}
+
+{% block head %}
+
+   <link rel="stylesheet" href="{{ url_for('static', filename='professor/index.css') }}">
+
+{% endblock %}
 
 {% block content %}
-<div class="welcome-container">
-    <h1>Welcome to DreamTeam</h1>
-    <p>Please select a class to view details, students, and teams.</p>
+<div class="classes-container">
+    <div class="page-header">
+        <h1>My Classes</h1>
+        <button id="create-class-btn" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Class
+        </button>
+    </div>
     
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% if classes %}
     <div class="class-grid">
-        {% for class_item in classes %}
-        <a href="{{ url_for('professor.class_details', class_id=class_item.id) }}" class="class-card">
-            <h2>{{ class_item.name }}</h2>
-            <div class="class-info">
-                <p><strong>Instructor:</strong> {{ class_item.instructor }}</p>
-                <p><strong>Schedule:</strong> {{ class_item.schedule }}</p>
-                <p><strong>Location:</strong> {{ class_item.location }}</p>
+        {% for class in classes %}
+        <div class="class-card">
+            <div class="class-card-header">
+                <h3>{{ class.name }}</h3>
+                <p>{{ class.instructor }}</p>
             </div>
-            <div class="class-dates">
-                {{ class_item.start_date }} - {{ class_item.end_date }}
+            <div class="class-card-body">
+                <div class="class-info">
+                    <p><i class="fas fa-calendar"></i> {{ class.schedule }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ class.location }}</p>
+                    <p><i class="fas fa-calendar-alt"></i> {{ class.start_date }} - {{ class.end_date }}</p>
+                    <p><i class="fas fa-key"></i> Join Code: <span class="join-code">{{ class.join_code }}</span></p>
+                </div>
+                <p>{{ class.description }}</p>
             </div>
-        </a>
+            <div class="class-card-footer">
+                <a href="{{ url_for('professor.class_details', class_id=class.id) }}" class="btn btn-primary">View Class</a>
+            </div>
+        </div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-graduation-cap"></i>
+        <h2>No Classes Yet</h2>
+        <p>Create your first class to get started</p>
+        <button id="empty-create-class-btn" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Class
+        </button>
+    </div>
+    {% endif %}
 </div>
+
+<!-- Create Class Modal -->
+<div id="create-class-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Create New Class</h3>
+            <button id="close-modal" class="btn btn-icon">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="create-class-form" action="{{ url_for('professor.create_class') }}" method="post">
+                
+                <!-- Nombre de la Clase -->
+                <div class="form-group">
+                    <label for="class_name">Class Name</label>
+                    <input type="text" id="class_name" name="class_name" class="form-control" required>
+                </div>
+                
+                <!-- Instructor (Autocompletado y Deshabilitado) -->
+                <div class="form-group">
+                    <label for="instructor">Instructor</label>
+                    <input type="text" id="instructor" name="instructor" class="form-control" required readonly>
+                </div>
+        
+                <!-- Horario (Selector de Rango de Horas) -->
+                <div class="form-group">
+                    <label for="schedule">Schedule</label>
+                    <input type="time" id="start_time" name="start_time" class="form-control" required>
+                    <span> to </span>
+                    <input type="time" id="end_time" name="end_time" class="form-control" required>
+                </div>
+                
+                <!-- Ubicación -->
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" class="form-control" required>
+                </div>
+                
+                <!-- Fecha de Inicio (Selector de Calendario) -->
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                
+                <!-- Fecha de Fin (Selector de Calendario) -->
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+                
+                <!-- Descripción -->
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                </div>
+        
+                <!-- Nota sobre el Código de Ingreso -->
+                <div class="form-group">
+                    <p><strong>Note:</strong> A unique join code will be automatically generated for your class.</p>
+                </div>
+        
+                <!-- Botón de Enviar -->
+                <button type="submit" class="btn btn-primary">Create Class</button>
+        
+            </form>
+        </div>        
+        <div class="modal-footer">
+            <button id="cancel-class-btn" class="btn btn-outline">Cancel</button>
+            <button id="submit-class-btn" class="btn btn-primary">Create Class</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const createClassBtn = document.getElementById('create-class-btn');
+        const emptyCreateClassBtn = document.getElementById('empty-create-class-btn');
+        const createClassModal = document.getElementById('create-class-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelClassBtn = document.getElementById('cancel-class-btn');
+        const submitClassBtn = document.getElementById('submit-class-btn');
+        const createClassForm = document.getElementById('create-class-form');
+        
+        // Open modal
+        function openModal() {
+            createClassModal.classList.add('open');
+        }
+        
+        // Close modal
+        function closeModal() {
+            createClassModal.classList.remove('open');
+        }
+        
+        // Event listeners
+        if (createClassBtn) {
+            createClassBtn.addEventListener('click', openModal);
+        }
+        
+        if (emptyCreateClassBtn) {
+            emptyCreateClassBtn.addEventListener('click', openModal);
+        }
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+        
+        if (cancelClassBtn) {
+            cancelClassBtn.addEventListener('click', closeModal);
+        }
+        
+        if (submitClassBtn && createClassForm) {
+            submitClassBtn.addEventListener('click', function() {
+                createClassForm.submit();
+            });
+        }
+
+    // Obtener el nombre del usuario desde sessionStorage (si ya está guardado)
+    let instructorName = sessionStorage.getItem("user_name");
+
+    // Verificar si el campo de instructor existe en el DOM antes de usarlo
+    const instructorInput = document.getElementById("instructor");
+    if (!instructorInput) {
+        console.error("El campo 'instructor' no se encuentra en el DOM.");
+        return;
+    }
+
+    // Si el nombre ya está en sessionStorage, usarlo directamente
+    if (instructorName) {
+        instructorInput.value = instructorName;
+    } else {
+        // Si no está en sessionStorage, obtenerlo del backend
+        fetch("/get_user_name")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error en la respuesta del servidor");
+                }
+                return response.json();
+            })
+            .then(data => {
+                instructorName = data.name;
+                sessionStorage.setItem("user_name", instructorName);
+                instructorInput.value = instructorName;
+            })
+            .catch(error => {
+                console.error("Error obteniendo el nombre del usuario:", error);
+            });
+    }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === createClassModal) {
+                closeModal();
+            }
+        });
+    });
+</script>
 {% endblock %}

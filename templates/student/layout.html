@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamTeam - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='student/student.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="DreamTeam Logo">
+                    <span class="logo-text">DreamTeam</span>
+                </a>
+            </div>
+            
+            <div class="nav-links">
+                <a href="{{ url_for('student.home') }}" class="nav-link">Perfilamiento</a>
+                <a href="{{ url_for('student.classes') }}" class="nav-button">VER CLASES</a>
+                
+                <div class="user-menu">
+                    <button id="userMenuButton" class="user-icon">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="userDropdown" class="dropdown-menu">
+                        <a href="{{ url_for('student.profile') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('logout') }}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modal para unirse a clase -->
+    <div id="joinClassModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Unirse a una clase</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Ingresa el código único de la clase a la que deseas unirte.</p>
+                <form id="joinClassForm" action="{{ url_for('student.join_class') }}" method="POST">
+                    <div class="form-group">
+                        <label for="class-code">Código de clase</label>
+                        <input type="text" id="class-code" name="class_code" placeholder="Ingresa el código de la clase" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button button-outline" id="cancelJoinClass">Cancelar</button>
+                        <button type="submit" class="button">Unirse</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='student/student.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

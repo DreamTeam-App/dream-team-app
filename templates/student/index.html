@@ -1,0 +1,56 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+    <!-- Formularios Pendientes -->
+    <div class="card pending-forms">
+        <div class="card-header">
+            <h2 class="card-title">Formularios Pendientes</h2>
+            {% if pending_forms %}
+                <p class="card-description">Completa estos formularios para poder unirte a clases</p>
+            {% endif %}
+        </div>
+        <div class="card-content">
+            {% if pending_forms %}
+                <div class="forms-grid">
+                    {% for form in pending_forms %}
+                        <div class="form-card">
+                            <div class="form-card-header">
+                                <h3 class="form-card-title">{{ form.title }}</h3>
+                            </div>
+                            <div class="form-card-content">
+                                <p class="form-card-description">{{ form.description }}</p>
+                                <button class="form-link">Completar formulario</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list empty-icon"></i>
+                    <p>No tienes formularios pendientes por completar.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="content-grid">
+        <div class="content-card">
+            <img src="{{ url_for('static', filename='images/personalities-test.png') }}" alt="16 Personalities Test" class="card-image">
+        </div>
+        
+        <div class="content-card">
+            <img src="{{ url_for('static', filename='images/technical-skills.png') }}" alt="Technical Skills" class="card-image">
+        </div>
+        
+        <div class="content-card join-class-card">
+            <button id="joinClassBtn" class="join-class-button">
+                <i class="fas fa-plus"></i>
+            </button>
+            <h3 class="join-class-title">Unirse a una Clase</h3>
+            <p class="join-class-description">Para unirte a una clase primero debes terminar tu perfilamientos</p>
+        </div>
+    </div>
+{% endblock %}

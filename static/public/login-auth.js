@@ -74,7 +74,7 @@ async function authSignInWithGoogle() {
 
         // Retrieve ID token for the user
         const idToken = await user.getIdToken();
-
+        
         // Log in the user using the obtained ID token
         loginUser(user, idToken);
 
@@ -100,6 +100,7 @@ async function authSignUpWithGoogle() {
         // Sign in user
         const idToken = await user.getIdToken();
         loginUser(user, idToken);
+     // 
     } catch (error) {
         // The AuthCredential type that was used or other errors.
         console.error("Error during Google signup: ", error.message);
@@ -207,18 +208,29 @@ function loginUser(user, idToken) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${idToken}`
         },
-        credentials: 'same-origin'  // Ensures cookies are sent with the request
-    }).then(response => {
-        if (response.ok) {
-            window.location.href = '/professor/indexp';
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Guardar en sessionStorage para evitar consultas repetidas
+        sessionStorage.setItem("user_role", data.role);
+        sessionStorage.setItem("user_name", data.name);
+
+        if (data.new_user) {
+            window.location.href = '/register';  
         } else {
-            console.error('Failed to login');
-            // Handle errors here
+            if (data.role === "professor") {
+                window.location.href = '/professor/index';  
+            } else {
+                window.location.href = '/student/';  
+            }
         }
-    }).catch(error => {
-        console.error('Error with Fetch operation: ', error);
+    })
+    .catch(error => {
+        console.error('Error con la petición Fetch:', error);
     });
 }
+
 
 
 

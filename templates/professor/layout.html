@@ -3,105 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamTeam - {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='professor/professor.css') }}">
+    <title>{% block title %}DreamTeam{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='professor/professor.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- Main Header -->
-    <header class="main-header">
-        <div class="container">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='images/default_logo.png') }}" alt="DreamTeam Logo" class="logo-img">
-                <h1 class="site-title">DreamTeam</h1>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <img class="logo-img" src="{{ url_for('static', filename='images/default_logo.png') }}" />
+                <span>DreamTeam</span>
             </div>
-            <div class="header-actions">
-                <div class="class-selector">
-                    <button id="class-selector-btn" class="btn btn-outline">
-                        <i class="fas fa-book"></i>
-                        Ver Clases
-                    </button>
-                    <div id="class-dropdown" class="dropdown-content">
-                        {% for class_item in classes %}
-                        <a href="{{ url_for('professor.class_details', class_id=class_item.id) }}">
-                            <div class="class-item">
-                                <div class="class-name">{{ class_item.name }}</div>
-                                <div class="class-details">{{ class_item.instructor }} | {{ class_item.schedule }}</div>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button class="btn btn-icon user-icon">
+            <a href="{{ url_for('professor.index') }}" class="btn btn-outline">
+                <i class="fas fa-home"></i>
+                <span>Ver Clases</span>
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="user-menu">
+                <button id="userMenuButton" class="user-icon">
                     <i class="fas fa-user"></i>
                 </button>
-                <button id="mobile-menu-btn" class="btn btn-icon mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div id="userDropdown" class="dropdown-menu">
+                    <a href=# class="dropdown-item">
+                        <i class="fas fa-user"></i> Mi Perfil
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </div>
             </div>
         </div>
     </header>
-
-    <!-- Secondary Navigation -->
-    <nav class="secondary-nav">
-        <div class="container">
-            <div id="mobile-class-info" class="mobile-class-info">
-                {% if selected_class %}
-                <h2>{{ selected_class.name }}</h2>
-                <button id="mobile-class-selector-btn" class="btn btn-sm btn-outline">
-                    <i class="fas fa-book"></i>
-                    Ver Clases
-                </button>
-                {% endif %}
-            </div>
-            <div class="tabs">
-                {% if selected_class %}
-                <a href="{{ url_for('professor.class_details', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'class_details' %}active{% endif %}">
-                    <i class="fas fa-book"></i>
-                    <span>Clase</span>
+    
+    <div class="mobile-header">
+        <button id="mobile-class-selector-btn" class="btn btn-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </button>
+        <div class="logo">
+            <img class="logo-img" src="{{ url_for('static', filename='images/default_logo.png') }}" />
+            <span>DreamTeam</span>
+        </div>
+        <div class="mobile-user-menu">
+            <button id="mobile-user-menu-btn" class="avatar-btn">
+                <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="User Avatar" class="avatar">
+            </button>
+            <div id="mobile-user-dropdown" class="mobile-user-dropdown">
+                <a href="{{ url_for('professor.index') }}">
+                    <i class="fas fa-graduation-cap"></i> Inicio
                 </a>
-                <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'students' %}active{% endif %}">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Estudiantes</span>
+                <a href="{{ url_for('professor.edit_profile') }}">
+                    <i class="fas fa-user-edit"></i> Edit Profile
                 </a>
-                <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'teams' %}active{% endif %}">
-                    <i class="fas fa-users"></i>
-                    <span>Equipos</span>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-                {% endif %}
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            {% block content %}{% endblock %}
+    {% if selected_class is defined %}
+    <div class="tabs">
+        <a href="{{ url_for('professor.class_details', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'class_details' %}active{% endif %}">
+            <i class="fas fa-info-circle"></i>
+            <span>Detalles</span>
+        </a>
+        <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'students' %}active{% endif %}">
+            <i class="fas fa-user-graduate"></i>
+            <span>Estudiantes</span>
+        </a>
+        <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'teams' %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span>Equipos</span>
+        </a>
+    </div>
+
+    <div id="class-dropdown" class="class-dropdown">
+        <div class="dropdown-header">
+            <h3>Select Class</h3>
         </div>
-    </main>
+        <div class="dropdown-content">
+            {% for class in classes %}
+            <a href="{{ url_for('professor.class_details', class_id=class.id) }}" class="class-item {% if selected_class.id == class.id %}active{% endif %}">
+                <div class="class-info">
+                    <h4>{{ class.name }}</h4>
+                    <p>{{ class.instructor }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
 
-    <!-- Modal for class selection on mobile -->
-    <div id="mobile-class-modal" class="modal">
+    <div id="mobile-class-modal" class="mobile-class-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Seleccionar Clase</h2>
+                <h3>Select Class</h3>
                 <button id="close-modal" class="btn btn-icon">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                {% for class_item in classes %}
-                <a href="{{ url_for('professor.class_details', class_id=class_item.id) }}" class="class-item-mobile">
-                    <div class="class-name">{{ class_item.name }}</div>
-                    <div class="class-details">{{ class_item.instructor }} | {{ class_item.schedule }}</div>
+                {% for class in classes %}
+                <a href="{{ url_for('professor.class_details', class_id=class.id) }}" class="class-item {% if selected_class.id == class.id %}active{% endif %}">
+                    <div class="class-info">
+                        <h4>{{ class.name }}</h4>
+                        <p>{{ class.instructor }}</p>
+                    </div>
                 </a>
                 {% endfor %}
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <script src="{{ url_for('static', filename='professor/professor.js') }}"></script>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileClassSelectorBtn = document.getElementById('mobile-class-selector-btn');
+        const mobileClassModal = document.getElementById('mobile-class-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                document.body.classList.toggle('mobile-menu-open');
+            });
+        }
+
+        if (mobileClassSelectorBtn && mobileClassModal) {
+            mobileClassSelectorBtn.addEventListener('click', function() {
+                mobileClassModal.classList.add('open');
+            });
+        }
+
+        if (closeModalBtn && mobileClassModal) {
+            closeModalBtn.addEventListener('click', function() {
+                mobileClassModal.classList.remove('open');
+            });
+        }
+
+        // Close mobile class modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (mobileClassModal && e.target === mobileClassModal) {
+                mobileClassModal.classList.remove('open');
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                // Reset mobile menu state on larger screens
+                document.body.classList.remove('mobile-menu-open');
+                if (mobileClassModal) {
+                    mobileClassModal.classList.remove('open');
+                }
+            }
+        });
+
+        // Mobile user menu functionality
+        const mobileUserMenuBtn = document.getElementById('mobile-user-menu-btn');
+        const mobileUserDropdown = document.getElementById('mobile-user-dropdown');
+
+        if (mobileUserMenuBtn && mobileUserDropdown) {
+            mobileUserMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileUserDropdown.classList.toggle('open');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                mobileUserDropdown.classList.remove('open');
+            });
+            
+            mobileUserDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+
+        // Add this to handle both desktop and mobile user menus
+        document.addEventListener('touchstart', function(e) {
+            if (userDropdown && !userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.style.display = 'none';
+            }
+            
+            if (mobileUserDropdown && !mobileUserMenuBtn.contains(e.target) && !mobileUserDropdown.contains(e.target)) {
+                mobileUserDropdown.classList.remove('open');
+            }
+        });
+
+        // User Menu Toggle
+    const userMenuButton = document.getElementById('userMenuButton');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuButton && userDropdown) {
+        userMenuButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (userDropdown.classList.contains('show') && !userDropdown.contains(e.target) && e.target !== userMenuButton) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+    </script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>

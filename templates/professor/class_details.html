@@ -1,84 +1,467 @@
 {% extends "professor/layout.html" %}
 
-{% block title %}{{ selected_class.name }}{% endblock %}
+{% block title %}{{ selected_class.name }} - Details{% endblock %}
+
+{% block head %}
+<style>
+    .class-details-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .class-info-card {
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    
+    .class-header {
+        padding: 1.5rem;
+        background-color: var(--primary);
+        color: white;
+    }
+    
+    .class-body {
+        padding: 1.5rem;
+    }
+    
+    .class-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .meta-label {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+        margin-bottom: 0.25rem;
+    }
+    
+    .meta-value {
+        font-weight: 500;
+    }
+    
+    .class-description {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+    
+    .join-code-card {
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .join-code-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .join-code-header i {
+        color: var(--primary);
+        font-size: 1.25rem;
+    }
+    
+    .join-code-display {
+        background-color: var(--secondary);
+        padding: 1rem;
+        border-radius: var(--radius);
+        font-family: monospace;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 0.25rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .copy-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        transition: background-color 0.2s;
+    }
+    
+    .copy-btn:hover {
+        background-color: var(--secondary-light);
+    }
+    
+    .copy-tooltip {
+        position: absolute;
+        bottom: -2rem;
+        right: 0;
+        background-color: #333;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius);
+        font-size: 0.75rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+    }
+    
+    .copy-tooltip.visible {
+        opacity: 1;
+    }
+    
+    .join-code-instructions {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+    }
+    
+    .summary-card {
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .summary-title {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .summary-title i {
+        color: var(--primary);
+    }
+    
+    .summary-count {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .summary-body {
+        padding: 1rem 1.5rem;
+    }
+    
+    .summary-list {
+        list-style: none;
+    }
+    
+    .summary-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .summary-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .summary-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border);
+        text-align: center;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .stat-card {
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+    }
+    
+    .flash-messages {
+        margin-bottom: 1rem;
+    }
+    
+    .flash-message {
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 0.5rem;
+    }
+    
+    .flash-message.success {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .flash-message.error {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    
+    .flash-message.info {
+        background-color: #e0f2fe;
+        color: #0369a1;
+    }
+    
+    @media (max-width: 768px) {
+        .class-details-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="class-details-container">
-    <!-- Class Details Card -->
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">{{ selected_class.name }}</h2>
-            <p class="card-description">
-                Instructor: {{ selected_class.instructor }} | Schedule: {{ selected_class.schedule }}
-            </p>
+<div class="data-container">
+    <h2 class="page-title">{{ selected_class.name }}</h2>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
         </div>
-        <div class="card-content">
-            <div class="class-info-grid">
-                <div class="class-info-item">
-                    <h3>Location</h3>
-                    <p>{{ selected_class.location }}</p>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Join Code Card -->
+    <div class="join-code-card">
+        <div class="join-code-header">
+            <i class="fas fa-key"></i>
+            <h3>Class Join Code</h3>
+        </div>
+        <div class="join-code-display">
+            {{ selected_class.join_code }}
+            <button class="copy-btn" id="copy-code-btn" data-code="{{ selected_class.join_code }}">
+                <i class="fas fa-copy"></i>
+            </button>
+            <span class="copy-tooltip" id="copy-tooltip">Copied!</span>
+        </div>
+        <p class="join-code-instructions">
+            Share this code with your students so they can join this class. 
+            Students will need to enter this code when registering for the class.
+        </p>
+    </div>
+    
+    <div class="class-details-container">
+        <div class="class-info-card">
+            <div class="class-header">
+                <h3>Class Information</h3>
+                <p>{{ selected_class.instructor }}</p>
+            </div>
+            <div class="class-body">
+                <div class="class-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Schedule</span>
+                        <span class="meta-value">{{ selected_class.schedule }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Location</span>
+                        <span class="meta-value">{{ selected_class.location }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Start Date</span>
+                        <span class="meta-value">{{ selected_class.start_date }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">End Date</span>
+                        <span class="meta-value">{{ selected_class.end_date }}</span>
+                    </div>
                 </div>
-                <div class="class-info-item">
-                    <h3>Dates</h3>
-                    <p>{{ selected_class.start_date }} - {{ selected_class.end_date }}</p>
-                </div>
-                <div class="class-info-item full-width">
-                    <h3>Description</h3>
+                
+                <div class="class-description">
+                    <h4>Description</h4>
                     <p>{{ selected_class.description }}</p>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Class Summary -->
-    <div class="summary-grid">
-        <!-- Students Summary -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Students</h2>
-                <p class="card-description">{{ student_count }} students enrolled</p>
-            </div>
-            <div class="card-content">
-                <div class="student-chips">
-                    {% for student in students %}
-                    <div class="student-chip">
-                        <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
-                        <span>{{ student.name }}</span>
-                    </div>
-                    {% endfor %}
-                    {% if student_count > 5 %}
-                    <div class="more-chip">
-                        +{{ student_count - 5 }} more
-                    </div>
+        
+        <div class="summary-container">
+            <!-- Students Summary -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3 class="summary-title">
+                        <i class="fas fa-user-graduate"></i>
+                        Students
+                    </h3>
+                    <span class="summary-count">{{ student_count }}</span>
+                </div>
+                <div class="summary-body">
+                    {% if students %}
+                    <ul class="summary-list">
+                        {% for student in students %}
+                        <li>
+                            <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                            <div>
+                                <p class="font-medium">{{ student.name }}</p>
+                                <p class="text-sm text-muted-foreground">{{ student.email }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted-foreground">No students enrolled yet.</p>
                     {% endif %}
                 </div>
-                <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="link-btn">View all students</a>
+                <div class="summary-footer">
+                    <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-outline">
+                        View All Students
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Teams Summary -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3 class="summary-title">
+                        <i class="fas fa-users"></i>
+                        Teams
+                    </h3>
+                    <span class="summary-count">{{ team_count }}</span>
+                </div>
+                <div class="summary-body">
+                    {% if teams %}
+                    <ul class="summary-list">
+                        {% for team in teams %}
+                        <li>
+                            <div>
+                                <p class="font-medium">{{ team.name }}</p>
+                                <p class="text-sm text-muted-foreground">{{ team.project }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted-foreground">No teams created yet.</p>
+                    {% endif %}
+                </div>
+                <div class="summary-footer">
+                    <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="btn btn-outline">
+                        View All Teams
+                    </a>
+                </div>
             </div>
         </div>
-
-        <!-- Teams Summary -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Teams</h2>
-                <p class="card-description">{{ team_count }} teams formed</p>
-            </div>
-            <div class="card-content">
-                <div class="team-list">
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ student_count }}</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ team_count }}</div>
+            <div class="stat-label">Total Teams</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if teams %}
+                    {% set total_progress = 0 %}
                     {% for team in teams %}
-                    <div class="team-item">
-                        <span class="team-name">{{ team.name }}</span>
-                        <span class="badge {{ team.status|replace(' ', '-')|lower }}">{{ team.status }}</span>
-                    </div>
+                        {% set progress = team.progress|replace('%', '')|int %}
+                        {% set total_progress = total_progress + progress %}
                     {% endfor %}
-                    {% if team_count > 3 %}
-                    <div class="more-item">
-                        +{{ team_count - 3 }} more
-                    </div>
-                    {% endif %}
-                </div>
-                <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="link-btn">View all teams</a>
+                    {% set avg_progress = (total_progress / teams|length)|round|int %}
+                    {{ avg_progress }}%
+                {% else %}
+                    0%
+                {% endif %}
             </div>
+            <div class="stat-label">Average Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if students %}
+                    {% set active_students = students|selectattr('status', 'equalto', 'Active')|list|length %}
+                    {{ (active_students / students|length * 100)|round|int }}%
+                {% else %}
+                    0%
+                {% endif %}
+            </div>
+            <div class="stat-label">Active Students</div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const copyCodeBtn = document.getElementById('copy-code-btn');
+        const copyTooltip = document.getElementById('copy-tooltip');
+        
+        if (copyCodeBtn) {
+            copyCodeBtn.addEventListener('click', function() {
+                const code = this.getAttribute('data-code');
+                
+                // Create a temporary input element
+                const tempInput = document.createElement('input');
+                tempInput.value = code;
+                document.body.appendChild(tempInput);
+                
+                // Select and copy the text
+                tempInput.select();
+                document.execCommand('copy');
+                
+                // Remove the temporary element
+                document.body.removeChild(tempInput);
+                
+                // Show the tooltip
+                copyTooltip.classList.add('visible');
+                
+                // Hide the tooltip after 2 seconds
+                setTimeout(function() {
+                    copyTooltip.classList.remove('visible');
+                }, 2000);
+            });
+        }
+    });
+</script>
 {% endblock %}

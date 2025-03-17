@@ -1,0 +1,37 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Mis Clases{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <a href="{{ url_for('student.home') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <h1 class="page-title">Mis Clases</h1>
+    </div>
+    
+    {% if enrolled_classes %}
+        <div class="classes-grid">
+            {% for class in enrolled_classes %}
+                <div class="class-card">
+                    <div class="class-card-header">
+                        <h2 class="class-card-title">{{ class.name }}</h2>
+                        <p class="class-card-instructor">{{ class.instructor }}</p>
+                    </div>
+                    <div class="class-card-content">
+                        <p class="class-card-schedule">{{ class.schedule }}</p>
+                    </div>
+                    <div class="class-card-footer">
+                        <button class="button button-outline full-width">Ver detalles</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-classes">
+            <h2 class="empty-classes-title">No estás inscrito en ninguna clase</h2>
+            <p class="empty-classes-description">Únete a una clase para comenzar tu aprendizaje</p>
+            <a href="{{ url_for('student.home') }}" class="button">Volver al inicio</a>
+        </div>
+    {% endif %}
+{% endblock %}

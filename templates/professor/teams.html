@@ -6,6 +6,19 @@
 <div class="data-container">
     <h2 class="page-title">Equipos - {{ selected_class.name }}</h2>
     
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
     <!-- Controls -->
     <div class="controls">
         <div class="rows-selector">
@@ -36,6 +49,13 @@
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
+    </div>
+    
+    <!-- Create Team Button -->
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Team
+        </a>
     </div>
 
     <!-- Table -->
@@ -82,13 +102,41 @@
                             <div class="team-details-content">
                                 <h3>Team Members</h3>
                                 <div class="member-grid">
-                                    {% for member_name in team.members %}
-                                        {% set student = students|selectattr('name', 'equalto', member_name)|first %}
+                                    {% for member in team.members %}
+                                        {% set student = students|selectattr('name', 'equalto', member.name)|first %}
                                         <div class="member-card">
-                                            <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}" alt="{{ member_name }}" class="avatar">
+                                            <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}" alt="{{ member.name }}" class="avatar">
                                             <div class="member-info">
-                                                <p class="member-name">{{ member_name }}</p>
+                                                <p class="member-name">
+                                                    {{ member.name }}
+                                                    <span class="role-badge">{{ member.role }}</span>
+                                                    <button type="button" class="edit-role-btn btn btn-sm btn-outline" data-member="{{ member.name }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </p>
                                                 <p class="member-email">{{ student.email if student else 'No email available' }}</p>
+                                                
+                                                <!-- Edit Role Form -->
+                                                <form action="{{ url_for('professor.update_team_member_role', class_id=selected_class.id, team_id=team.id) }}" method="post" class="edit-role-form" id="edit-role-{{ team.id }}-{{ member.name|replace(' ', '-') }}">
+                                                    <input type="hidden" name="member_name" value="{{ member.name }}">
+                                                    <select name="new_role" class="form-control">
+                                                        <option value="">Select Role</option>
+                                                        <option value="Team Lead" {% if member.role == 'Team Lead' %}selected{% endif %}>Team Lead</option>
+                                                        <option value="Project Manager" {% if member.role == 'Project Manager' %}selected{% endif %}>Project Manager</option>
+                                                        <option value="Frontend Developer" {% if member.role == 'Frontend Developer' %}selected{% endif %}>Frontend Developer</option>
+                                                        <option value="Backend Developer" {% if member.role == 'Backend Developer' %}selected{% endif %}>Backend Developer</option>
+                                                        <option value="Full Stack Developer" {% if member.role == 'Full Stack Developer' %}selected{% endif %}>Full Stack Developer</option>
+                                                        <option value="UI/UX Designer" {% if member.role == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
+                                                        <option value="Database Administrator" {% if member.role == 'Database Administrator' %}selected{% endif %}>Database Administrator</option>
+                                                        <option value="DevOps Engineer" {% if member.role == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
+                                                        <option value="Quality Assurance" {% if member.role == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
+                                                        <option value="Data Analyst" {% if member.role == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
+                                                        <option value="Documentation Specialist" {% if member.role == 'Documentation Specialist' %}selected{% endif %}>Documentation Specialist</option>
+                                                        <option value="Content Creator" {% if member.role == 'Content Creator' %}selected{% endif %}>Content Creator</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                                    <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancel</button>
+                                                </form>
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -142,5 +190,57 @@
 {% endblock %}
 
 {% block scripts %}
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Team row click handler
+        const teamRows = document.querySelectorAll('.team-row');
+        teamRows.forEach(row => {
+            row.addEventListener('click', function() {
+                const teamId = this.getAttribute('data-team-id');
+                const detailsRow = document.getElementById('details-' + teamId);
+                
+                // Toggle details visibility
+                if (detailsRow.classList.contains('expanded')) {
+                    detailsRow.classList.remove('expanded');
+                } else {
+                    // Close any open details first
+                    document.querySelectorAll('.team-details-row.expanded').forEach(el => {
+                        el.classList.remove('expanded');
+                    });
+                    detailsRow.classList.add('expanded');
+                }
+            });
+        });
+        
+        // Edit role button handler
+        const editRoleBtns = document.querySelectorAll('.edit-role-btn');
+        editRoleBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const memberName = this.getAttribute('data-member');
+                const teamId = this.closest('.team-details-row').id.replace('details-', '');
+                const formId = `edit-role-${teamId}-${memberName.replace(/ /g, '-')}`;
+                const form = document.getElementById(formId);
+                
+                // Close any open edit forms first
+                document.querySelectorAll('.edit-role-form.active').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Open this edit form
+                form.classList.add('active');
+            });
+        });
+        
+        // Cancel edit button handler
+        const cancelEditBtns = document.querySelectorAll('.cancel-edit-btn');
+        cancelEditBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.closest('.edit-role-form').classList.remove('active');
+            });
+        });
+    });
+</script>
 {% endblock %}

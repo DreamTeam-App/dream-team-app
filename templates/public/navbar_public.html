@@ -9,7 +9,6 @@
     <div class="nav-desktop">
         <nav class="nav-links">
             <a href="{{ url_for('home') }}">Inicio</a>
-            <a href="#">Contacto</a>
         </nav>
         
         <div class="auth-buttons">
@@ -31,9 +30,8 @@
 <!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
 <nav class="mobile-nav-links">
-    <a href="#">Inicio</a>
-    <a href="#">Contacto</a>
-    <a href="#" class="btn btn-register" text-color="black">REGISTRARSE</a>
+    <a href="{{ url_for('home') }}">Inicio</a>
+    <a href="{{ url_for('signup') }}" class="btn btn-register" text-color="black">REGISTRARSE</a>
     <a href="{{ url_for('login') }}" class="btn btn-login">INGRESAR</a>
 </nav>
 </div>
