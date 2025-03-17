@@ -5,6 +5,13 @@ from routes.authentication import *
 
 professor_bp = Blueprint("professor", __name__)
 
+@professor_bp.before_request
+@auth_required
+@role_required("professor")
+def before_request():
+    """Se ejecuta antes de cualquier ruta en este Blueprint."""
+    pass
+
 # Mock data for classes
 mock_classes = [
     {
