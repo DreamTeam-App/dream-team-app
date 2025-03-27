@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from routes.professor import professor_bp
 from routes.student import student_bp
 from routes.authentication import *
+from firebase_client import *
+
 load_dotenv()
 
 
@@ -23,11 +25,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Adjust session e
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Can be 'Strict', 'Lax', or 'None'
 
-
-# Firebase Admin SDK setup
-cred = credentials.Certificate("firebase-auth.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
 
 
 
@@ -192,4 +189,4 @@ app.register_blueprint(student_bp, url_prefix="/student")
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
