@@ -1,0 +1,289 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Formulario de Personalidad{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos para el formulario */
+    .question {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        background-color: var(--white);
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+    
+    .question.active {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    .question.completed {
+        border-left: 4px solid #10B981;
+    }
+    
+    .question-header {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    
+    .question-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background-color: var(--gray-100);
+        border-radius: 50%;
+        margin-right: 1rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    
+    .question.completed .question-number {
+        background-color: #10B981;
+        color: white;
+    }
+    
+    .question-text {
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    
+    .required {
+        color: #EF4444;
+    }
+    
+    .question-content {
+        margin-left: 3rem;
+    }
+    
+    .input-field {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .input-field:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    .helper-text {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+    
+    .radio-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .radio-option {
+        display: flex;
+        align-items: center;
+    }
+    
+    .radio-option input[type="radio"] {
+        margin-right: 0.5rem;
+    }
+    
+    .radio-label {
+        cursor: pointer;
+    }
+    
+    .progress-container {
+        margin-bottom: 2rem;
+    }
+    
+    .progress-bar {
+        height: 0.5rem;
+        background-color: var(--gray-200);
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+    
+    .intro-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: var(--gray-50);
+        border-radius: var(--radius);
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .intro-section h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--gray-800);
+    }
+    
+    .intro-section p, .intro-section ul {
+        margin-bottom: 1rem;
+    }
+    
+    .intro-section ul {
+        padding-left: 1.5rem;
+    }
+    
+    .intro-section li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .alert {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        background-color: #FEE2E2;
+        color: #B91C1C;
+        border-radius: var(--radius);
+    }
+    
+    .alert.hidden {
+        display: none;
+    }
+    
+    .alert-icon {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+    }
+    
+    .close-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: #B91C1C;
+        cursor: pointer;
+    }
+    
+    .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        z-index: 1000;
+        animation: slide-in 0.3s ease;
+    }
+    
+    .notification.success {
+        border-left: 4px solid #10B981;
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .notification-icon {
+        margin-right: 0.75rem;
+        color: #10B981;
+        font-size: 1.25rem;
+    }
+    
+    .notification.fade-out {
+        animation: fade-out 0.3s ease forwards;
+    }
+    
+    @keyframes slide-in {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @media (max-width: 768px) {
+        .radio-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('student.home') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h1 class="page-title">Formulario de Personalidad</h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Collaborative Team Formation Form – PART 1</h2>
+        <p class="card-description">Por favor complete todas las preguntas requeridas.</p>
+    </div>
+    
+    <div class="card-content">
+        <div id="intro-section" class="intro-section">
+            <h3>📌 Tratamiento de Datos Personales</h3>
+            
+            <p><strong>Estimado estudiante,</strong></p>
+            <p>Al completar este formulario, aceptas que la información proporcionada será utilizada exclusivamente para la conformación de equipos dentro de la plataforma <strong>Dream Team</strong>.</p>
+            
+            <ul>
+                <li><strong>Anonimato y Privacidad:</strong> Tu identidad será protegida. Solo el profesor del curso tendrá acceso a tu nombre, mientras que el sistema utilizará únicamente tu <strong>ID universitario</strong> para procesar los datos.</li>
+                <li><strong>Uso de Datos:</strong> La información que proporciones será analizada por un algoritmo con el objetivo de optimizar la conformación de equipos de trabajo.</li>
+                <li><strong>Confidencialidad:</strong> Los datos no serán compartidos con terceros ni utilizados para fines distintos a los indicados.</li>
+                <li><strong>Derechos del Estudiante:</strong> Puedes solicitar la eliminación o modificación de tus datos en cualquier momento comunicándote con el profesor o el equipo de desarrollo de la plataforma.</li>
+            </ul>
+        </div>
+        
+        <div id="alert" class="alert hidden">
+            <div class="alert-icon">⚠️</div>
+            <div id="alertMessage"></div>
+            <button class="close-btn" onclick="closeAlert()">×</button>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressPercentage">0%</span>
+                <span id="pageIndicator">Página 1 de 2</span>
+            </div>
+        </div>
+        
+        <div id="questionsContainer">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <button id="prevButton" class="button button-outline" disabled>Anterior</button>
+        <button id="nextButton" class="button">Siguiente</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='student/form1.js') }}"></script>
+{% endblock %}

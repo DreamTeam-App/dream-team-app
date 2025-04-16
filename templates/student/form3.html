@@ -1,0 +1,443 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Evaluación Cruzada Trabajo en Equipo{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+    
+    .card-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .card-content {
+        padding: 20px;
+    }
+    
+    .card-footer {
+        padding: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .intro-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        border-left: 4px solid #4285f4;
+    }
+    
+    .form3-intro h3, .form3-intro h4 {
+        color: #333;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .form3-intro ul {
+        padding-left: 20px;
+    }
+    
+    .form3-intro li {
+        margin-bottom: 8px;
+    }
+    
+    .form-note {
+        font-style: italic;
+        color: #666;
+        margin-top: 20px;
+    }
+    
+    .required-note {
+        color: #d32f2f;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    
+    .progress-container {
+        margin-bottom: 30px;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background-color: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background-color: #4285f4;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        color: #333;
+        border-bottom: 2px solid #4285f4;
+        padding-bottom: 8px;
+    }
+    
+    .section-description {
+        margin-bottom: 20px;
+        color: #555;
+    }
+    
+    .question {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .question.active {
+        background-color: #e8f0fe;
+        box-shadow: 0 0 0 2px #4285f4;
+    }
+    
+    .question.completed {
+        border-left: 4px solid #0f9d58;
+    }
+    
+    .question-header {
+        display: flex;
+        margin-bottom: 15px;
+    }
+    
+    .question-number {
+        width: 30px;
+        height: 30px;
+        background-color: #4285f4;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .question-text {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .required {
+        color: #d32f2f;
+    }
+    
+    .question-content {
+        margin-left: 45px;
+    }
+    
+    .input-field {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .helper-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .team-matrix {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .team-matrix th, .team-matrix td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    
+    .team-matrix th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+    }
+    
+    .member-name {
+        text-align: left;
+        font-weight: 500;
+    }
+    
+    .rating-radio {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .scale-description {
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+    
+    .scale-description h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .scale-description ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .scale-description li {
+        margin-bottom: 5px;
+    }
+    
+    .radio-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+    
+    .radio-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .radio-label {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f2f2f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    input[type="radio"]:checked + .radio-label {
+        background-color: #4285f4;
+        color: white;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .primary {
+        background-color: #4285f4;
+        color: white;
+    }
+    
+    .primary:hover {
+        background-color: #3367d6;
+    }
+    
+    .secondary {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+    
+    .secondary:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .success {
+        background-color: #0f9d58;
+        color: white;
+    }
+    
+    .success:hover {
+        background-color: #0b8043;
+    }
+    
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .alert {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background-color: #ffebee;
+        color: #c62828;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-icon {
+        margin-right: 10px;
+    }
+    
+    .close-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #c62828;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+    
+    .notification.success {
+        background-color: #e8f5e9;
+        border-left: 4px solid #0f9d58;
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .notification-icon {
+        margin-right: 10px;
+        font-size: 20px;
+        color: #0f9d58;
+    }
+    
+    .notification.fade-out {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    
+    @media (max-width: 768px) {
+        .card-footer {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .team-matrix {
+            font-size: 14px;
+        }
+        
+        .question-content {
+            margin-left: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Evaluación Cruzada Trabajo en Equipo</h2>
+            <p>Por favor complete todas las preguntas requeridas.</p>
+        </div>
+        
+        <div class="card-content">
+            <div id="intro-section" class="intro-section form3-intro">
+                <h3>📌 Tratamiento de Datos Personales - Proyecto Dream Team</h3>
+                
+                <p>La información proporcionada en este formulario será utilizada <strong>exclusivamente</strong> para evaluar el desempeño del equipo en la actividad <strong>{{ activity_data.name }}</strong>.</p>
+                
+                <h4>📌 Compromiso con la privacidad:</h4>
+                <ul>
+                    <li>Sus datos serán tratados de manera <strong>confidencial</strong> y no serán divulgados ni compartidos con terceros.</li>
+                    <li>La información recopilada se almacenará de forma <strong>segura</strong>, garantizando que los resultados individuales no sean asociados a ninguna persona en particular.</li>
+                    <li>La participación en esta evaluación es <strong>obligatoria</strong> para la calificación de la actividad.</li>
+                </ul>
+                
+                <h4>📌 Uso de la información:</h4>
+                <ul>
+                    <li>Los datos serán utilizados <strong>únicamente</strong> con fines académicos dentro del marco de la clase.</li>
+                    <li>Los resultados obtenidos podrán ser presentados de forma anónima para análisis del desempeño del equipo.</li>
+                </ul>
+                
+                <p class="required-note">* Obligatorio</p>
+            </div>
+            
+            <div id="alert" class="alert hidden">
+                <div class="alert-icon">⚠️</div>
+                <div id="alertMessage"></div>
+                <button class="close-btn" onclick="closeAlert()">×</button>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressPercentage">0%</span>
+                    <span id="pageIndicator">Página 1 de 3</span>
+                </div>
+            </div>
+            
+            <div id="questionsContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <button id="prevButton" class="btn secondary" disabled>Anterior</button>
+            <button id="nextButton" class="btn primary">Siguiente</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Datos para el formulario
+    const teamMembers = {{ team_members|safe }};
+    const currentUserId = "{{ current_user_id }}";
+    const classId = "{{ class_id }}";
+    const activityId = "{{ activity_id }}";
+</script>
+<script src="{{ url_for('static', filename='student/form3.js') }}"></script>
+{% endblock %}

@@ -212,17 +212,18 @@ function loginUser(user, idToken) {
     })
     .then(response => response.json())
     .then(data => {
-        // Guardar en sessionStorage para evitar consultas repetidas
+        // Guardar uid en sessionStorage para usarlo en el frontend
+        sessionStorage.setItem("uid", data.uid);
         sessionStorage.setItem("user_role", data.role);
         sessionStorage.setItem("user_name", data.name);
 
         if (data.new_user) {
-            window.location.href = '/register';  
+            window.location.href = '/register';
         } else {
             if (data.role === "professor") {
-                window.location.href = '/professor/index';  
+                window.location.href = '/professor/index';
             } else {
-                window.location.href = '/student/';  
+                window.location.href = '/student/';
             }
         }
     })
@@ -230,6 +231,7 @@ function loginUser(user, idToken) {
         console.error('Error con la petición Fetch:', error);
     });
 }
+
 
 
 

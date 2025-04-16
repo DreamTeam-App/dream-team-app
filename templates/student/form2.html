@@ -1,0 +1,314 @@
+{% extends "student/layout.html" %}
+
+{% block title %}Team Role Experience and Orientation{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        margin-bottom: 2rem;
+    }
+    
+    .intro-section {
+        margin-bottom: 2rem;
+    }
+    
+    .progress-container {
+        margin: 1.5rem 0;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 0.5rem;
+        background-color: var(--gray-200);
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+    
+    .question {
+        padding: 1.5rem;
+        background-color: var(--white);
+        border-radius: var(--radius);
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s ease;
+    }
+    
+    .question.active {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+    }
+    
+    .question.completed {
+        border-left: 4px solid #10B981;
+    }
+    
+    .question.completed .question-number {
+        background-color: #10B981;
+        color: white;
+    }
+    
+    .question-header {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    
+    .question-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        border-radius: 50%;
+        font-weight: 600;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .question-text {
+        font-weight: 500;
+        color: var(--gray-800);
+    }
+    
+    .required {
+        color: var(--error-color);
+    }
+    
+    .question-content {
+        margin-left: 3rem;
+    }
+    
+    .input-field {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-size: 1rem;
+    }
+    
+    .helper-text {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-500);
+    }
+    
+    .rating-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .rating-row {
+        display: flex;
+        margin-bottom: 0.5rem;
+    }
+    
+    .rating-header {
+        margin-bottom: 1rem;
+    }
+    
+    .rating-cell {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .rating-radio {
+        margin: 0 auto;
+        cursor: pointer;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: var(--radius);
+        background-color: #FEF2F2;
+        border: 1px solid #FEE2E2;
+        color: #B91C1C;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .alert.hidden {
+        display: none;
+    }
+    
+    .alert-icon {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+    }
+    
+    .close-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: #B91C1C;
+    }
+    
+    .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius);
+        background-color: #D1FAE5;
+        color: #065F46;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .notification.fade-out {
+        animation: fadeOut 0.3s ease forwards;
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .notification-icon {
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @media (max-width: 768px) {
+        .rating-row {
+            flex-direction: column;
+        }
+        
+        .rating-cell {
+            padding: 0.25rem;
+        }
+        
+        .rating-header .rating-cell {
+            text-align: left;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('student.home') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h1 class="page-title">Team Role Experience and Orientation</h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Team Role Experience and Orientation</h2>
+        <p class="card-description">Por favor complete todas las preguntas requeridas.</p>
+    </div>
+    
+    <div class="card-content">
+        <div id="intro-section" class="intro-section">
+            <h3>📌 Tratamiento de Datos Personales - Proyecto Dream Team</h3>
+            
+            <p>La información proporcionada en este formulario será utilizada <strong>exclusivamente</strong> para el desarrollo del trabajo de grado titulado <strong>Dream Team</strong>, cuyo objetivo es analizar y predecir el desempeño de equipos de trabajo en entornos académicos.</p>
+            
+            <h4>📌 Compromiso con la privacidad:</h4>
+            <ul>
+                <li>Sus datos serán tratados de manera <strong>confidencial</strong> y no serán divulgados ni compartidos con terceros.</li>
+                <li>La información recopilada se almacenará de forma <strong>segura y anonimizada</strong>, garantizando que los resultados no sean asociados a ninguna persona en particular.</li>
+                <li>La participación en este estudio es <strong>voluntaria</strong> y puede solicitar la eliminación de sus datos en cualquier momento.</li>
+            </ul>
+            
+            <h4>📌 Uso de la información:</h4>
+            <ul>
+                <li>Los datos serán utilizados <strong>únicamente</strong> con fines académicos e investigativos dentro del marco del trabajo de grado.</li>
+                <li>Los resultados obtenidos podrán ser presentados en la universidad, siempre asegurando la protección de la identidad de los participantes.</li>
+            </ul>
+            
+            <p>Si tiene alguna duda sobre el manejo de sus datos personales, puede contactarnos al correo <a href="mailto:dreamteam@example.com">dreamteam@example.com</a></p>
+            <p>🔹 Al continuar con el formulario, usted acepta el tratamiento de sus datos personales bajo los términos descritos.</p>
+            
+            <h3>📌 Instrucciones para Responder el Formulario</h3>
+            
+            <p>¡Bienvenido/a al cuestionario del proyecto Dream Team! 🎯</p>
+            
+            <p>Este formulario busca analizar cómo las personas desempeñan diferentes roles dentro de un equipo de trabajo, con el fin de mejorar la conformación y desempeño de los equipos en entornos académicos.</p>
+            
+            <h4>🔹 Cómo responder:</h4>
+            <ul>
+                <li>Lea cada enunciado con atención y seleccione la opción que mejor refleje su comportamiento en un equipo.</li>
+                <li>No hay respuestas correctas o incorrectas, solo buscamos entender su forma natural de actuar en equipos de trabajo.</li>
+                <li>Responda con sinceridad, sin intentar ajustarse a lo que considera "ideal".</li>
+            </ul>
+            
+            <h4>🔹 Escala de respuestas:</h4>
+            <p>Cada enunciado tiene una escala de 1 a 5, donde:</p>
+            <ul>
+                <li>1️⃣ Totalmente en desacuerdo → No me identifico con esta afirmación.</li>
+                <li>2️⃣ En desacuerdo → Me sucede ocasionalmente.</li>
+                <li>3️⃣ Neutral → Me ocurre con frecuencia moderada.</li>
+                <li>4️⃣ De acuerdo → Me representa la mayoría de las veces.</li>
+                <li>5️⃣ Totalmente de acuerdo → Refleja totalmente mi comportamiento.</li>
+            </ul>
+            
+            <h4>🔹 Importancia de la sinceridad:</h4>
+            <p>Para que los resultados sean útiles en el estudio, es fundamental que responda con honestidad. Sus respuestas serán tratadas de manera confidencial y utilizadas exclusivamente para fines académicos.</p>
+            <p>¡Gracias por su participación! 🚀</p>
+        </div>
+        
+        <div id="alert" class="alert hidden">
+            <div class="alert-icon">⚠️</div>
+            <div id="alertMessage"></div>
+            <button class="close-btn" onclick="closeAlert()">×</button>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressPercentage">0%</span>
+                <span id="pageIndicator">Página 1 de 5</span>
+            </div>
+        </div>
+        
+        <div id="questionsContainer">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <button id="prevButton" class="button button-outline" disabled>Anterior</button>
+        <button id="nextButton" class="button button-primary">Siguiente</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='student/form2.js') }}"></script>
+{% endblock %}
+

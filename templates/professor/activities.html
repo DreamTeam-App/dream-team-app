@@ -1,0 +1,194 @@
+{% extends "professor/layout.html" %}
+
+{% block title %}Activities - {{ selected_class.name }}{% endblock %}
+
+{% block content %}
+<div class="data-container">
+    <h2 class="page-title">Actividades - {{ selected_class.name }}</h2>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Controls -->
+    <div class="controls">
+        <div class="action-buttons">
+            <button id="create-activity-btn" class="btn btn-success {% if not all_students_in_team %}disabled{% endif %}">
+                <i class="fas fa-tasks"></i> Create Activity
+            </button>
+        </div>
+    </div>
+    
+    <!-- Create Activity Modal -->
+    <div id="create-activity-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Activity</h3>
+                <button id="close-activity-modal" class="btn btn-icon">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="create-activity-form" action="{{ url_for('professor.create_activity', class_id=selected_class.id) }}" method="post">
+                    <div class="form-group">
+                        <label for="activity_name">Activity Name</label>
+                        <input type="text" id="activity_name" name="activity_name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="activity_description">Description</label>
+                        <textarea id="activity_description" name="activity_description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="due_date">Due Date</label>
+                        <input type="date" id="due_date" name="due_date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max_grade">Maximum Grade</label>
+                        <input type="number" id="max_grade" name="max_grade" class="form-control" min="1" max="100" value="100" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="enable_coevaluation" name="enable_coevaluation">
+                            <span class="checkmark"></span>
+                            Enable Co-evaluation for this activity
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-activity-btn" class="btn btn-outline">Cancel</button>
+                <button id="submit-activity-btn" class="btn btn-primary">Create Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activities List -->
+    {% if activities %}
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Co-evaluation</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr>
+                        <td>{{ activity.name }}</td>
+                        <td>{{ activity.description }}</td>
+                        <td>{{ activity.due_date }}</td>
+                        <td>
+                            {% if activity.enable_coevaluation %}
+                                <span class="badge success">Enabled</span>
+                            {% else %}
+                                <span class="badge warning">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ activity.status|replace(' ', '-')|lower }}">{{ activity.status }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('professor.activity_details', class_id=selected_class.id, activity_id=activity.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                {% if not activity.enable_coevaluation %}
+                                <a href="{{ url_for('professor.enable_coevaluation', class_id=selected_class.id, activity_id=activity.id) }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Enable Co-evaluation
+                                </a>
+                                {% endif %}
+                                <a href="{{ url_for('professor.delete_activity', class_id=selected_class.id, activity_id=activity.id) }}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-tasks"></i>
+            <p>No activities created yet</p>
+            <p class="text-muted-foreground">Create an activity to start evaluating your teams</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Activity Modal Handlers
+        const createActivityBtn = document.getElementById('create-activity-btn');
+        const createActivityModal = document.getElementById('create-activity-modal');
+        const closeActivityModalBtn = document.getElementById('close-activity-modal');
+        const cancelActivityBtn = document.getElementById('cancel-activity-btn');
+        const submitActivityBtn = document.getElementById('submit-activity-btn');
+        const createActivityForm = document.getElementById('create-activity-form');
+
+        if (createActivityBtn && !createActivityBtn.classList.contains('disabled')) {
+            createActivityBtn.addEventListener('click', function() {
+                if (createActivityModal) {
+                    createActivityModal.classList.add('open');
+                }
+            });
+        }
+
+        if (closeActivityModalBtn) {
+            closeActivityModalBtn.addEventListener('click', function() {
+                if (createActivityModal) {
+                    createActivityModal.classList.remove('open');
+                }
+            });
+        }
+
+        if (cancelActivityBtn) {
+            cancelActivityBtn.addEventListener('click', function() {
+                if (createActivityModal) {
+                    createActivityModal.classList.remove('open');
+                }
+            });
+        }
+
+        if (submitActivityBtn && createActivityForm) {
+            submitActivityBtn.addEventListener('click', function() {
+                createActivityForm.submit();
+            });
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === createActivityModal) {
+                createActivityModal.classList.remove('open');
+            }
+        });
+
+        // Show warning if trying to create activity when not all students have teams
+        if (createActivityBtn && createActivityBtn.classList.contains('disabled')) {
+            createActivityBtn.addEventListener('click', function() {
+                alert('All students must be assigned to a team before creating an activity.');
+            });
+        }
+    });
+</script>
+{% endblock %}

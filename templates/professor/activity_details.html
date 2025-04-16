@@ -1,0 +1,313 @@
+{% extends "professor/layout.html" %}
+
+{% block title %}Activity Details - {{ activity.name }}{% endblock %}
+
+{% block content %}
+<div class="data-container">
+    <div class="page-header">
+        <h2 class="page-title">{{ activity.name }}</h2>
+        <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Back to Teams
+        </a>
+    </div>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Activity Details -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Activity Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">{{ activity.description }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Due Date:</span>
+                    <span class="info-value">{{ activity.due_date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Maximum Grade:</span>
+                    <span class="info-value">{{ activity.max_grade }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        <span class="badge {{ activity.status|replace(' ', '-')|lower }}">{{ activity.status }}</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Co-evaluation:</span>
+                    <span class="info-value">
+                        {% if activity.enable_coevaluation %}
+                            <span class="badge success">Enabled</span>
+                        {% else %}
+                            <span class="badge warning">Disabled</span>
+                            <a href="{{ url_for('professor.enable_coevaluation', class_id=selected_class.id, activity_id=activity.id) }}" class="btn btn-sm btn-success">
+                                <i class="fas fa-check"></i> Enable
+                            </a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Grades -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Team Grades</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Grade</th>
+                            <th>Submitted</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team_grade in activity.team_grades %}
+                        <tr>
+                            <td>{{ team_grade.team_name }}</td>
+                            <td>
+                                {% if team_grade.grade > 0 %}
+                                    {{ team_grade.grade }} / {{ activity.max_grade }}
+                                {% else %}
+                                    Not graded
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if team_grade.submitted %}
+                                    <span class="badge success">Yes</span>
+                                {% else %}
+                                    <span class="badge warning">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if team_grade.submission_date %}
+                                    {{ team_grade.submission_date }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary grade-team-btn" data-team-id="{{ team_grade.team_id }}" data-team-name="{{ team_grade.team_name }}">
+                                    <i class="fas fa-edit"></i> Grade
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Co-evaluation Summary -->
+    {% if activity.enable_coevaluation and coevaluation_summary %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Co-evaluation Summary</h3>
+        </div>
+        <div class="card-body">
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-value">{{ coevaluation_summary.total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ coevaluation_summary.submitted_count }}</div>
+                    <div class="stat-label">Submissions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ coevaluation_summary.submission_rate|round(1) }}%</div>
+                    <div class="stat-label">Submission Rate</div>
+                </div>
+            </div>
+            
+            <!-- Average Scores by Criteria -->
+            <h4 class="mt-4">Average Scores by Criteria</h4>
+            <div class="criteria-chart">
+                {% for criterion_name, data in coevaluation_summary.average_scores.items() %}
+                <div class="criterion-bar">
+                    <div class="criterion-name">{{ criterion_name }}</div>
+                    <div class="progress-bar">
+                        <div class="progress" ></div>
+                    </div>
+                    <div class="criterion-score">{{ data.average|round(1) }} / 5</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Student Summaries -->
+            <h4 class="mt-4">Individual Student Summaries</h4>
+            <div class="accordion">
+                {% for student in coevaluation_summary.student_summaries %}
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span>{{ student.student_name }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="comparison-chart">
+                            <h5>Self vs. Peer Evaluation</h5>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Criteria</th>
+                                        <th>Self Score</th>
+                                        <th>Peer Score</th>
+                                        <th>Difference</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for criterion_name, peer_score in student.peer_scores.items() %}
+                                    {% set self_score = student.self_scores.get(criterion_name, 0) %}
+                                    {% set difference = self_score - peer_score %}
+                                    <tr>
+                                        <td>{{ criterion_name }}</td>
+                                        <td>{{ self_score }}</td>
+                                        <td>{{ peer_score|round(1) }}</td>
+                                        <td class="{% if difference > 0 %}positive{% elif difference < 0 %}negative{% endif %}">
+                                            {{ difference|round(1) }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% elif activity.enable_coevaluation %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Co-evaluation Summary</h3>
+        </div>
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No co-evaluation data available yet</p>
+                <p class="text-muted-foreground">Students have not submitted their co-evaluations</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Grade Team Modal -->
+    <div id="grade-team-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Grade Team: <span id="team-name-display"></span></h3>
+                <button id="close-grade-modal" class="btn btn-icon">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="grade-team-form" action="{{ url_for('professor.grade_team', class_id=selected_class.id, activity_id=activity.id) }}" method="post">
+                    <input type="hidden" id="team_id" name="team_id">
+                    
+                    <div class="form-group">
+                        <label for="grade">Grade (out of {{ activity.max_grade }})</label>
+                        <input type="number" id="grade" name="grade" class="form-control" min="0" max="{{ activity.max_grade }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedback">Feedback</label>
+                        <textarea id="feedback" name="feedback" class="form-control" rows="4"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-grade-btn" class="btn btn-outline">Cancel</button>
+                <button id="submit-grade-btn" class="btn btn-primary">Save Grade</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Accordion functionality
+        const accordionItems = document.querySelectorAll('.accordion-item');
+        accordionItems.forEach(item => {
+            const header = item.querySelector('.accordion-header');
+            header.addEventListener('click', function() {
+                item.classList.toggle('expanded');
+            });
+        });
+        
+        // Grade Team Modal
+        const gradeTeamBtns = document.querySelectorAll('.grade-team-btn');
+        const gradeTeamModal = document.getElementById('grade-team-modal');
+        const closeGradeModalBtn = document.getElementById('close-grade-modal');
+        const cancelGradeBtn = document.getElementById('cancel-grade-btn');
+        const submitGradeBtn = document.getElementById('submit-grade-btn');
+        const gradeTeamForm = document.getElementById('grade-team-form');
+        const teamNameDisplay = document.getElementById('team-name-display');
+        const teamIdInput = document.getElementById('team_id');
+        
+        gradeTeamBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const teamId = this.getAttribute('data-team-id');
+                const teamName = this.getAttribute('data-team-name');
+                
+                teamNameDisplay.textContent = teamName;
+                teamIdInput.value = teamId;
+                
+                
+                
+                gradeTeamModal.classList.add('open');
+            });
+        });
+        
+        if (closeGradeModalBtn) {
+            closeGradeModalBtn.addEventListener('click', function() {
+                gradeTeamModal.classList.remove('open');
+            });
+        }
+        
+        if (cancelGradeBtn) {
+            cancelGradeBtn.addEventListener('click', function() {
+                gradeTeamModal.classList.remove('open');
+            });
+        }
+        
+        if (submitGradeBtn && gradeTeamForm) {
+            submitGradeBtn.addEventListener('click', function() {
+                gradeTeamForm.submit();
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === gradeTeamModal) {
+                gradeTeamModal.classList.remove('open');
+            }
+        });
+    });
+</script>
+{% endblock %}

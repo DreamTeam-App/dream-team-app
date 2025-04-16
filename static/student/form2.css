@@ -1,0 +1,343 @@
+/* Estilos específicos para el formulario 2 */
+.form2-intro {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    border-left: 4px solid #4a6cf7;
+  }
+  
+  .form2-intro h3 {
+    color: #333;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+  
+  .form2-intro h4 {
+    color: #555;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+  }
+  
+  .form2-intro p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  
+  .form2-intro ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form2-intro li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  
+  .form2-intro a {
+    color: #4a6cf7;
+    text-decoration: none;
+  }
+  
+  .form2-intro a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Estilos para la tabla de calificaciones */
+  .rating-table {
+    width: 100%;
+    margin-top: 0.5rem;
+    border-collapse: collapse;
+  }
+  
+  .rating-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .rating-header {
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .rating-cell {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+  }
+  
+  .rating-radio {
+    margin: 0;
+    cursor: pointer;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  /* Estilos para notificaciones */
+  .notification {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-width: 350px;
+    animation: slide-in 0.3s ease-out;
+  }
+  
+  .notification.success {
+    border-left: 4px solid #10b981;
+  }
+  
+  .notification-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .notification-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    color: #10b981;
+  }
+  
+  .notification-message {
+    flex: 1;
+    font-size: 0.95rem;
+  }
+  
+  .fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+  }
+  
+  @keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+  }
+  
+  @keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+  }
+  
+  /* Estilos para el formulario */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .card-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .card-header p {
+    margin: 0;
+    color: #666;
+  }
+  
+  .card-content {
+    padding: 1.5rem;
+  }
+  
+  .card-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+  }
+  
+  .btn.primary {
+    background-color: #4a6cf7;
+    color: white;
+  }
+  
+  .btn.primary:hover {
+    background-color: #3a5ce5;
+  }
+  
+  .btn.secondary {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+  
+  .btn.secondary:hover {
+    background-color: #d0d0d0;
+  }
+  
+  .btn.success {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .btn.success:hover {
+    background-color: #0ea271;
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .progress-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .progress-bar {
+    height: 0.5rem;
+    background-color: #e0e0e0;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background-color: #4a6cf7;
+    transition: width 0.3s ease;
+  }
+  
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #666;
+  }
+  
+  .question {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+  }
+  
+  .question.active {
+    border-color: #4a6cf7;
+    box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+  }
+  
+  .question.completed {
+    border-left: 4px solid #10b981;
+  }
+  
+  .question-header {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  
+  .question-number {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4a6cf7;
+    color: white;
+    border-radius: 50%;
+    margin-right: 1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  
+  .question-text {
+    font-weight: 500;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  .question-content {
+    margin-left: 3rem;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border-color: #4a6cf7;
+    box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+  }
+  
+  .helper-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+  }
+  
+  .required {
+    color: #ef4444;
+  }
+  
+  .alert {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .alert-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #b91c1c;
+    cursor: pointer;
+  }
+  
+  .hidden {
+    display: none;
+  }

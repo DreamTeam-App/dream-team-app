@@ -48,8 +48,9 @@ def authorize():
         uid = decoded_token["uid"]
         email = decoded_token["email"]
 
-        # Si el usuario ya está en sesión, devolver los datos sin consultar Firestore
+        # Si ya existe un usuario en sesión, nos aseguramos de que incluya el UID
         if "user" in session:
+            session["user"]["uid"] = uid  # Agregamos el uid si no está presente
             return jsonify({
                 "new_user": False,
                 "name": session["user"]["name"],
@@ -60,15 +61,15 @@ def authorize():
         user_ref = db.collection("users").document(uid).get()
         if user_ref.exists:
             user_data = user_ref.to_dict()
-            session["user"] = user_data  # Guardar en sesión
-            
+            user_data["uid"] = uid  # Aseguramos que el uid esté en los datos
+            session["user"] = user_data  # Guardamos el usuario en sesión
             return jsonify({
                 "new_user": False,
                 "name": user_data["name"],
                 "role": user_data["role"]
             })
 
-        # Si el usuario no existe, guardarlo en sesión temporal
+        # Si el usuario no existe, se guarda en sesión temporal junto con el uid y email
         session["temp_user"] = {"uid": uid, "email": email}
         return jsonify({"new_user": True})
 
@@ -76,11 +77,6 @@ def authorize():
         return jsonify({"error": str(e)}), 401
 
 
-orders = [
-    {"id": "#20462", "product": "Hat", "productImage": "/static/images/placeholder.svg", "customer": "Matt Dickerson", "date": "13/05/2022", "amount": "$4.95", "paymentMode": "Transfer Bank", "status": "Delivered"},
-    {"id": "#18933", "product": "Laptop", "productImage": "/static/images/placeholder.svg", "customer": "Wiktoria", "date": "22/05/2022", "amount": "$8.95", "paymentMode": "Cash on Delivery", "status": "Delivered"},
-    {"id": "#45169", "product": "Phone", "productImage": "/static/images/placeholder.svg", "customer": "Trixie Byrd", "date": "15/06/2022", "amount": "$1,149.95", "paymentMode": "Cash on Delivery", "status": "Process"},
-]
 
 #####################
 """ Public Routes """
@@ -91,29 +87,68 @@ def home():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'GET':
+        # Mostrar el formulario de registro
+        return render_template('register.html')
+
+    # Procesar el formulario (método POST)
     uid = session.get("temp_user", {}).get("uid")
     email = session.get("temp_user", {}).get("email")
     name = request.form.get("name")
     institution_id = request.form.get("institution_id")
 
     if not uid or not email or not name or not institution_id:
-        return "Faltan datos", 400
+       return "Faltan datos", 400
 
     # Guardar en Firestore solo si no existe
     user_ref = db.collection("users").document(uid)
-    if not user_ref.get().exists:
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        # Crea el documento del usuario
         user_ref.set({
             "email": email,
             "name": name,
-            "role": "student",  
+            "role": "student",
             "institution_id": institution_id
         })
 
+        # Aquí asignamos los formularios pendientes al nuevo estudiante
+        forms_to_assign = [
+            {
+                "form_type": "personality",
+                "title": "Test de Personalidad",
+                "description": "Formulario para determinar tu tipo de personalidad",
+                "url": "/student/form1"
+            },
+            {
+                "form_type": "team_roles",
+                "title": "Team Role Experience and Orientation",
+                "description": "Completa este test para determinar tus roles en equipos de trabajo",
+                "url": "/student/form2"
+            }
+            # Agrega más formularios si lo requieres
+        ]
+
+        for f in forms_to_assign:
+            # Creamos un nuevo documento en la subcolección "forms"
+            form_doc_ref = user_ref.collection("forms").document()
+            form_data = {
+                "form_id": form_doc_ref.id,
+                "form_type": f["form_type"],
+                "title": f["title"],
+                "description": f["description"],
+                "url": f["url"],
+                "completed": False,     # Se inicia en falso
+                "completed_at": None    # Se asigna None o un timestamp vacío
+            }
+            form_doc_ref.set(form_data)
+
     # Limpiar sesión temporal y guardar usuario en sesión normal
     session.pop("temp_user", None)
-    session["user"] = {"email": email, "name": name, "role": "student"}
+    session["user"] = {"uid": uid, "email": email, "name": name, "role": "student"}
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
 
 @app.route('/home')
 def home2():
@@ -189,4 +224,4 @@ app.register_blueprint(student_bp, url_prefix="/student")
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)

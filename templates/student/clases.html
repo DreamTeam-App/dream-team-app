@@ -22,7 +22,7 @@
                         <p class="class-card-schedule">{{ class.schedule }}</p>
                     </div>
                     <div class="class-card-footer">
-                        <button class="button button-outline full-width">Ver detalles</button>
+                        <a href="{{ url_for('student.class_details', class_id=class.id) }}" class="button button-outline full-width">Ver detalles</a>
                     </div>
                 </div>
             {% endfor %}
