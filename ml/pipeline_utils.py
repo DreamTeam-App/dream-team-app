@@ -39,4 +39,4 @@ def predecir_desempeno_equipo(df_equipo):
     # Preparar datos para predicción
     df_team = pd.DataFrame([df_team])  # convertir a DataFrame
     X = df_team[modelo.feature_names_in_]
-    return modelo.predict(X)[0]
+    return modelo.predict(X)

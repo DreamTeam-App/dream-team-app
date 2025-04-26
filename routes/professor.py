@@ -5,7 +5,8 @@ from routes.authentication import *
 from firebase_client import db  # Importa el cliente de Firestore centralizado
 from firebase_admin import firestore
 from ml.pipeline_utils import predecir_desempeno_equipo
-
+from flask import request
+import pandas as pd
 
 professor_bp = Blueprint("professor", __name__)
 
@@ -957,7 +958,19 @@ def predict_team_performance(team_id):
         
         # Actualizar el progreso del equipo en la base de datos
         # Usamos el promedio ponderado como progreso (escala 0-5 convertida a 0-100)
-        new_progress = round((prom_ponderado / 5) * 100)
+        df_equipo = pd.read_csv(csv_path)
+        pred = -1
+        try:
+            pred = predecir_desempeno_equipo(df_equipo)
+        except Exception as e:
+            # Aquí capturas cualquier error de transformación o del modelo
+            print(f" Error al predecir desempeño: {e}")
+        if not (0 <= pred <= 100):
+            print(f" Advertencia: la predicción {pred} está fuera del rango 0–100")
+            new_progress = -1
+        else:
+            new_progress = pred
+        
         team_ref.update({
             'progress': f"{new_progress}%",
             'last_prediction': firestore.SERVER_TIMESTAMP,
@@ -1534,9 +1547,7 @@ def calculate_coevaluation_summary(coevaluations):
 @professor_bp.route('/evaluar_equipo', methods=["POST"])
 def evaluar_equipo():
     try:
-        from flask import request
         datos_equipo = request.get_json()
-        import pandas as pd
         df_equipo = pd.DataFrame(datos_equipo)
 
         resultado = predecir_desempeno_equipo(df_equipo)
