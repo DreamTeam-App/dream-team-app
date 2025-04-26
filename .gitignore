@@ -1,3 +1,6 @@
-__pycache__/
+ml/_pycache_/
+routes/_pycache_/
+venv/
 reports/
-
+_pycache_/
+*.pyc
