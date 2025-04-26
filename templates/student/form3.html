@@ -127,6 +127,7 @@
     .question-header {
         display: flex;
         margin-bottom: 15px;
+        align-items: flex-start;
     }
     
     .question-number {
@@ -174,6 +175,8 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
+        overflow-x: auto;
+        display: block;
     }
     
     .team-matrix th, .team-matrix td {
@@ -224,12 +227,14 @@
         display: flex;
         justify-content: space-between;
         margin-top: 15px;
+        flex-wrap: wrap;
     }
     
     .radio-option {
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin-bottom: 10px;
     }
     
     .radio-label {
@@ -328,6 +333,8 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         z-index: 1000;
         transition: all 0.3s ease;
+        max-width: 90%;
+        width: 320px;
     }
     
     .notification.success {
@@ -351,6 +358,7 @@
         transform: translateY(-20px);
     }
     
+    /* Responsive styles */
     @media (max-width: 768px) {
         .card-footer {
             flex-direction: column;
@@ -361,12 +369,81 @@
             width: 100%;
         }
         
-        .team-matrix {
-            font-size: 14px;
+        .card-footer button:first-child {
+            order: 2;
+        }
+        
+        .card-footer button:last-child {
+            order: 1;
         }
         
         .question-content {
             margin-left: 0;
+            margin-top: 15px;
+        }
+        
+        .team-matrix {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .radio-group {
+            justify-content: space-around;
+        }
+        
+        .radio-option {
+            margin: 0 5px 10px;
+        }
+        
+        .intro-section {
+            padding: 15px;
+        }
+        
+        .question {
+            padding: 15px;
+        }
+        
+        .container {
+            padding: 10px;
+        }
+        
+        .card-header, .card-content, .card-footer {
+            padding: 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .question-header {
+            flex-direction: column;
+        }
+        
+        .question-number {
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            width: 100%;
+        }
+        
+        .notification {
+            width: calc(100% - 30px);
+            left: 15px;
+            right: 15px;
+        }
+        
+        .radio-label {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+        }
+        
+        h2 {
+            font-size: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
         }
     }
 </style>
@@ -438,6 +515,36 @@
     const currentUserId = "{{ current_user_id }}";
     const classId = "{{ class_id }}";
     const activityId = "{{ activity_id }}";
+    
+    // Add responsive table handling for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        // This will be called when the form3.js script creates team matrix
+        // We'll add a MutationObserver to detect when tables are added
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Make sure tables are scrollable on mobile
+                    const tables = document.querySelectorAll('.team-matrix');
+                    tables.forEach(table => {
+                        // Ensure the table is wrapped for horizontal scrolling
+                        if (!table.parentElement.classList.contains('table-wrapper')) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'table-wrapper';
+                            wrapper.style.overflowX = 'auto';
+                            table.parentNode.insertBefore(wrapper, table);
+                            wrapper.appendChild(table);
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Start observing the questions container
+        observer.observe(document.getElementById('questionsContainer'), { 
+            childList: true, 
+            subtree: true 
+        });
+    });
 </script>
 <script src="{{ url_for('static', filename='student/form3.js') }}"></script>
 {% endblock %}
