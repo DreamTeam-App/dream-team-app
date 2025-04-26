@@ -310,181 +310,185 @@ const evaluationQuestions = [
   }
   
   // Create a question element based on its type
-  function createQuestionElement(question) {
-    const questionDiv = document.createElement("div");
-    questionDiv.className = `question ${answers[question.id] ? "completed" : ""} ${activeQuestionId === question.id ? "active" : ""}`;
-    questionDiv.dataset.id = question.id;
-  
-    // Question header with number and text
-    const questionHeader = document.createElement("div");
-    questionHeader.className = "question-header";
-  
-    const questionNumber = document.createElement("div");
-    questionNumber.className = "question-number";
-    questionNumber.textContent = question.id;
-  
-    const questionText = document.createElement("div");
-    questionText.className = "question-text";
-    questionText.textContent = question.text;
-  
-    if (question.required) {
-      const requiredSpan = document.createElement("span");
-      requiredSpan.className = "required";
-      requiredSpan.textContent = " *";
-      questionText.appendChild(requiredSpan);
+// Reemplazo completo de la función createQuestionElement para las preguntas tipo matriz
+function createQuestionElement(question) {
+  const questionDiv = document.createElement("div");
+  questionDiv.className = `question ${answers[question.id] ? "completed" : ""} ${activeQuestionId === question.id ? "active" : ""}`;
+  questionDiv.dataset.id = question.id;
+
+  // Question header with number and text
+  const questionHeader = document.createElement("div");
+  questionHeader.className = "question-header";
+
+  const questionNumber = document.createElement("div");
+  questionNumber.className = "question-number";
+  questionNumber.textContent = question.id;
+
+  const questionText = document.createElement("div");
+  questionText.className = "question-text";
+  questionText.textContent = question.text;
+
+  if (question.required) {
+    const requiredSpan = document.createElement("span");
+    requiredSpan.className = "required";
+    requiredSpan.textContent = " *";
+    questionText.appendChild(requiredSpan);
+  }
+
+  questionHeader.appendChild(questionNumber);
+  questionHeader.appendChild(questionText);
+  questionDiv.appendChild(questionHeader);
+
+  // Question content based on type
+  const questionContent = document.createElement("div");
+  questionContent.className = "question-content";
+
+  if (question.type === "text") {
+    // Código para preguntas de texto (sin cambios)
+    const input = document.createElement("input");
+    input.type = question.numeric ? "number" : "text";
+    input.className = "input-field";
+    input.placeholder = question.placeholder || "";
+    input.value = answers[question.id] || "";
+    if (question.min !== undefined) input.min = question.min;
+    if (question.max !== undefined) input.max = question.max;
+
+    input.addEventListener("input", (e) => handleAnswerChange(question.id, e.target.value));
+
+    questionContent.appendChild(input);
+
+    if (question.helperText) {
+      const helperText = document.createElement("div");
+      helperText.className = "helper-text";
+      helperText.textContent = question.helperText;
+      questionContent.appendChild(helperText);
     }
-  
-    questionHeader.appendChild(questionNumber);
-    questionHeader.appendChild(questionText);
-    questionDiv.appendChild(questionHeader);
-  
-    // Question content based on type
-    const questionContent = document.createElement("div");
-    questionContent.className = "question-content";
-  
-    if (question.type === "text") {
-      const input = document.createElement("input");
-      input.type = question.numeric ? "number" : "text";
-      input.className = "input-field";
-      input.placeholder = question.placeholder || "";
-      input.value = answers[question.id] || "";
-      if (question.min !== undefined) input.min = question.min;
-      if (question.max !== undefined) input.max = question.max;
-  
-      input.addEventListener("input", (e) => handleAnswerChange(question.id, e.target.value));
-  
-      questionContent.appendChild(input);
-  
-      if (question.helperText) {
-        const helperText = document.createElement("div");
-        helperText.className = "helper-text";
-        helperText.textContent = question.helperText;
-        questionContent.appendChild(helperText);
-      }
-    } else if (question.type === "matrix") {
-      // Create a table for team member evaluation
-      const table = document.createElement("table");
-      table.className = "team-matrix";
-  
-      // Create header row
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
-  
-      // Empty cell for member names
-      const emptyHeader = document.createElement("th");
-      headerRow.appendChild(emptyHeader);
-  
-      // Rating headers (1-5)
-      for (let i = 1; i <= 5; i++) {
-        const ratingHeader = document.createElement("th");
-        ratingHeader.textContent = i;
-        headerRow.appendChild(ratingHeader);
-      }
-  
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-  
-      // Create body with team members
-      const tbody = document.createElement("tbody");
-  
-      teamMembers.forEach((member) => {
-        const memberRow = document.createElement("tr");
-  
-        // Member name cell
-        const nameCell = document.createElement("td");
-        nameCell.className = "member-name";
-        nameCell.textContent = member.name;
-        memberRow.appendChild(nameCell);
-  
-        // Rating cells (1-5)
-        for (let rating = 1; rating <= 5; rating++) {
-          const ratingCell = document.createElement("td");
-  
-          const radioInput = document.createElement("input");
-          radioInput.type = "radio";
-          radioInput.name = `question-${question.id}-member-${member.id}`;
-          radioInput.value = rating;
-          radioInput.className = "rating-radio";
-  
-          // Check if this rating is selected for this member
-          const memberAnswers = answers[question.id] || {};
-          if (memberAnswers[member.id] === rating.toString()) {
-            radioInput.checked = true;
-          }
-  
-          radioInput.addEventListener("change", () => {
-            if (radioInput.checked) {
-              handleMatrixAnswerChange(question.id, member.id, rating.toString());
-            }
-          });
-  
-          ratingCell.appendChild(radioInput);
-          memberRow.appendChild(ratingCell);
-        }
-  
-        tbody.appendChild(memberRow);
-      });
-  
-      table.appendChild(tbody);
-      questionContent.appendChild(table);
-    } else if (question.type === "rating") {
-      // If there's a scale description, add it
-      if (question.scaleDescription && question.scaleDescription.length > 0) {
-        const scaleDiv = document.createElement("div");
-        scaleDiv.className = "scale-description";
-  
-        const scaleTitle = document.createElement("h4");
-        scaleTitle.textContent = "Escala:";
-        scaleDiv.appendChild(scaleTitle);
-  
-        const scaleList = document.createElement("ul");
-        question.scaleDescription.forEach((desc) => {
-          const listItem = document.createElement("li");
-          listItem.textContent = desc;
-          scaleList.appendChild(listItem);
-        });
-  
-        scaleDiv.appendChild(scaleList);
-        questionContent.appendChild(scaleDiv);
-      }
-  
-      // Create rating options
-      const radioGroup = document.createElement("div");
-      radioGroup.className = "radio-group";
-  
+  } else if (question.type === "matrix") {
+    // Create a table for team member evaluation
+    const table = document.createElement("table");
+    table.className = "team-matrix";
+
+    // Create header row
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    // Empty cell for member names
+    const emptyHeader = document.createElement("th");
+    headerRow.appendChild(emptyHeader);
+
+    // Rating headers (1-5)
+    for (let i = 1; i <= 5; i++) {
+      const ratingHeader = document.createElement("th");
+      ratingHeader.textContent = i;
+      headerRow.appendChild(ratingHeader);
+    }
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create body with team members
+    const tbody = document.createElement("tbody");
+
+    teamMembers.forEach((member) => {
+      const memberRow = document.createElement("tr");
+
+      // Member name cell
+      const nameCell = document.createElement("td");
+      nameCell.className = "member-name";
+      nameCell.textContent = member.name;
+      memberRow.appendChild(nameCell);
+
+      // Rating cells (1-5)
       for (let rating = 1; rating <= 5; rating++) {
-        const radioOption = document.createElement("div");
-        radioOption.className = "radio-option";
-  
+        const ratingCell = document.createElement("td");
+
         const radioInput = document.createElement("input");
         radioInput.type = "radio";
-        radioInput.name = `question-${question.id}`;
+        // Nombre único para cada combinación de pregunta y miembro
+        radioInput.name = `question-${question.id}-member-${member.id}`;
         radioInput.value = rating;
-        radioInput.id = `question-${question.id}-${rating}`;
-        radioInput.checked = answers[question.id] === rating.toString();
-  
+        radioInput.id = `question-${question.id}-member-${member.id}-rating-${rating}`;
+        radioInput.className = "rating-radio";
+
+        // Check if this rating is selected for this member
+        const memberAnswers = answers[question.id] || {};
+        if (memberAnswers[member.id] === rating.toString()) {
+          radioInput.checked = true;
+        }
+
         radioInput.addEventListener("change", () => {
           if (radioInput.checked) {
-            handleAnswerChange(question.id, rating.toString());
+            handleMatrixAnswerChange(question.id, member.id, rating.toString());
           }
         });
-  
-        const radioLabel = document.createElement("label");
-        radioLabel.className = "radio-label";
-        radioLabel.htmlFor = `question-${question.id}-${rating}`;
-        radioLabel.textContent = rating;
-  
-        radioOption.appendChild(radioInput);
-        radioOption.appendChild(radioLabel);
-        radioGroup.appendChild(radioOption);
+
+        ratingCell.appendChild(radioInput);
+        memberRow.appendChild(ratingCell);
       }
-  
-      questionContent.appendChild(radioGroup);
+
+      tbody.appendChild(memberRow);
+    });
+
+    table.appendChild(tbody);
+    questionContent.appendChild(table);
+  } else if (question.type === "rating") {
+    // Código para preguntas de rating (sin cambios)
+    if (question.scaleDescription && question.scaleDescription.length > 0) {
+      const scaleDiv = document.createElement("div");
+      scaleDiv.className = "scale-description";
+
+      const scaleTitle = document.createElement("h4");
+      scaleTitle.textContent = "Escala:";
+      scaleDiv.appendChild(scaleTitle);
+
+      const scaleList = document.createElement("ul");
+      question.scaleDescription.forEach((desc) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = desc;
+        scaleList.appendChild(listItem);
+      });
+
+      scaleDiv.appendChild(scaleList);
+      questionContent.appendChild(scaleDiv);
     }
-  
-    questionDiv.appendChild(questionContent);
-    return questionDiv;
+
+    // Create rating options
+    const radioGroup = document.createElement("div");
+    radioGroup.className = "radio-group";
+
+    for (let rating = 1; rating <= 5; rating++) {
+      const radioOption = document.createElement("div");
+      radioOption.className = "radio-option";
+
+      const radioInput = document.createElement("input");
+      radioInput.type = "radio";
+      radioInput.name = `question-${question.id}`;
+      radioInput.value = rating;
+      radioInput.id = `question-${question.id}-${rating}`;
+      radioInput.checked = answers[question.id] === rating.toString();
+
+      radioInput.addEventListener("change", () => {
+        if (radioInput.checked) {
+          handleAnswerChange(question.id, rating.toString());
+        }
+      });
+
+      const radioLabel = document.createElement("label");
+      radioLabel.className = "radio-label";
+      radioLabel.htmlFor = `question-${question.id}-${rating}`;
+      radioLabel.textContent = rating;
+
+      radioOption.appendChild(radioInput);
+      radioOption.appendChild(radioLabel);
+      radioGroup.appendChild(radioOption);
+    }
+
+    questionContent.appendChild(radioGroup);
   }
+
+  questionDiv.appendChild(questionContent);
+  return questionDiv;
+}
   
   // Handle answer change for regular questions
   function handleAnswerChange(questionId, value) {
@@ -531,6 +535,12 @@ const evaluationQuestions = [
     // Clear any previous errors
     hideAlert();
   
+    // Verificar que el memberId no sea undefined o null
+    if (!memberId) {
+      console.error("Error: memberId es undefined o null");
+      return;
+    }
+  
     // Initialize the question's answers if not already done
     if (!answers[questionId]) {
       answers[questionId] = {};
@@ -541,7 +551,10 @@ const evaluationQuestions = [
     localStorage.setItem("teamCrossEvaluationAnswers", JSON.stringify(answers));
   
     // Check if all members have been rated for this question
-    const allMembersRated = teamMembers.every((member) => answers[questionId] && answers[questionId][member.id]);
+    const allMembersRated = teamMembers.every((member) => {
+      // Verificar que el member.id exista antes de usarlo
+      return member && member.id && answers[questionId] && answers[questionId][member.id];
+    });
   
     // Mark the question as completed if all members are rated
     const questionElement = document.querySelector(`.question[data-id="${questionId}"]`);
@@ -632,7 +645,9 @@ const evaluationQuestions = [
     evaluationQuestions.forEach((question) => {
       if (question.type === "matrix") {
         // For matrix questions, check if all team members are rated
-        const allMembersRated = teamMembers.every((member) => answers[question.id] && answers[question.id][member.id]);
+        const allMembersRated = teamMembers.every((member) => {
+          return member && member.id && answers[question.id] && answers[question.id][member.id];
+        });
         if (allMembersRated) completedCount++;
       } else {
         // For regular questions
@@ -671,7 +686,9 @@ const evaluationQuestions = [
     return evaluationQuestions.every((question) => {
       if (question.type === "matrix") {
         // For matrix questions, check if all team members are rated
-        return teamMembers.every((member) => answers[question.id] && answers[question.id][member.id]);
+        return teamMembers.every((member) => {
+          return member && member.id && answers[question.id] && answers[question.id][member.id];
+        });
       } else {
         // For regular questions
         return answers[question.id] !== undefined && answers[question.id] !== "";
@@ -745,10 +762,18 @@ const evaluationQuestions = [
     for (const question of evaluationQuestions) {
       if (question.type === "matrix") {
         // For matrix questions, check if all team members are rated
-        const allMembersRated = teamMembers.every((member) => answers[question.id] && answers[question.id][member.id]);
+        const allMembersRated = teamMembers.every((member) => {
+          return member && member.id && answers[question.id] && answers[question.id][member.id];
+        });
+        
         if (!allMembersRated) {
           showAlert(`Por favor complete todas las evaluaciones para la pregunta ${question.id}.`);
           return;
+        }
+        
+        // Limpiar cualquier respuesta para miembros undefined
+        if (answers[question.id] && answers[question.id]["undefined"]) {
+          delete answers[question.id]["undefined"];
         }
       } else {
         // For regular questions
@@ -765,7 +790,7 @@ const evaluationQuestions = [
     }
   
     // Send the data to the server
-    fetch(`/submit-coevaluation/${classId}/${activityId}`, {
+    fetch(`/student/submit-coevaluation/${classId}/${activityId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -783,7 +808,7 @@ const evaluationQuestions = [
   
           // Redirect to class details page after a short delay
           setTimeout(() => {
-            window.location.href = `/student/class/${classId}`;
+            window.location.href = `/student/clases/${classId}`;
           }, 1500);
         } else {
           showAlert(data.message || "Error al enviar el formulario");

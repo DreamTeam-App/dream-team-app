@@ -65,6 +65,7 @@
     .question-header {
         display: flex;
         margin-bottom: 1rem;
+        align-items: flex-start;
     }
     
     .question-number {
@@ -116,6 +117,7 @@
     .rating-row {
         display: flex;
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
     }
     
     .rating-header {
@@ -127,6 +129,7 @@
         text-align: center;
         padding: 0.5rem;
         font-size: 0.875rem;
+        min-width: 60px;
     }
     
     .rating-radio {
@@ -174,6 +177,8 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        max-width: 90%;
+        width: 320px;
     }
     
     .notification.fade-out {
@@ -200,17 +205,96 @@
         to { opacity: 0; }
     }
     
+    /* Responsive styles */
     @media (max-width: 768px) {
         .rating-row {
             flex-direction: column;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            padding: 0.5rem;
         }
         
         .rating-cell {
-            padding: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--gray-100);
         }
         
-        .rating-header .rating-cell {
-            text-align: left;
+        .rating-cell:last-child {
+            border-bottom: none;
+        }
+        
+        .rating-header {
+            display: none;
+        }
+        
+        .rating-cell:before {
+            content: attr(data-label);
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .question-content {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+        
+        .card-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .card-footer button {
+            width: 100%;
+        }
+        
+        .card-footer button:first-child {
+            order: 2;
+        }
+        
+        .card-footer button:last-child {
+            order: 1;
+        }
+        
+        .intro-section {
+            padding: 1rem;
+        }
+        
+        .question {
+            padding: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .question-header {
+            flex-direction: column;
+        }
+        
+        .question-number {
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-text {
+            width: 100%;
+        }
+        
+        .notification {
+            width: calc(100% - 2rem);
+            left: 1rem;
+            right: 1rem;
         }
     }
 </style>
@@ -309,6 +393,44 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // Add this script to enhance the rating table for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        // This will be called when the form2.js script creates rating cells
+        // We'll add a MutationObserver to detect when rating cells are added
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Check if any rating cells were added
+                    const ratingCells = document.querySelectorAll('.rating-cell');
+                    if (ratingCells.length > 0) {
+                        // Add data-label attributes to rating cells for mobile view
+                        const ratingRows = document.querySelectorAll('.rating-row:not(.rating-header)');
+                        ratingRows.forEach(row => {
+                            const cells = row.querySelectorAll('.rating-cell');
+                            cells.forEach((cell, index) => {
+                                // Get the header text from the rating header row
+                                const headerRow = document.querySelector('.rating-header');
+                                if (headerRow) {
+                                    const headerCells = headerRow.querySelectorAll('.rating-cell');
+                                    if (headerCells[index]) {
+                                        const headerText = headerCells[index].textContent.trim();
+                                        cell.setAttribute('data-label', headerText);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        });
+        
+        // Start observing the questions container
+        observer.observe(document.getElementById('questionsContainer'), { 
+            childList: true, 
+            subtree: true 
+        });
+    });
+</script>
 <script src="{{ url_for('static', filename='student/form2.js') }}"></script>
 {% endblock %}
-

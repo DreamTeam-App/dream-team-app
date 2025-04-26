@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, render_template, redirect, url_for, request, jsonify, flash, session
+from flask import Blueprint, Flask, json, render_template, redirect, url_for, request, jsonify, flash, session
 
 from routes.authentication import auth_required, role_required
 from firebase_client import db  # Importa el cliente de Firestore centralizado
@@ -18,12 +18,82 @@ def before_request():
 def home():
     uid = session.get("user", {}).get("uid")
     pending_forms = []
+    
     if uid:
-        # Consulta la subcolección "forms" del usuario que aún no ha sido completada
-        forms_docs = db.collection("users").document(uid).collection("forms").where("completed", "==", False).get()
+        # Get user document reference
+        user_ref = db.collection("users").document(uid)
+        user_doc = user_ref.get()
+        user_data = user_doc.to_dict() if user_doc.exists else {}
+        
+        # Check if forms_summary already exists
+        forms_summary_exists = 'forms_summary' in user_data
+        
+        # Fetch incomplete forms
+        forms_docs = user_ref.collection("forms").where("completed", "==", False).get()
         for doc in forms_docs:
             form_data = doc.to_dict()
             pending_forms.append(form_data)
+        
+        # Check if both personality and team_roles forms are completed
+        if not forms_summary_exists:
+            # Get completed personality form
+            personality_form_docs = user_ref.collection("forms").where("form_type", "==", "personality").where("completed", "==", True).limit(1).get()
+            personality_form = next((doc.to_dict() for doc in personality_form_docs), None)
+            
+            # Get completed team_roles form
+            team_roles_form_docs = user_ref.collection("forms").where("form_type", "==", "team_roles").where("completed", "==", True).limit(1).get()
+            team_roles_form = next((doc.to_dict() for doc in team_roles_form_docs), None)
+            
+            # If both forms are completed, generate forms_summary
+            if personality_form and team_roles_form:
+                # Get form IDs to fetch the actual form data
+                personality_form_id = personality_form.get("form_id")
+                team_roles_form_id = team_roles_form.get("form_id")
+                
+                # Fetch the actual form data with answers
+                personality_data = db.collection("forms").document(personality_form_id).get().to_dict() if personality_form_id else None
+                team_roles_data = db.collection("forms").document(team_roles_form_id).get().to_dict() if team_roles_form_id else None
+                
+                if personality_data and team_roles_data:
+                    # Create forms_summary
+                    forms_summary = {}
+                    
+                    # Get MBTI from personality form (response with id 1)
+                    personality_answers = personality_data.get("answers", {})
+                    forms_summary["MBTI"] = personality_answers.get("1", "")
+                    
+                    # Calculate team role scores
+                    team_roles_answers = team_roles_data.get("answers", {})
+                    
+                    # Organizer: average of questions 1-8
+                    organizer_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(1, 9))
+                    forms_summary["Organizer"] = round(organizer_sum / 8, 2)
+                    
+                    # Doer: average of questions 9-16
+                    doer_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(9, 17))
+                    forms_summary["Doer"] = round(doer_sum / 8, 2)
+                    
+                    # Challenger: average of questions 17-24
+                    challenger_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(17, 25))
+                    forms_summary["Challenger"] = round(challenger_sum / 8, 2)
+                    
+                    # Innovator: average of questions 25-32
+                    innovator_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(25, 33))
+                    forms_summary["Innovator"] = round(innovator_sum / 8, 2)
+                    
+                    # TeamBuilder: average of questions 33-40
+                    team_builder_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(33, 41))
+                    forms_summary["TeamBuilder"] = round(team_builder_sum / 8, 2)
+                    
+                    # Connector: average of questions 41-48
+                    connector_sum = sum(int(team_roles_answers.get(str(i), 0)) for i in range(41, 49))
+                    forms_summary["Connector"] = round(connector_sum / 8, 2)
+                    
+                    # Update user document with forms_summary
+                    user_ref.update({"forms_summary": forms_summary})
+                    
+                    print(f"Forms summary generated for user {uid}: {forms_summary}")
+    
     return render_template('student/index.html', pending_forms=pending_forms)
 
 @student_bp.route('/clases')
@@ -674,7 +744,17 @@ def coevaluation_form(class_id, activity_id):
             return redirect(url_for('student.class_details', class_id=class_id))
         
         team_data = team_doc.to_dict()
-        team_members = session.get("team_members", {}).get(class_id, [])
+        
+        # Crear la lista de miembros del equipo en el formato esperado por form3.js
+        team_members = []
+        for member in team_data.get('members', []):
+            member_id = member.get('student_id')
+            member_name = member.get('name')
+            if member_id and member_name:
+                team_members.append({
+                    'id': member_id,
+                    'name': member_name
+                })
         
         # Renderizar el formulario de coevaluación
         return render_template(
@@ -684,7 +764,7 @@ def coevaluation_form(class_id, activity_id):
             class_data=class_data,
             activity_data=activity_data,
             team_data=team_data,
-            team_members=team_members,
+            team_members=json.dumps(team_members),  # Convertir a JSON para pasar al JavaScript
             current_user_id=uid
         )
     

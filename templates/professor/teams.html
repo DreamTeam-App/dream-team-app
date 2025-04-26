@@ -8,239 +8,1297 @@
     
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
+      {% if messages %}
         <div class="flash-messages">
-            {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-                {{ message }}
-            </div>
-            {% endfor %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
         </div>
-        {% endif %}
+      {% endif %}
     {% endwith %}
     
     <!-- Controls -->
     <div class="controls">
-        <div class="rows-selector">
-            <span>Mostrar</span>
-            <div class="dropdown">
-                <button class="dropdown-btn">
-                    {{ rows_per_page }}
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=10, page=1, search=search_term) }}">10</a>
-                    <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=25, page=1, search=search_term) }}">25</a>
-                    <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=50, page=1, search=search_term) }}">50</a>
-                    <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=100, page=1, search=search_term) }}">100</a>
-                </div>
-            </div>
-            <span>equipos</span>
+      <div class="rows-selector">
+        <span>Mostrar</span>
+        <div class="dropdown">
+          <button class="dropdown-btn">
+            {{ rows_per_page }} <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-content">
+            {% for opt in [10,25,50,100] %}
+              <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=opt, page=1, search=search_term) }}">{{ opt }}</a>
+            {% endfor %}
+          </div>
         </div>
+        <span>equipos</span>
+      </div>
 
-        <div class="search-container">
-            <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
-                <input type="hidden" name="rows" value="{{ rows_per_page }}">
-                <input type="hidden" name="page" value="1">
-                <div class="search-input">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="search" placeholder="Search..." value="{{ search_term }}">
-                </div>
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-        </div>
+      <div class="search-container">
+        <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
+          <input type="hidden" name="rows" value="{{ rows_per_page }}">
+          <input type="hidden" name="page" value="1">
+          <div class="search-input">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" placeholder="Search..." value="{{ search_term }}">
+          </div>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+      </div>
     </div>
     
-    <!-- Create Team Button -->
-    <div style="margin-bottom: 1rem;">
-        <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create New Team
-        </a>
+    <div style="margin-bottom:1rem;">
+      <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create New Team
+      </a>
     </div>
 
-    <!-- Table -->
     <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Team Name</th>
-                    <th>Project</th>
-                    <th>Members</th>
-                    <th>Progress</th>
-                    <th>Grade</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if teams %}
-                    {% for team in teams %}
-                    <tr class="team-row" data-team-id="{{ team.id }}">
-                        <td class="font-medium">{{ team.id }}</td>
-                        <td>{{ team.name }}</td>
-                        <td>{{ team.project }}</td>
-                        <td>{{ team.members|length }} members</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress" ></div>
-                            </div>
-                            <span class="progress-text">{{ team.progress }}</span>
-                        </td>
-                        <td>{{ team.grade }}</td>
-                        <td>
-                            <span class="badge {{ team.status|replace(' ', '-')|lower }}">{{ team.status }}</span>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('professor.delete_team', team_id=team.id, class_id=selected_class.id) }}" class="btn btn-icon">
-                                🗑️
-                            </a>
-                        </td>
-                    </tr>
-                    <tr class="team-details-row" id="details-{{ team.id }}">
-                        <td colspan="8" class="team-details">
-                            <div class="team-details-content">
-                                <h3>Team Members</h3>
-                                <div class="member-grid">
-                                    {% for member in team.members %}
-                                        {% set student = students|selectattr('name', 'equalto', member.name)|first %}
-                                        <div class="member-card">
-                                            <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}" alt="{{ member.name }}" class="avatar">
-                                            <div class="member-info">
-                                                <p class="member-name">
-                                                    {{ member.name }}
-                                                    <span class="role-badge">{{ member.role }}</span>
-                                                    <button type="button" class="edit-role-btn btn btn-sm btn-outline" data-member="{{ member.name }}">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </p>
-                                                <p class="member-email">{{ student.email if student else 'No email available' }}</p>
-                                                
-                                                <!-- Edit Role Form -->
-                                                <form action="{{ url_for('professor.update_team_member_role', class_id=selected_class.id, team_id=team.id) }}" method="post" class="edit-role-form" id="edit-role-{{ team.id }}-{{ member.name|replace(' ', '-') }}">
-                                                    <input type="hidden" name="member_name" value="{{ member.name }}">
-                                                    <select name="new_role" class="form-control">
-                                                        <option value="">Select Role</option>
-                                                        <option value="Team Lead" {% if member.role == 'Team Lead' %}selected{% endif %}>Team Lead</option>
-                                                        <option value="Project Manager" {% if member.role == 'Project Manager' %}selected{% endif %}>Project Manager</option>
-                                                        <option value="Frontend Developer" {% if member.role == 'Frontend Developer' %}selected{% endif %}>Frontend Developer</option>
-                                                        <option value="Backend Developer" {% if member.role == 'Backend Developer' %}selected{% endif %}>Backend Developer</option>
-                                                        <option value="Full Stack Developer" {% if member.role == 'Full Stack Developer' %}selected{% endif %}>Full Stack Developer</option>
-                                                        <option value="UI/UX Designer" {% if member.role == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
-                                                        <option value="Database Administrator" {% if member.role == 'Database Administrator' %}selected{% endif %}>Database Administrator</option>
-                                                        <option value="DevOps Engineer" {% if member.role == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
-                                                        <option value="Quality Assurance" {% if member.role == 'Quality Assurance' %}selected{% endif %}>Quality Assurance</option>
-                                                        <option value="Data Analyst" {% if member.role == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
-                                                        <option value="Documentation Specialist" {% if member.role == 'Documentation Specialist' %}selected{% endif %}>Documentation Specialist</option>
-                                                        <option value="Content Creator" {% if member.role == 'Content Creator' %}selected{% endif %}>Content Creator</option>
-                                                    </select>
-                                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                                                    <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancel</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="project-details">
-                                    <h3>Project Details</h3>
-                                    <p>
-                                        This team is working on {{ team.project }} and is currently {{ team.status|lower }}.
-                                        They have completed {{ team.progress }} of their project milestones and have a current grade of {{ team.grade }}.
-                                    </p>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Team Name</th><th>Project</th><th>Members</th>
+            <th>Progress</th><th>Grade</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if teams %}
+          {% for team in teams %}
+            <tr class="team-row" data-team-id="{{ team.id }}">
+              <td>{{ team.id }}</td>
+              <td>{{ team.name }}</td>
+              <td>{{ team.project }}</td>
+              <td>{{ team.members|length }} members</td>
+              <td>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{ team.progress }}%" data-percentage="{{ team.progress }}"></div>
+                </div>
+                <span class="progress-text">{{ team.progress }}%</span>
+              </td>
+              <td>{{ team.grade }}</td>
+              <td><span class="badge {{ team.status|replace(' ', '-')|lower }}">{{ team.status }}</span></td>
+              <td>
+                <a href="{{ url_for('professor.delete_team', team_id=team.id, class_id=selected_class.id) }}" class="btn btn-icon">🗑️</a>
+              </td>
+            </tr>
+            <tr class="team-details-row" id="details-{{ team.id }}">
+              <td colspan="8" class="team-details">
+                <div class="team-details-content">
+                  <!-- Team Members -->
+                  <h3>Team Members</h3>
+                  <div class="member-grid">
+                    {% for member in team.members %}
+                      {% set student = students|selectattr('name','equalto',member.name)|first %}
+                      <div class="member-card">
+                        <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}"
+                             alt="{{ member.name }}" class="avatar">
+                        <div class="member-info">
+                          <p class="member-name">
+                            {{ member.name }}
+                            <span class="role-badge">{{ member.role }}</span>
+                            <button type="button" class="edit-role-btn btn btn-sm btn-outline"
+                                    data-member="{{ member.name }}">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                          </p>
+                          <p class="member-email">{{ student.email if student else 'No email available' }}</p>
+                          <form action="{{ url_for('professor.update_team_member_role',
+                                                   class_id=selected_class.id,
+                                                   team_id=team.id) }}"
+                                method="post"
+                                class="edit-role-form"
+                                id="edit-role-{{ team.id }}-{{ member.name|replace(' ','-') }}">
+                            <input type="hidden" name="member_name" value="{{ member.name }}">
+                            <select name="new_role" class="form-control">
+                              <option value="">Select Role</option>
+                              {% for role in ['Team Lead','Project Manager','Frontend Developer',
+                                              'Backend Developer','Full Stack Developer','UI/UX Designer',
+                                              'Database Administrator','DevOps Engineer','Quality Assurance',
+                                              'Data Analyst','Documentation Specialist','Content Creator'] %}
+                                <option value="{{ role }}"
+                                  {% if member.role==role %}selected{% endif %}>
+                                  {{ role }}
+                                </option>
+                              {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancel</button>
+                          </form>
+                        </div>
+                      </div>
                     {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="8" class="empty-table">No teams found</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                  </div>
+
+                  <!-- Actividades Asignadas - REDISEÑADO COMO CARDS -->
+                  <div class="activities-section">
+                    <h3>Actividades Asignadas</h3>
+                    {% if team.activities %}
+                      <div class="activities-container">
+                        {% for activity in team.activities %}
+                          <div class="activity-card">
+                            <div class="activity-card-header">
+                              <div class="activity-number">{{ loop.index }}</div>
+                              <div class="activity-title">{{ activity.name }}</div>
+                              <div class="activity-status {{ activity.status|lower }}">{{ activity.status }}</div>
+                            </div>
+                            <div class="activity-card-body">
+                              <div class="activity-description">{{ activity.description }}</div>
+                              <div class="activity-meta">
+                                <div class="activity-date">
+                                  <i class="fas fa-calendar"></i> {{ activity.due_date }}
+                                </div>
+                                <div class="activity-points">
+                                  <i class="fas fa-star"></i> {{ activity.max_grade }}
+                                </div>
+                              </div>
+                              
+                              <div class="activity-sections-container">
+                                <!-- Estado de Coevaluaciones -->
+                                <div class="activity-section-box">
+                                  <h4 class="section-title">Estado de Coevaluaciones</h4>
+                                  
+                                  <!-- Coevaluaciones Progress -->
+                                  <div class="progress-section">
+                                    <div class="progress-label">Coevaluaciones:</div>
+                                    <div class="progress-bar">
+                                      <div class="progress" style="width: {{ activity.coevaluation_status.percentage }}%" data-percentage="{{ activity.coevaluation_status.percentage }}"></div>
+                                    </div>
+                                    <span class="progress-text">
+                                      {{ activity.coevaluation_status.completed_count }}/{{ activity.coevaluation_status.total_count }} completadas
+                                      ({{ activity.coevaluation_status.percentage }}%)
+                                    </span>
+                                  </div>
+                                  
+                                  <!-- Test de Personalidad Progress -->
+                                  <div class="progress-section">
+                                    <div class="progress-label">Test de Personalidad:</div>
+                                    {% set personality_percentage = 100 if activity.personality_forms_completed else (100 - (activity.personality_pending_members|length / team.members|length * 100))|int %}
+                                    <div class="progress-bar">
+                                      <div class="progress" style="width: {{ personality_percentage }}%" data-percentage="{{ personality_percentage }}"></div>
+                                    </div>
+                                    <span class="progress-text">
+                                      {% if activity.personality_forms_completed %}
+                                        Completado (100%)
+                                      {% else %}
+                                        Pendiente ({{ personality_percentage }}%)
+                                      {% endif %}
+                                    </span>
+                                  </div>
+                                  
+                                  <!-- Test de Roles Progress -->
+                                  <div class="progress-section">
+                                    <div class="progress-label">Test de Roles:</div>
+                                    {% set roles_percentage = 100 if activity.team_roles_forms_completed else (100 - (activity.team_roles_pending_members|length / team.members|length * 100))|int %}
+                                    <div class="progress-bar">
+                                      <div class="progress" style="width: {{ roles_percentage }}%" data-percentage="{{ roles_percentage }}"></div>
+                                    </div>
+                                    <span class="progress-text">
+                                      {% if activity.team_roles_forms_completed %}
+                                        Completado (100%)
+                                      {% else %}
+                                        Pendiente ({{ roles_percentage }}%)
+                                      {% endif %}
+                                    </span>
+                                  </div>
+                                  
+                                  <div class="requirements-list">
+                                    <div class="requirement-item {% if activity.coevaluation_status.all_completed %}completed{% else %}pending{% endif %}">
+                                      <i class="fas {% if activity.coevaluation_status.all_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                      <span>Coevaluaciones completadas</span>
+                                      {% if not activity.coevaluation_status.all_completed %}
+                                        <span class="pending-detail">(Faltan: {{ activity.coevaluation_status.pending_members|join(', ') }})</span>
+                                      {% endif %}
+                                    </div>
+                                    
+                                    <div class="requirement-item {% if activity.personality_forms_completed %}completed{% else %}pending{% endif %}">
+                                      <i class="fas {% if activity.personality_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                      <span>Test de personalidad completados</span>
+                                      {% if not activity.personality_forms_completed %}
+                                        <span class="pending-detail">(Faltan: {{ activity.personality_pending_members|join(', ') }})</span>
+                                      {% endif %}
+                                    </div>
+                                    
+                                    <div class="requirement-item {% if activity.team_roles_forms_completed %}completed{% else %}pending{% endif %}">
+                                      <i class="fas {% if activity.team_roles_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                      <span>Test de roles de equipo completados</span>
+                                      {% if not activity.team_roles_forms_completed %}
+                                        <span class="pending-detail">(Faltan: {{ activity.team_roles_pending_members|join(', ') }})</span>
+                                      {% endif %}
+                                    </div>
+                                    
+                                    <div class="requirement-item {% if activity.team_grade.submitted %}completed{% else %}pending{% endif %}">
+                                      <i class="fas {% if activity.team_grade.submitted %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                      <span>Actividad calificada por el profesor</span>
+                                    </div>
+                                  </div>
+                                  
+                                  {% if activity.coevaluation_status.all_completed 
+                                         and activity.personality_forms_completed 
+                                         and activity.team_roles_forms_completed 
+                                         and activity.team_grade.submitted %}
+                                    <div class="predict-performance">
+                                      <button class="btn btn-success predict-btn"
+                                              data-team-id="{{ team.id }}"
+                                              data-activity-id="{{ activity.id }}">
+                                        <i class="fas fa-chart-line"></i> Predecir Desempeño
+                                      </button>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                                
+                                <!-- Estado de Entrega -->
+                                <div class="activity-section-box">
+                                  <h4 class="section-title">Estado de Entrega</h4>
+                                  {% if activity.team_grade.submitted %}
+                                    <div class="submission-status submitted">
+                                      <i class="fas fa-check-circle"></i> Entregado el {{ activity.team_grade.submission_date }}
+                                    </div>
+                                    <div class="grade-info">
+                                      <span class="grade-label">Calificación:</span>
+                                      <span class="grade-value">{{ activity.team_grade.grade }}/{{ activity.max_grade }}</span>
+                                    </div>
+                                    {% if activity.team_grade.feedback %}
+                                      <div class="feedback">
+                                        <h6>Retroalimentación:</h6>
+                                        <p>{{ activity.team_grade.feedback }}</p>
+                                      </div>
+                                    {% endif %}
+                                  {% else %}
+                                    <div class="submission-status pending">
+                                      <i class="fas fa-clock"></i> Pendiente de entrega
+                                    </div>
+                                    <div class="grade-actions">
+                                      <button type="button" class="btn btn-primary open-grade-modal-btn" 
+                                              data-team-id="{{ team.id }}" 
+                                              data-activity-id="{{ activity.id }}"
+                                              data-activity-name="{{ activity.name }}"
+                                              data-max-grade="{{ activity.max_grade }}">
+                                        <i class="fas fa-star"></i> Calificar
+                                      </button>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <p class="no-activities">No hay actividades asignadas a este equipo.</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" class="empty-table">No teams found</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
     </div>
 
-    <!-- Pagination -->
     {% if teams %}
-    <div class="pagination">
-        <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=rows_per_page, page=page-1, search=search_term) }}" 
-           class="btn btn-outline {% if page == 1 %}disabled{% endif %}">
-            Previous
-        </a>
+      <div class="pagination">
+        <a href="{{ url_for('professor.teams',
+                             class_id=selected_class.id,
+                             rows=rows_per_page,
+                             page=page-1,
+                             search=search_term) }}"
+           class="btn btn-outline {% if page==1 %}disabled{% endif %}">Previous</a>
         <div class="page-numbers">
-            {% set display_pages = 3 %}
-            {% set start_page = 1 if page <= 2 else (total_pages - 2 if page >= total_pages - 1 else page - 1) %}
-            {% set end_page = start_page + display_pages - 1 if start_page + display_pages - 1 <= total_pages else total_pages %}
-            
-            {% for p in range(start_page, end_page + 1) %}
-            <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=rows_per_page, page=p, search=search_term) }}" 
-               class="page-number {% if p == page %}active{% endif %}">
-                {{ p }}
-            </a>
-            {% endfor %}
+          {% set display_pages=3 %}
+          {% set start_page = page<=2 and 1 or (page>=total_pages-1 and total_pages-2 or page-1) %}
+          {% set end_page = (start_page+display_pages-1)<=total_pages and start_page+display_pages-1 or total_pages %}
+          {% for p in range(start_page, end_page+1) %}
+            <a href="{{ url_for('professor.teams',
+                                 class_id=selected_class.id,
+                                 rows=rows_per_page,
+                                 page=p,
+                                 search=search_term) }}"
+               class="page-number {% if p==page %}active{% endif %}">{{ p }}</a>
+          {% endfor %}
         </div>
-        <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=rows_per_page, page=page+1, search=search_term) }}" 
-           class="btn btn-outline {% if page == total_pages %}disabled{% endif %}">
-            Next
-        </a>
-    </div>
+        <a href="{{ url_for('professor.teams',
+                             class_id=selected_class.id,
+                             rows=rows_per_page,
+                             page=page+1,
+                             search=search_term) }}"
+           class="btn btn-outline {% if page==total_pages %}disabled{% endif %}">Next</a>
+      </div>
     {% endif %}
 </div>
+
+<!-- Modal para calificar actividad -->
+<div id="gradeActivityModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3 id="modal-activity-title">Calificar Actividad</h3>
+    <form id="modal-grade-form" method="post" class="grade-activity-form">
+      <div class="form-group">
+        <label for="modal-grade">Calificación (sobre <span id="modal-max-grade">10</span>):</label>
+        <input type="number" id="modal-grade" name="grade" min="0" step="0.1" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="modal-feedback">Retroalimentación:</label>
+        <textarea id="modal-feedback" name="feedback" class="form-control" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline close-modal-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary grade-submit-btn">
+          <i class="fas fa-save"></i> Guardar Calificación
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para mostrar resultados de predicción -->
+<div id="predictionModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="predictionResults"></div>
+  </div>
+</div>
+
+<!-- Modal para mostrar mensaje de éxito -->
+<div id="gradeSuccessModal" class="modal">
+  <div class="modal-content">
+    <div class="success-message">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>¡Calificación guardada con éxito!</h3>
+      <p>La calificación ha sido registrada correctamente.</p>
+      <button class="btn btn-primary close-success-btn">Cerrar</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- Variables y estilos base --- */
+    :root {
+        --primary-color: #4a6cf7;
+        --primary-dark: #3a56d4;
+        --primary-light: #eef2ff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --white: #ffffff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --green-100: #d1fae5;
+        --green-500: #10b981;
+        --green-700: #047857;
+        --yellow-100: #fef3c7;
+        --yellow-500: #f59e0b;
+        --yellow-700: #b45309;
+        --red-100: #fee2e2;
+        --red-500: #ef4444;
+        --red-700: #b91c1c;
+        --blue-50: #eff6ff;
+        --blue-100: #dbeafe;
+        --blue-500: #3b82f6;
+        --blue-700: #1d4ed8;
+        --radius: 0.5rem;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- Estilos generales responsivos --- */
+    .data-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .data-container {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* --- Estilos de tabla y filas de equipo --- */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    .data-table th, .data-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    .data-table th {
+        background-color: var(--gray-50);
+        font-weight: 600;
+        color: var(--gray-700);
+    }
+    .team-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .team-row:hover {
+        background-color: var(--gray-50);
+    }
+    .team-details-row {
+        display: none;
+    }
+    .team-details-row.expanded {
+        display: table-row;
+    }
+    .team-details {
+        padding: 0;
+        background-color: var(--gray-50);
+    }
+    .team-details-content {
+        padding: 1.5rem;
+    }
+    .team-details-content h3 {
+        font-size: 1.25rem;
+        color: var(--gray-800);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    /* Responsive table */
+    @media (max-width: 992px) {
+        .data-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .data-table th, .data-table td {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .team-details-content {
+            padding: 1rem;
+        }
+    }
+
+    /* --- Estilos de miembros del equipo --- */
+    .member-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .member-card {
+        display: flex;
+        background-color: var(--white);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+    }
+    .avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    .member-info {
+        flex: 1;
+    }
+    .member-name {
+        display: flex;
+        align-items: center;
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+    .role-badge {
+        margin-left: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .member-email {
+        margin: 0;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+    .edit-role-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .edit-role-form {
+        display: none;
+        margin-top: 0.75rem;
+    }
+    .edit-role-form.active {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .edit-role-form select {
+        padding: 0.5rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--gray-300);
+        background-color: var(--white);
+        font-size: 0.875rem;
+    }
+    .edit-role-form .btn {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+    .edit-role-form .btn-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+    }
+    .edit-role-form .btn-outline {
+        background-color: var(--white);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+    }
+    
+    /* Responsive member grid */
+    @media (max-width: 768px) {
+        .member-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .member-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .avatar {
+            margin-right: 0;
+            margin-bottom: 0.75rem;
+        }
+        .member-name {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .role-badge {
+            margin-left: 0;
+        }
+        .edit-role-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+    }
+
+    /* --- NUEVO: Estilos rediseñados para actividades como cards --- */
+    .activities-section {
+        margin-top: 2rem;
+    }
+    .activities-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .activity-card {
+        background-color: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .activity-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .activity-card-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--primary-light);
+        border-bottom: 1px solid var(--gray-200);
+    }
+    .activity-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: var(--primary-color);
+        color: var(--white);
+        font-weight: 700;
+        border-radius: 50%;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+    .activity-title {
+        flex: 1;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+    .activity-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .activity-status.open {
+        background-color: var(--green-100);
+        color: var(--green-700);
+    }
+    .activity-status.closed {
+        background-color: var(--gray-100);
+        color: var(--gray-700);
+    }
+    .activity-card-body {
+        padding: 1.5rem;
+    }
+    .activity-description {
+        margin-bottom: 1rem;
+        color: var(--gray-700);
+    }
+    .activity-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    .activity-date, .activity-points {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+    .activity-date i, .activity-points i {
+        color: var(--primary-color);
+    }
+    
+    .activity-sections-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .activity-section-box {
+        background-color: var(--gray-50);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        border: 1px solid var(--gray-200);
+    }
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-top: 0;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    /* Nuevas barras de progreso para todos los tests */
+    .progress-section {
+        margin-bottom: 1rem;
+    }
+    .progress-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 0.375rem;
+    }
+    .progress-bar {
+        height: 0.75rem;
+        background-color: var(--gray-200);
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    .progress {
+        height: 100%;
+        border-radius: 1rem;
+        transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    .progress[data-percentage="0"] {
+        background-color: var(--red-500);
+    }
+    .progress[data-percentage="100"] {
+        background-color: var(--green-500);
+    }
+    .progress:not([data-percentage="0"]):not([data-percentage="100"]) {
+        background-color: var(--yellow-500);
+    }
+    .progress-text {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+    
+    .requirements-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .requirement-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+    }
+    .requirement-item i {
+        margin-right: 0.75rem;
+        font-size: 1rem;
+    }
+    .requirement-item.completed {
+        background-color: var(--green-100);
+    }
+    .requirement-item.completed i {
+        color: var(--green-500);
+        font-size: 1.2rem;
+    }
+    .requirement-item.pending {
+        background-color: var(--yellow-100);
+    }
+    .requirement-item.pending i {
+        color: var(--red-500);
+        font-size: 1.2rem;
+    }
+    .pending-detail {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        margin-left: 0.5rem;
+        font-style: italic;
+    }
+    
+    .predict-performance {
+        margin-top: 1.25rem;
+        text-align: center;
+    }
+    .predict-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        background-color: var(--success-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+    .predict-btn:hover {
+        background-color: #218838;
+    }
+    
+    .submission-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+    }
+    .submission-status.submitted {
+        background-color: var(--green-100);
+        color: var(--green-700);
+    }
+    .submission-status.pending {
+        background-color: var(--yellow-100);
+        color: var(--yellow-700);
+    }
+    .grade-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background-color: var(--blue-50);
+        border-radius: var(--radius);
+    }
+    .grade-label {
+        font-weight: 500;
+        color: var(--gray-700);
+    }
+    .grade-value {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    .feedback {
+        margin-top: 0.75rem;
+    }
+    .feedback h6 {
+        font-size: 0.875rem;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+    .feedback p {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin: 0;
+        padding: 0.75rem;
+        background-color: var(--gray-100);
+        border-radius: var(--radius);
+    }
+    
+    .grade-actions {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .open-grade-modal-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+    .open-grade-modal-btn:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    /* Responsive activity cards */
+    @media (max-width: 768px) {
+        .activity-card-header {
+            flex-wrap: wrap;
+        }
+        .activity-title {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        .activity-meta {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .activity-card-body {
+            padding: 1rem;
+        }
+        .activity-sections-container {
+            gap: 1rem;
+        }
+        .activity-section-box {
+            padding: 1rem;
+        }
+    }
+    
+    /* Estilos para el modal - CENTRADO Y RESPONSIVO */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-content {
+        background-color: var(--white);
+        padding: 2rem;
+        border-radius: var(--radius);
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+    .modal.active .modal-content {
+        transform: translateY(0);
+    }
+    .close-modal {
+        color: var(--gray-500);
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    .close-modal:hover {
+        color: var(--gray-700);
+    }
+    .modal h3 {
+        font-size: 1.25rem;
+        color: var(--gray-800);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-700);
+        font-weight: 500;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--gray-300);
+        background-color: var(--white);
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+    }
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    
+    /* Responsive modal */
+    @media (max-width: 576px) {
+        .modal-content {
+            padding: 1.5rem;
+            width: 95%;
+        }
+        .modal-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .modal-actions .btn {
+            width: 100%;
+        }
+    }
+    
+    /* Estilos para mensaje de éxito */
+    .success-message {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .success-icon {
+        font-size: 3rem;
+        color: var(--success-color);
+        margin-bottom: 1rem;
+    }
+    .success-message h3 {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .close-success-btn {
+        margin-top: 1.5rem;
+    }
+    
+    /* Estilos generales de botones */
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+    }
+    .btn-outline {
+        background-color: var(--white);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+    }
+    .btn-outline:hover {
+        background-color: var(--gray-50);
+    }
+    .btn-success {
+        background-color: var(--success-color);
+        color: var(--white);
+        border: none;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Team row click handler
-        const teamRows = document.querySelectorAll('.team-row');
-        teamRows.forEach(row => {
-            row.addEventListener('click', function() {
-                const teamId = this.getAttribute('data-team-id');
-                const detailsRow = document.getElementById('details-' + teamId);
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle detalles de equipo
+    document.querySelectorAll('.team-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const id = row.dataset.teamId;
+            const det = document.getElementById('details-' + id);
+            
+            // Si el detalle que vamos a tocar ya está expandido, solo lo cerramos
+            if (det.classList.contains('expanded')) {
+                det.classList.remove('expanded');
+            } else {
+                // Si no, cerramos todos los demás y abrimos este
+                document.querySelectorAll('.team-details-row.expanded')
+                    .forEach(r => r.classList.remove('expanded'));
+                det.classList.add('expanded');
+            }
+        });
+    });
+
+    // Editar rol
+    document.querySelectorAll('.edit-role-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const name = btn.dataset.member.replace(/ /g,'-');
+            const teamId = btn.closest('.team-details-row').id.split('-')[1];
+            document.querySelectorAll('.edit-role-form.active')
+                .forEach(f => f.classList.remove('active'));
+            document.getElementById(`edit-role-${teamId}-${name}`)
+                .classList.add('active');
+        });
+    });
+    document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            btn.closest('.edit-role-form').classList.remove('active');
+        });
+    });
+
+    // Abrir modal de calificación - MEJORADO PARA CENTRAR
+    const gradeModal = document.getElementById('gradeActivityModal');
+    const predictionModal = document.getElementById('predictionModal');
+    const successModal = document.getElementById('gradeSuccessModal');
+    
+    function openModal(modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+    }
+    
+    function closeModal(modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+    
+    document.querySelectorAll('.open-grade-modal-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const teamId = btn.dataset.teamId;
+            const activityId = btn.dataset.activityId;
+            const activityName = btn.dataset.activityName;
+            const maxGrade = btn.dataset.maxGrade;
+            
+            // Configurar el modal
+            document.getElementById('modal-activity-title').textContent = `Calificar: ${activityName}`;
+            document.getElementById('modal-max-grade').textContent = maxGrade;
+            document.getElementById('modal-grade').max = maxGrade;
+            
+            // Configurar el formulario
+            const form = document.getElementById('modal-grade-form');
+            form.action = `/professor/team/${teamId}/activity/${activityId}/grade`;
+            
+            // Mostrar el modal
+            openModal(gradeModal);
+        });
+    });
+
+    // Manejar envío del formulario de calificación
+    document.getElementById('modal-grade-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const btn = form.querySelector('.grade-submit-btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        btn.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+            if (data.success) {
+                // Cerrar el modal de calificación
+                closeModal(gradeModal);
+                // Mostrar mensaje de éxito
+                openModal(successModal);
                 
-                // Toggle details visibility
-                if (detailsRow.classList.contains('expanded')) {
-                    detailsRow.classList.remove('expanded');
+                // Actualizar la interfaz
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                alert('Error: ' + (data.message || 'No se pudo guardar la calificación'));
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = orig;
+            btn.disabled = false;
+            alert('Error al guardar la calificación.');
+            console.error(err);
+        });
+    });
+
+    // Predecir desempeño
+    document.querySelectorAll('.predict-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const teamId = btn.dataset.teamId;
+            const activityId = btn.dataset.activityId;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            btn.disabled = true;
+            
+            fetch(`/professor/team/${teamId}/predict-performance`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({activity_id: activityId})
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.innerHTML = '<i class="fas fa-chart-line"></i> Predecir Desempeño';
+                btn.disabled = false;
+                
+                if (data.success) {
+                    // Actualizar barra de progreso
+                    const teamRow = document.querySelector(`.team-row[data-team-id="${teamId}"]`);
+                    teamRow.querySelector('.progress').style.width = data.new_progress + '%';
+                    teamRow.querySelector('.progress-text').textContent = data.new_progress + '%';
+                    
+                    // Mostrar resultados en el modal
+                    displayPredictionResults(data);
+                    openModal(predictionModal);
                 } else {
-                    // Close any open details first
-                    document.querySelectorAll('.team-details-row.expanded').forEach(el => {
-                        el.classList.remove('expanded');
-                    });
-                    detailsRow.classList.add('expanded');
+                    alert('Error al predecir: ' + (data.message || 'No se pudo completar la predicción'));
                 }
-            });
-        });
-        
-        // Edit role button handler
-        const editRoleBtns = document.querySelectorAll('.edit-role-btn');
-        editRoleBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                const memberName = this.getAttribute('data-member');
-                const teamId = this.closest('.team-details-row').id.replace('details-', '');
-                const formId = `edit-role-${teamId}-${memberName.replace(/ /g, '-')}`;
-                const form = document.getElementById(formId);
-                
-                // Close any open edit forms first
-                document.querySelectorAll('.edit-role-form.active').forEach(el => {
-                    el.classList.remove('active');
-                });
-                
-                // Open this edit form
-                form.classList.add('active');
-            });
-        });
-        
-        // Cancel edit button handler
-        const cancelEditBtns = document.querySelectorAll('.cancel-edit-btn');
-        cancelEditBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.closest('.edit-role-form').classList.remove('active');
+            })
+            .catch(err => {
+                btn.innerHTML = '<i class="fas fa-chart-line"></i> Predecir Desempeño';
+                btn.disabled = false;
+                alert('Error al predecir desempeño.');
+                console.error(err);
             });
         });
     });
+
+    function displayPredictionResults(data) {
+        const container = document.getElementById('predictionResults');
+        container.innerHTML = '';
+        
+        const div = document.createElement('div');
+        div.className = 'prediction-result';
+        div.innerHTML = `
+            <div class="prediction-header">
+                <div class="prediction-title">Predicción de Desempeño del Equipo</div>
+                <div class="prediction-score">${data.new_progress}%</div>
+            </div>
+            <div class="prediction-details">
+                ${(data.factors || []).map(f => `
+                    <div class="prediction-factor">
+                        <div class="factor-name">${f.name}</div>
+                        <div class="factor-value">${f.value}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="prediction-actions">
+                <button class="btn btn-primary" onclick="document.getElementById('predictionModal').classList.remove('active'); setTimeout(() => { document.getElementById('predictionModal').style.display = 'none'; }, 300);">
+                    Cerrar
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Cerrar modales
+    document.querySelectorAll('.close-modal, .close-modal-btn').forEach(el => {
+        el.addEventListener('click', () => {
+            closeModal(gradeModal);
+            closeModal(predictionModal);
+            closeModal(successModal);
+        });
+    });
+
+    // Cerrar modal al hacer clic fuera
+    window.addEventListener('click', e => {
+        if (e.target === gradeModal) closeModal(gradeModal);
+        if (e.target === predictionModal) closeModal(predictionModal);
+        if (e.target === successModal) closeModal(successModal);
+    });
+
+    // Cerrar modal de éxito
+    document.querySelector('.close-success-btn')?.addEventListener('click', () => {
+        closeModal(successModal);
+    });
+});
 </script>
 {% endblock %}

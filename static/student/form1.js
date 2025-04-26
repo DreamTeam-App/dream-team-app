@@ -22,22 +22,13 @@ const personalityTypes = [
   const initialQuestions = [//no
     {
       id: 1,
-      text: "Ingresa tu número de ID. Ej: 00020396478",
-      type: "text",
-      placeholder: "Ingresa tu ID",
-      helperText: "El valor debe ser un número.",
-      required: true,
-      numeric: true,
-    },
-    {
-      id: 2,
       text: "Según el resultado del test de la pagina https://www.16personalities.com/es/test-de-personalidad ¿Cuál es tu tipo de personalidad?",
       type: "radio",
       options: personalityTypes,
       required: true,
     },
     {
-      id: 3,
+      id: 2,
       text: '¿Con cuál letra termina, A o T? Ejemplo: Si tus resultados fueron ISFP-T significa que en la anterior pregunta respondiste "ISFP - Aventurero" y en esta pregunta colocarías la letra T',
       type: "radio",
       options: [
@@ -47,7 +38,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 4,
+      id: 3,
       text: "Según los resultados: ¿eres extrovertido o Introvertido?",
       type: "radio",
       options: [
@@ -57,7 +48,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 5,
+      id: 4,
       text: "¿Cuál fue el porcentaje? Ingrese solo el número. Ej: Si tu resultado fue Extravertido 60% solo digita 60.",
       type: "text",
       placeholder: "Ingresa el porcentaje",
@@ -68,7 +59,7 @@ const personalityTypes = [
       max: 100,
     },
     {
-      id: 6,
+      id: 5,
       text: "Según los resultados: ¿eres Intuitivo o Observador?",
       type: "radio",
       options: [
@@ -78,7 +69,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 7,
+      id: 6,
       text: "¿Cuál fue el porcentaje? Ingrese solo el número. Ej: Si tu resultado fue Intuitivo 75% solo digita 75.",
       type: "text",
       placeholder: "Ingresa el porcentaje",
@@ -89,7 +80,7 @@ const personalityTypes = [
       max: 100,
     },
     {
-      id: 8,
+      id: 7,
       text: "Según los resultados: ¿eres Pensamiento o Emocional?",
       type: "radio",
       options: [
@@ -99,7 +90,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 9,
+      id: 8,
       text: "¿Cuál fue el porcentaje? Ingrese solo el número. Ej: Si tu resultado fue Emocional 56% solo digita 56.",
       type: "text",
       placeholder: "Ingresa el porcentaje",
@@ -110,7 +101,7 @@ const personalityTypes = [
       max: 100,
     },
     {
-      id: 10,
+      id: 9,
       text: "Según los resultados: ¿eres Juzgador o Prospección?",
       type: "radio",
       options: [
@@ -120,7 +111,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 11,
+      id: 10,
       text: "¿Cuál fue el porcentaje? Ingrese solo el número. Ej: Si tu resultado fue Juzgador 52% solo digita 52.",
       type: "text",
       placeholder: "Ingresa el porcentaje",
@@ -131,7 +122,7 @@ const personalityTypes = [
       max: 100,
     },
     {
-      id: 12,
+      id: 11,
       text: "Según los resultados: ¿eres Asertivo o Cauteloso?",
       type: "radio",
       options: [
@@ -141,7 +132,7 @@ const personalityTypes = [
       required: true,
     },
     {
-      id: 13,
+      id: 12,
       text: "¿Cuál fue el porcentaje? Ingrese solo el número. Ej: Si tu resultado fue Asertivo 80% solo digita 80.",
       type: "text",
       placeholder: "Ingresa el porcentaje",
