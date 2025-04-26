@@ -4,7 +4,7 @@ from flask import Blueprint, flash, render_template, request, redirect, url_for,
 from routes.authentication import *
 from firebase_client import db  # Importa el cliente de Firestore centralizado
 from firebase_admin import firestore
-from ml.pipeline import predecir_equipo_desde_firebase
+from ml.pipeline_utils import predecir_desempeno_equipo
 
 
 professor_bp = Blueprint("professor", __name__)
@@ -903,10 +903,16 @@ def calculate_coevaluation_summary(coevaluations):
     
     return summary
 
-@professor_bp.route('/evaluar_equipo/<equipo_id>', methods=['GET'])
-def evaluar_equipo(equipo_id):
+@professor_bp.route('/evaluar_equipo', methods=["POST"])
+def evaluar_equipo():
     try:
-        resultado = predecir_equipo_desde_firebase(equipo_id)
-        return render_template('professor/resultado.html', resultado=resultado)
+        from flask import request
+        datos_equipo = request.get_json()
+        import pandas as pd
+        df_equipo = pd.DataFrame(datos_equipo)
+
+        resultado = predecir_desempeno_equipo(df_equipo)
+        return {"success": True, "prediccion": round(resultado, 2)}
+
     except Exception as e:
-        return f"Ocurrió un error: {str(e)}", 500
+        return {"success": False, "error": str(e)}, 500
