@@ -959,18 +959,13 @@ def predict_team_performance(team_id):
         # Actualizar el progreso del equipo en la base de datos
         # Usamos el promedio ponderado como progreso (escala 0-5 convertida a 0-100)
         df_equipo = pd.read_csv(csv_path)
-        pred = -1
+        new_progress = -1
         try:
             pred = predecir_desempeno_equipo(df_equipo)
+            new_progress = pred
         except Exception as e:
             # Aquí capturas cualquier error de transformación o del modelo
-            print(f" Error al predecir desempeño: {e}")
-        if not (0 <= pred <= 100):
-            print(f" Advertencia: la predicción {pred} está fuera del rango 0–100")
-            new_progress = -1
-        else:
-            new_progress = pred
-        
+            print(f" Error al predecir modelo: {e}")
         team_ref.update({
             'progress': f"{new_progress}%",
             'last_prediction': firestore.SERVER_TIMESTAMP,
