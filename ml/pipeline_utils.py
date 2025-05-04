@@ -118,3 +118,4 @@ def inspeccionar_scaler(verbose: bool = True) -> pd.DataFrame:
         print(df_info.to_string(index=False))
         print("––––––––––––––––––––––––––––––––––––––––––––––––\n")
     return df_info
+ 
