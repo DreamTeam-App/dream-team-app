@@ -18,14 +18,15 @@ model_rf = modelo_rf
 
 # ─── Conjunto de features para Regresión Lineal ──────────────────────────
 FEATURES_LR = [
-    'IGC',
-    'Motiv_x_Comm',
-    'Std_Doer_norm',
-    'Std_Organizer_norm',
-    'team_size',
-    '#TiposUnicosMBTI',
-    '#High_Doer',
-    'StdPromPond_equipo'
+    'IGC',                 # índice global de clima (manual)
+    'Motiv_x_Comm',        # interacción motivación x comunicación
+    'Std_Doer_norm',       # desviación estándar de Doer normalizada
+    'Std_Organizer_norm',  # desviación estándar de Organizer normalizada
+    'Comm_x_TeamSize',     # heterogeneidad ajustada por tamaño
+    'team_size',           # tamaño del equipo
+    '#TiposUnicosMBTI',    # variedad de tipos MBTI
+    '#High_Doer',          # presencia de al menos un Doer alto
+    'StdPromPond_equipo'   # desviación estándar del promedio ponderado
 ]
 
 # ─── 2) FUNCIÓN DE PREDICCIÓN ─────────────────────────────────────────────
@@ -127,7 +128,8 @@ def predecir_desempeno_equipo(df_equipo: pd.DataFrame) -> float:
     print("🔍 df_scaled cols:", df_scaled.columns.tolist())
 
     # 2.5) Filtrar para RF y predecir
-    FEATURES_RF      = list(model_rf.feature_names_in_)
+    # Obtener features de RF, excluyendo la antigua 'Equipo'
+    FEATURES_RF = [c for c in model_rf.feature_names_in_ if c != 'Equipo']
     print("🔍 FEATURES_RF:", FEATURES_RF)
     present_rf = [c for c in FEATURES_RF if c in df_scaled.columns]
     missing_rf = [c for c in FEATURES_RF if c not in df_scaled.columns]
@@ -143,7 +145,15 @@ def predecir_desempeno_equipo(df_equipo: pd.DataFrame) -> float:
     missing_lr = [c for c in FEATURES_LR if c not in df_full_scaled.columns]
     print("🔍 Present_lr:", present_lr)
     print("🔍 Missing_lr:", missing_lr)
-    X_lr_scaled = df_full_scaled[FEATURES_LR]
+    # Asegurar orden de columnas según el modelo lineal
+    FEATURES_LR_MODEL = list(model_lr.feature_names_in_)
+    print("🔍 FEATURES_LR_MODEL esperadas por LR:", FEATURES_LR_MODEL)
+    present_lr = [c for c in FEATURES_LR_MODEL if c in df_full_scaled.columns]
+    missing_lr = [c for c in FEATURES_LR_MODEL if c not in df_full_scaled.columns]
+    print("🔍 Presentes para LR   :", present_lr)
+    print("🔍 Faltantes para LR   :", missing_lr)
+    # Reordenar DataFrame al orden del modelo
+    X_lr_scaled = df_full_scaled[FEATURES_LR_MODEL]
     pred_lr     = model_lr.predict(X_lr_scaled)[0]
     print(f"🔸 LR pred: {pred_lr}")
 
