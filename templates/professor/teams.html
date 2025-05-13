@@ -4,130 +4,133 @@
 
 {% block content %}
 <div class="data-container">
-    <h2 class="page-title">Equipos - {{ selected_class.name }}</h2>
-    
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for category, message in messages %}
-            <div class="flash-message {{ category }}">{{ message }}</div>
+  <h2 class="page-title">Equipos - {{ selected_class.name }}</h2>
+  
+  <!-- Mensajes Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  
+  <!-- Controles -->
+  <div class="controls">
+    <div class="rows-selector">
+      <span>Mostrar</span>
+      <div class="dropdown">
+        <button class="dropdown-btn">
+          {{ rows_per_page }} <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="dropdown-content">
+          {% for opt in [10,25,50,100] %}
+            <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=opt, page=1, search=search_term) }}">{{ opt }}</a>
           {% endfor %}
         </div>
-      {% endif %}
-    {% endwith %}
-    
-    <!-- Controls -->
-    <div class="controls">
-      <div class="rows-selector">
-        <span>Mostrar</span>
-        <div class="dropdown">
-          <button class="dropdown-btn">
-            {{ rows_per_page }} <i class="fas fa-chevron-down"></i>
-          </button>
-          <div class="dropdown-content">
-            {% for opt in [10,25,50,100] %}
-              <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=opt, page=1, search=search_term) }}">{{ opt }}</a>
-            {% endfor %}
-          </div>
+      </div>
+      <span>equipos</span>
+    </div>
+
+    <div class="search-container">
+      <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
+        <input type="hidden" name="rows" value="{{ rows_per_page }}">
+        <input type="hidden" name="page" value="1">
+        <div class="search-input">
+          <i class="fas fa-search"></i>
+          <input type="text" name="search" placeholder="Buscar..." value="{{ search_term }}">
         </div>
-        <span>equipos</span>
-      </div>
-
-      <div class="search-container">
-        <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
-          <input type="hidden" name="rows" value="{{ rows_per_page }}">
-          <input type="hidden" name="page" value="1">
-          <div class="search-input">
-            <i class="fas fa-search"></i>
-            <input type="text" name="search" placeholder="Search..." value="{{ search_term }}">
-          </div>
-          <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-      </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
     </div>
-    
-    <div style="margin-bottom:1rem;">
-      <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create New Team
-      </a>
-    </div>
+  </div>
+  
+  <div style="margin-bottom:1rem;">
+    <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Crear nuevo equipo
+    </a>
+  </div>
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th><th>Team Name</th><th>Project</th><th>Members</th>
-            <th>Progress</th><th>Grade</th><th>Status</th><th>Action</th>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nombre del equipo</th><th>Proyecto</th><th>Miembros</th>
+          <th>Predicción de desempeño</th><th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% if teams %}
+        {% for team in teams %}
+          <tr class="team-row" data-team-id="{{ team.id }}">
+            <td>{{ team.id }}</td>
+            <td>{{ team.name }}</td>
+            <td>{{ team.project }}</td>
+            <td>{{ team.members|length }} miembros</td>
+            <td>
+              <div class="progress-bar">
+                  <div class="progress" style="width: {{ team.progress }}%" data-percentage="{{ team.progress }}"></div>
+              </div>
+              <span class="progress-text">{{ team.progress }}%</span>
+            </td>
+            
+            <td>
+              <!-- <a href="{{ url_for('professor.delete_team', team_id=team.id, class_id=selected_class.id) }}" class="btn btn-icon">🗑️</a> -->
+              <a  class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Ver detalles
+            </a>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-        {% if teams %}
-          {% for team in teams %}
-            <tr class="team-row" data-team-id="{{ team.id }}">
-              <td>{{ team.id }}</td>
-              <td>{{ team.name }}</td>
-              <td>{{ team.project }}</td>
-              <td>{{ team.members|length }} members</td>
-              <td>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{ team.progress }}%" data-percentage="{{ team.progress }}"></div>
-                </div>
-                <span class="progress-text">{{ team.progress }}%</span>
-              </td>
-              <td>{{ team.grade }}</td>
-              <td><span class="badge {{ team.status|replace(' ', '-')|lower }}">{{ team.status }}</span></td>
-              <td>
-                <a href="{{ url_for('professor.delete_team', team_id=team.id, class_id=selected_class.id) }}" class="btn btn-icon">🗑️</a>
-              </td>
-            </tr>
-            <tr class="team-details-row" id="details-{{ team.id }}">
-              <td colspan="8" class="team-details">
-                <div class="team-details-content">
-                  <!-- Team Members -->
-                  <h3>Team Members</h3>
-                  <div class="member-grid">
-                    {% for member in team.members %}
-                      {% set student = students|selectattr('name','equalto',member.name)|first %}
-                      <div class="member-card">
-                        <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}"
-                             alt="{{ member.name }}" class="avatar">
-                        <div class="member-info">
-                          <p class="member-name">
-                            {{ member.name }}
-                            <span class="role-badge">{{ member.role }}</span>
-                            <button type="button" class="edit-role-btn btn btn-sm btn-outline"
-                                    data-member="{{ member.name }}">
-                              <i class="fas fa-edit"></i>
-                            </button>
-                          </p>
-                          <p class="member-email">{{ student.email if student else 'No email available' }}</p>
-                          <form action="{{ url_for('professor.update_team_member_role',
-                                                   class_id=selected_class.id,
-                                                   team_id=team.id) }}"
-                                method="post"
-                                class="edit-role-form"
-                                id="edit-role-{{ team.id }}-{{ member.name|replace(' ','-') }}">
-                            <input type="hidden" name="member_name" value="{{ member.name }}">
-                            <select name="new_role" class="form-control">
-                              <option value="">Select Role</option>
-                              {% for role in ['Team Lead','Project Manager','Frontend Developer',
-                                              'Backend Developer','Full Stack Developer','UI/UX Designer',
-                                              'Database Administrator','DevOps Engineer','Quality Assurance',
-                                              'Data Analyst','Documentation Specialist','Content Creator'] %}
-                                <option value="{{ role }}"
-                                  {% if member.role==role %}selected{% endif %}>
-                                  {{ role }}
-                                </option>
-                              {% endfor %}
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                            <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancel</button>
-                          </form>
-                        </div>
+          <tr class="team-details-row" id="details-{{ team.id }}">
+            <td colspan="8" class="team-details">
+              <div class="team-details-content">
+                <!-- Miembros del equipo -->
+                <h3>Miembros del equipo</h3>
+                <div class="member-grid">
+                  {% for member in team.members %}
+                    {% set student = students|selectattr('name','equalto',member.name)|first %}
+                    <div class="member-card">
+                      <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}"
+                           alt="{{ member.name }}" class="avatar">
+                      <div class="member-info">
+                        <p class="member-name">
+                          {{ member.name }}
+                          <span class="role-badge">{{ member.role }}</span>
+                          <button type="button" class="edit-role-btn btn btn-sm btn-outline"
+                                  data-member="{{ member.name }}">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                        </p>
+                        <p class="member-email">{{ student.email if student else 'No hay correo disponible' }}</p>
+                        <form action="{{ url_for('professor.update_team_member_role',
+                                                 class_id=selected_class.id,
+                                                 team_id=team.id) }}"
+                              method="post"
+                              class="edit-role-form"
+                              id="edit-role-{{ team.id }}-{{ member.name|replace(' ','-') }}">
+                          <input type="hidden" name="member_name" value="{{ member.name }}">
+                          <select name="new_role" class="form-control">
+                            <option value="">Seleccionar rol</option>
+                            {% for role in ['Team Lead','Project Manager','Frontend Developer',
+                                            'Backend Developer','Full Stack Developer','UI/UX Designer',
+                                            'Database Administrator','DevOps Engineer','Quality Assurance',
+                                            'Data Analyst','Documentation Specialist','Content Creator'] %}
+                              <option value="{{ role }}"
+                                {% if member.role==role %}selected{% endif %}>
+                                {{ role }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                          <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancelar</button>
+                        </form>
                       </div>
-                    {% endfor %}
-                  </div>
+                    </div>
+                  {% endfor %}
+                </div>
+
 
                   <!-- Actividades Asignadas - REDISEÑADO COMO CARDS -->
                   <div class="activities-section">
@@ -155,11 +158,11 @@
                               <div class="activity-sections-container">
                                 <!-- Estado de Coevaluaciones -->
                                 <div class="activity-section-box">
-                                  <h4 class="section-title">Estado de Coevaluaciones</h4>
+                                  <h4 class="section-title">Requisitos para predecir desempeño</h4>
                                   
-                                  <!-- Coevaluaciones Progress -->
+                                  
                                   <div class="progress-section">
-                                    <div class="progress-label">Coevaluaciones:</div>
+                                    <div class="progress-label">Clima del equipo:</div>
                                     <div class="progress-bar">
                                       <div class="progress" style="width: {{ activity.coevaluation_status.percentage }}%" data-percentage="{{ activity.coevaluation_status.percentage }}"></div>
                                     </div>
@@ -204,7 +207,7 @@
                                   <div class="requirements-list">
                                     <div class="requirement-item {% if activity.coevaluation_status.all_completed %}completed{% else %}pending{% endif %}">
                                       <i class="fas {% if activity.coevaluation_status.all_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                                      <span>Coevaluaciones completadas</span>
+                                      <span>Evaluaciones cruzadas del Clima del equipo completadas</span>
                                       {% if not activity.coevaluation_status.all_completed %}
                                         <span class="pending-detail">(Faltan: {{ activity.coevaluation_status.pending_members|join(', ') }})</span>
                                       {% endif %}
@@ -292,7 +295,7 @@
             </tr>
           {% endfor %}
         {% else %}
-          <tr><td colspan="8" class="empty-table">No teams found</td></tr>
+          <tr><td colspan="8" class="empty-table">No se econtraron teams</td></tr>
         {% endif %}
         </tbody>
       </table>

@@ -245,7 +245,7 @@ def create_team(class_id):
             "name": team_name,
             "project": team_project,
             "members": members,
-            "progress": "0%",
+            "progress": 0,
             "grade": "N/A",
             "status": "Not Started",
             "id": team_ref.id
@@ -962,12 +962,12 @@ def predict_team_performance(team_id):
         new_progress = -1
         try:
             pred = predecir_desempeno_equipo(df_equipo)
-            new_progress = pred
+            new_progress = round(pred*100,2)
         except Exception as e:
             # Aquí capturas cualquier error de transformación o del modelo
             print(f" Error al predecir modelo: {e}")
         team_ref.update({
-            'progress': f"{new_progress}%",
+            'progress': new_progress,
             'last_prediction': firestore.SERVER_TIMESTAMP,
             'performance_metrics': team_metrics,
             'prom_ponderado': prom_ponderado,

@@ -981,10 +981,8 @@ body {
 
 .form-control {
     width: 100%;
-    padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1rem;
 }
 
 .form-control:focus {
@@ -1057,14 +1055,137 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.activities-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.activity-card {
+    background-color: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.activity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.activity-card-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary-light);
+    border-bottom: 1px solid var(--gray-200);
+}
+.activity-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 700;
+    border-radius: 50%;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+.activity-title {
+    flex: 1;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+.activity-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.activity-status.open {
+    background-color: var(--green-100);
+    color: var(--green-700);
+}
+.activity-status.closed {
+    background-color: var(--gray-100);
+    color: var(--gray-700);
+}
+.activity-card-body {
+    padding: 1.5rem;
+}
+.activity-description {
+    margin-bottom: 1rem;
+    color: var(--gray-700);
+}
+.activity-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+.activity-date, .activity-points {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+.activity-date i, .activity-points i {
+    color: var(--primary-color);
+}
 
+.activity-sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.activity-section-box {
+    background-color: var(--gray-50);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    border: 1px solid var(--gray-200);
+}
 .section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-800);
     margin-top: 0;
     margin-bottom: 1rem;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #f0f0f0;
     padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* Responsive activity cards */
+@media (max-width: 768px) {
+    .activity-card-header {
+        flex-wrap: wrap;
+    }
+    .activity-title {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    .activity-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .activity-card-body {
+        padding: 1rem;
+    }
+    .activity-sections-container {
+        gap: 1rem;
+    }
+    .activity-section-box {
+        padding: 1rem;
+    }
 }
 
 /* Table Styles */

@@ -3,21 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Completar Datos</title>
+    <title>Registro - Dream Team</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Completa tu Registro</h2>
-        <form action="{{ url_for('register') }}" method="post">
-            <label for="name">Nombre Completo:</label>
-            <input type="text" id="name" name="name" required>
-
-            <label for="institution_id">ID Institucional:</label>
-            <input type="text" id="institution_id" name="institution_id" required>
-
-            <button type="submit">Guardar</button>
-        </form>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/default_logo.png') }}" alt="Dream Team Logo" class="logo">
+            </div>
+            
+            <h2>Completa tu Registro</h2>
+            
+            <form action="{{ url_for('register') }}" method="post">
+                <div class="form-group">
+                    <label for="name">Nombre Completo:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="consent-section">
+                    <h3>Consentimiento Informado</h3>
+                    <p>Al hacer clic en "Guardar", usted reconoce y acepta que:</p>
+                    <ul>
+                        <li>Los datos proporcionados serán utilizados <strong>única y exclusivamente</strong> como parte de este proyecto académico.</li>
+                        <li>Su información no será compartida ni divulgada a terceros.</li>
+                        <li>Todos los datos serán anonimizados mediante un identificador alfanumérico generado automáticamente.</li>
+                        <li>Ni su correo electrónico ni su nombre serán utilizados para identificarlo en el análisis de datos.</li>
+                        <li>Al momento de ingresar al modelo, sus datos ya estarán completamente anonimizados.</li>
+                    </ul>
+                    
+                    <div class="consent-notice">
+                        <p><strong>Nota:</strong> Al hacer clic en el botón "Guardar", usted confirma que ha leído y acepta los términos del consentimiento informado descritos anteriormente.</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">Guardar</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

@@ -10,7 +10,7 @@
     {% block extra_css %}
         <link rel="stylesheet" href="{{ url_for('static', filename='public/home2.css') }}">
     {% endblock %}
-    <title>Flask Template</title>
+    <title>Dream Team</title>
 
     </head>
     <body>
@@ -25,29 +25,29 @@
 
                 <div class="login-form">
 
-                    <h2>Sign Up</h2>
+                    <h2>Registrarse</h2>
 
                     <div class="input-group">
-                    <input type="email" id="email-input" name="email" placeholder="Email" required>
+                    <input type="email" id="email-input" name="email" placeholder="Correo" required>
                     <div id="email-error-message" class="error-msg"></div>
                     </div>
 
                     <div class="input-group">
-                    <input type="password" id="password-input" name="password" placeholder="Password" required>
+                    <input type="password" id="password-input" name="password" placeholder="Contraseña" required>
                     <div id="password-error-message" class="error-msg"></div>
                     </div>
 
-                    <div id="create-account-btn" class="login-btn">Create Account</div>
+                    <div id="create-account-btn" class="login-btn">Crear cuenta</div>
 
-                    <div class="alt-signin-divider">OR</div>
+                    <div class="alt-signin-divider"> </div>
 
                     <button id="sign-up-with-google-btn" class="google-login-btn">
                         <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google Sign Up" class="google-btn-logo">
-                        Sign up with Google
+                        Registrarse con Google
                     </button>
                     <div id="google-signin-error-message" class="error-msg"></div>
 
-                    <div class="signup-link-container">Already have an account? <a href="{{ url_for('login') }}">Login</a></div>
+                    <div class="signup-link-container">¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Ingresar</a></div>
 
                 </div>
 

@@ -12,7 +12,7 @@
 <div class="data-container">
     <h2 class="page-title">Estudiantes - {{ selected_class.name }}</h2>
     
-    <!-- Flash Messages -->
+    <!-- Mensajes Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <div class="flash-messages">
@@ -25,7 +25,7 @@
         {% endif %}
     {% endwith %}
     
-    <!-- Controls -->
+    <!-- Controles -->
     <div class="controls">
         <div class="rows-selector">
             <span>Mostrar</span>
@@ -50,21 +50,21 @@
                 <input type="hidden" name="page" value="1">
                 <div class="search-input">
                     <i class="fas fa-search"></i>
-                    <input type="text" name="search" placeholder="Search..." value="{{ search_term }}">
+                    <input type="text" name="search" placeholder="Buscar..." value="{{ search_term }}">
                 </div>
-                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
         </div>
     </div>
     
-    <!-- Team Formation Button -->
+    <!-- Botón de Formación de Equipo -->
     <div style="margin-bottom: 1rem;">
         <button id="form-team-btn" class="btn btn-primary">
-            <i class="fas fa-users"></i> Form Team
+            <i class="fas fa-users"></i> Formar Equipo
         </button>
     </div>
 
-    <!-- Table -->
+    <!-- Tabla -->
     <div class="table-container">
         <table class="data-table">
             <thead>
@@ -73,13 +73,13 @@
                         <input type="checkbox" id="select-all-students" class="student-checkbox">
                     </th>
                     <th>ID</th>
-                    <th>Student</th>
+                    <th>Estudiante</th>
                     <th>Email</th>
-                    <th>Enrollment Date</th>
-                    <th>Grade</th>
-                    <th>Attendance</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>Fecha de Inscripción</th>
+                    <th>Nota</th>
+                    <th>Asistencia</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,7 +95,7 @@
                                 <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
                                 <span>{{ student.name }}</span>
                                 {% if student.in_team %}
-                                <span class="badge in-team">In Team</span>
+                                <span class="badge in-team">En Equipo</span>
                                 {% endif %}
                             </div>
                         </td>
@@ -115,47 +115,47 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="9" class="empty-table">No students found</td>
+                        <td colspan="9" class="empty-table">No se encontraron estudiantes</td>
                     </tr>
                 {% endif %}
             </tbody>
         </table>
     </div>
 
-    <!-- Team Formation Controls -->
+    <!-- Controles de Formación de Equipo -->
     <div id="team-formation-controls" class="team-formation-controls">
-        <h3>Create New Team</h3>
+        <h3>Crear Nuevo Equipo</h3>
         <form id="create-team-form" action="{{ url_for('professor.create_team', class_id=selected_class.id) }}" method="post">
             <div class="form-group">
-                <label for="team_name">Team Name</label>
+                <label for="team_name">Nombre del Equipo</label>
                 <input type="text" id="team_name" name="team_name" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label for="team_project">Project</label>
+                <label for="team_project">Proyecto</label>
                 <input type="text" id="team_project" name="team_project" class="form-control" required>
             </div>
             
             <div class="form-group">
-                <label>Selected Students</label>
+                <label>Estudiantes Seleccionados</label>
                 <div id="selected-students" class="selected-students">
-                    <p>No students selected</p>
+                    <p>No hay estudiantes seleccionados</p>
                 </div>
             </div>
             
             <div class="form-actions">
-                <button type="button" id="cancel-team-btn" class="btn btn-outline">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Team</button>
+                <button type="button" id="cancel-team-btn" class="btn btn-outline">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear Equipo</button>
             </div>
         </form>
     </div>
 
-    <!-- Pagination -->
+    <!-- Paginación -->
     {% if students %}
     <div class="pagination">
         <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=rows_per_page, page=page-1, search=search_term) }}" 
            class="btn btn-outline {% if page == 1 %}disabled{% endif %}">
-            Previous
+            Anterior
         </a>
         <div class="page-numbers">
             {% set display_pages = 3 %}
@@ -171,12 +171,13 @@
         </div>
         <a href="{{ url_for('professor.students', class_id=selected_class.id, rows=rows_per_page, page=page+1, search=search_term) }}" 
            class="btn btn-outline {% if page == total_pages %}disabled{% endif %}">
-            Next
+            Siguiente
         </a>
     </div>
     {% endif %}
 </div>
 {% endblock %}
+
 
 {% block scripts %}
 <script>

@@ -26,31 +26,31 @@
         <div class="login-form-container">
 
           <div class="login-form">
-            <h2>Login</h2>
+            <h2>Ingresar</h2>
 
             <div class="input-group">
-              <input type="email" id="email-input" name="email" placeholder="Email" required>
+              <input type="email" id="email-input" name="email" placeholder="Correo" required>
               <div id="email-error-message" class="error-msg"></div>
             </div>
 
             <div class="input-group">
-              <input type="password" id="password-input" name="password" placeholder="Password" required>
+              <input type="password" id="password-input" name="password" placeholder="Contraseña" required>
               <div id="password-error-message" class="error-msg"></div>
             </div>
 
-            <div id="sign-in-btn" class="login-btn">Sign In</div>
+            <div id="sign-in-btn" class="login-btn">Ingresar</div>
 
-            <div class="alt-signin-divider">OR</div>
+            <div class="alt-signin-divider"> </div>
 
 
             <button id="sign-in-with-google-btn" class="google-login-btn">
               <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google Sign-in" class="google-btn-logo">
-              Sign in with Google</button>
+              Ingresar con Google</button>
             
             <div id="google-signin-error-message" class="error-msg"></div>
             
-            <div class="signup-link-container">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></div>
-            <div class="signup-link-container"><a href="{{ url_for('reset_password') }}">Forgot Password?</a></div>
+            <div class="signup-link-container">¿No tienes una cuenta? <a href="{{ url_for('signup') }}">Registrarse</a></div>
+            <div class="signup-link-container"><a href="{{ url_for('reset_password') }}">¿Olvisate la contraseña?</a></div>
           </div>
 
         </div>

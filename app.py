@@ -95,10 +95,14 @@ def register():
     uid = session.get("temp_user", {}).get("uid")
     email = session.get("temp_user", {}).get("email")
     name = request.form.get("name")
-    institution_id = request.form.get("institution_id")
 
-    if not uid or not email or not name or not institution_id:
-       return "Faltan datos", 400
+    if not uid or not email or not name:
+        flash("Por favor complete su nombre para continuar.", "error")
+        return redirect(url_for('register'))
+
+    # Generar un ID institucional aleatorio para anonimizar al usuario
+    import uuid
+    anonymous_id = str(uuid.uuid4())[:8].upper()  # Genera un ID alfanumérico de 8 caracteres
 
     # Guardar en Firestore solo si no existe
     user_ref = db.collection("users").document(uid)
@@ -110,7 +114,8 @@ def register():
             "email": email,
             "name": name,
             "role": "student",
-            "institution_id": institution_id
+            "anonymous_id": anonymous_id,  # Guardamos el ID anónimo
+            "consent_given": True  # Asumimos que el usuario dio su consentimiento al hacer clic en "Guardar"
         })
 
         # Aquí asignamos los formularios pendientes al nuevo estudiante
@@ -148,6 +153,7 @@ def register():
     session.pop("temp_user", None)
     session["user"] = {"uid": uid, "email": email, "name": name, "role": "student"}
 
+    flash("Registro completado con éxito. Bienvenido/a a Dream Team.", "success")
     return redirect(url_for('login'))
 
 @app.route('/home')

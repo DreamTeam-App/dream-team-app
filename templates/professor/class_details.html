@@ -12,7 +12,7 @@
 <div class="data-container">
     <h2 class="page-title">{{ selected_class.name }}</h2>
     
-    <!-- Flash Messages -->
+    <!-- Mensajes Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <div class="flash-messages">
@@ -25,65 +25,65 @@
         {% endif %}
     {% endwith %}
     
-    <!-- Join Code Card -->
+    <!-- Tarjeta de Código de Ingreso -->
     <div class="join-code-card">
         <div class="join-code-header">
             <i class="fas fa-key"></i>
-            <h3>Class Join Code</h3>
+            <h3>Código de Ingreso a la Clase</h3>
         </div>
         <div class="join-code-display">
             {{ selected_class.join_code }}
             <button class="copy-btn" id="copy-code-btn" data-code="{{ selected_class.join_code }}">
                 <i class="fas fa-copy"></i>
             </button>
-            <span class="copy-tooltip" id="copy-tooltip">Copied!</span>
+            <span class="copy-tooltip" id="copy-tooltip">¡Copiado!</span>
         </div>
         <p class="join-code-instructions">
-            Share this code with your students so they can join this class. 
-            Students will need to enter this code when registering for the class.
+            Comparte este código con tus estudiantes para que puedan unirse a esta clase.  
+            Los estudiantes deberán ingresar este código al registrarse en la clase.
         </p>
     </div>
     
     <div class="class-details-container">
         <div class="class-info-card">
             <div class="class-header">
-                <h3>Class Information</h3>
+                <h3>Información de la Clase</h3>
                 <p>{{ selected_class.instructor }}</p>
             </div>
             <div class="class-body">
                 <div class="class-meta">
                     <div class="meta-item">
-                        <span class="meta-label">Schedule</span>
+                        <span class="meta-label">Horario</span>
                         <span class="meta-value">{{ selected_class.schedule }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Location</span>
+                        <span class="meta-label">Ubicación</span>
                         <span class="meta-value">{{ selected_class.location }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Start Date</span>
+                        <span class="meta-label">Fecha de Inicio</span>
                         <span class="meta-value">{{ selected_class.start_date }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">End Date</span>
+                        <span class="meta-label">Fecha de Finalización</span>
                         <span class="meta-value">{{ selected_class.end_date }}</span>
                     </div>
                 </div>
                 
                 <div class="class-description">
-                    <h4>Description</h4>
+                    <h4>Descripción</h4>
                     <p>{{ selected_class.description }}</p>
                 </div>
             </div>
         </div>
         
         <div class="summary-container">
-            <!-- Students Summary -->
+            <!-- Resumen de Estudiantes -->
             <div class="summary-card">
                 <div class="summary-header">
                     <h3 class="summary-title">
                         <i class="fas fa-user-graduate"></i>
-                        Students
+                        Estudiantes
                     </h3>
                     <span class="summary-count">{{ student_count }}</span>
                 </div>
@@ -101,22 +101,22 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-muted-foreground">No students enrolled yet.</p>
+                    <p class="text-muted-foreground">Aún no hay estudiantes inscritos.</p>
                     {% endif %}
                 </div>
                 <div class="summary-footer">
                     <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-outline">
-                        View All Students
+                        Ver Todos los Estudiantes
                     </a>
                 </div>
             </div>
             
-            <!-- Teams Summary -->
+            <!-- Resumen de Equipos -->
             <div class="summary-card">
                 <div class="summary-header">
                     <h3 class="summary-title">
                         <i class="fas fa-users"></i>
-                        Teams
+                        Equipos
                     </h3>
                     <span class="summary-count">{{ team_count }}</span>
                 </div>
@@ -133,27 +133,27 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-muted-foreground">No teams created yet.</p>
+                    <p class="text-muted-foreground">Aún no se han creado equipos.</p>
                     {% endif %}
                 </div>
                 <div class="summary-footer">
                     <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="btn btn-outline">
-                        View All Teams
+                        Ver Todos los Equipos
                     </a>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Stats -->
+    <!-- Estadísticas -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value">{{ student_count }}</div>
-            <div class="stat-label">Total Students</div>
+            <div class="stat-label">Total de Estudiantes</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ team_count }}</div>
-            <div class="stat-label">Total Teams</div>
+            <div class="stat-label">Total de Equipos</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">
@@ -169,7 +169,7 @@
                     0%
                 {% endif %}
             </div>
-            <div class="stat-label">Average Progress</div>
+            <div class="stat-label">Progreso Promedio</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">
@@ -180,11 +180,12 @@
                     0%
                 {% endif %}
             </div>
-            <div class="stat-label">Active Students</div>
+            <div class="stat-label">Estudiantes Activos</div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 
 {% block scripts %}
 <script>
