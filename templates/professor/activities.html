@@ -2,6 +2,8 @@
 
 {% block title %}Activities - {{ selected_class.name }}{% endblock %}
 
+
+  
 {% block content %}
 <div class="data-container">
     <h2 class="page-title">Actividades - {{ selected_class.name }}</h2>
@@ -41,29 +43,29 @@
                 <form id="create-activity-form" action="{{ url_for('professor.create_activity', class_id=selected_class.id) }}" method="post">
                     <div class="form-group">
                         <label for="activity_name">Nombre de la Actividad</label>
-                        <input type="text" id="activity_name" name="activity_name" class="form-control" required>
+                        <input type="text" id="activity_name" name="activity_name" class="form-control3" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="activity_description">Descripción</label>
-                        <textarea id="activity_description" name="activity_description" class="form-control" rows="3" required></textarea>
+                        <textarea id="activity_description" name="activity_description" class="form-control3" rows="3" required></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="due_date">Fecha de Entrega</label>
-                        <input type="date" id="due_date" name="due_date" class="form-control" required>
+                        <input type="date" id="due_date" name="due_date" class="form-control3" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="max_grade">Nota Máxima</label>
-                        <input type="number" id="max_grade" name="max_grade" class="form-control" min="1" max="100" value="100" required>
+                        <input type="number" id="max_grade" name="max_grade" class="form-control3" min="1" max="100" value="50" required>
                     </div>
                     
                     <div class="form-group">
                         <label class="checkbox-container">
                             <input type="checkbox" id="enable_coevaluation" name="enable_coevaluation">
                             <span class="checkmark"></span>
-                            Habilitar Coevaluación para esta actividad
+                            Habilitar Evaluación del clima del equipo para esta actividad
                         </label>
                     </div>
                 </form>

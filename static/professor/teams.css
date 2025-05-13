@@ -616,22 +616,8 @@
     color: var(--gray-700);
     font-weight: 500;
 }
-.form-control {
-    width: 100%;
-    border-radius: var(--radius);
-    border: 1px solid var(--gray-300);
-    background-color: var(--white);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
-}
-textarea.form-control {
-    resize: vertical;
-    min-height: 100px;
-}
+
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;

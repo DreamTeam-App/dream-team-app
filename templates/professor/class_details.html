@@ -92,7 +92,17 @@
                     <ul class="summary-list">
                         {% for student in students %}
                         <li>
-                            <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                            <div class="logo2">
+                                <div class="logo-circle">
+                                    <span>
+                                        {% if student.name %}
+                                            {{ student.name.split()[0][0] }}{{ student.name.split()[-1][0] }}
+                                        {% else %}
+                                            ??
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
                             <div>
                                 <p class="font-medium">{{ student.name }}</p>
                                 <p class="text-sm text-muted-foreground">{{ student.email }}</p>
@@ -121,7 +131,7 @@
                     <span class="summary-count">{{ team_count }}</span>
                 </div>
                 <div class="summary-body">
-                    {% if teams %}
+                    {% if team_count >  0 %}
                     <ul class="summary-list">
                         {% for team in teams %}
                         <li>
@@ -154,33 +164,6 @@
         <div class="stat-card">
             <div class="stat-value">{{ team_count }}</div>
             <div class="stat-label">Total de Equipos</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if teams %}
-                    {% set total_progress = 0 %}
-                    {% for team in teams %}
-                        {% set progress = team.progress|replace('%', '')|int %}
-                        {% set total_progress = total_progress + progress %}
-                    {% endfor %}
-                    {% set avg_progress = (total_progress / teams|length)|round|int %}
-                    {{ avg_progress }}%
-                {% else %}
-                    0%
-                {% endif %}
-            </div>
-            <div class="stat-label">Progreso Promedio</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if students %}
-                    {% set active_students = students|selectattr('status', 'equalto', 'Active')|list|length %}
-                    {{ (active_students / students|length * 100)|round|int }}%
-                {% else %}
-                    0%
-                {% endif %}
-            </div>
-            <div class="stat-label">Estudiantes Activos</div>
         </div>
     </div>
 </div>

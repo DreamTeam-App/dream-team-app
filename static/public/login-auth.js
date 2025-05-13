@@ -138,41 +138,66 @@ function authSignInWithEmail() {
         });
 }
 
-
-
-function authCreateAccountWithEmail() {
-
-    const email = emailInputEl.value
-    const password = passwordInputEl.value
-
-    createUserWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            // Signed in 
-            
-            const user = userCredential.user;
-
-            await addNewUserToFirestore(user)
-            setTimeout(100)
-
-            user.getIdToken().then(function(idToken) {
-                loginUser(user, idToken)
-            });
-
+async function addNewUserToFirestore(user) {
+    const response = await fetch('/new_user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || "" // u otro campo adicional
         })
-        .catch((error) => {
-            const errorCode = error.code;
+    });
 
-            if (errorCode === "auth/invalid-email") {
-                errorMsgEmail.textContent = "Invalid email"
-            } else if (errorCode === "auth/weak-password") {
-                errorMsgPassword.textContent = "Invalid password - must be at least 6 characters"
-            } else if (errorCode === "auth/email-already-in-use") {
-                errorMsgEmail.textContent = "An account already exists for this email."
-            }
+    if (!response.ok) {
+        throw new Error("Fallo al registrar el usuario en Firestore/backend");
+    }
 
-        });
-
+    return await response.json(); // o simplemente return;
 }
+
+function showSignupSuccessModal() {
+    console.log("✅ Ejecutando showSignupSuccessModal()");
+    const modal = document.getElementById("modal-signup");
+    modal.classList.remove("hidden");
+
+    const okBtn = document.getElementById("modal-ok-btn");
+    okBtn.addEventListener("click", () => {
+        window.location.href = "/login";
+    });
+}
+
+async function authCreateAccountWithEmail() {
+    const email = emailInputEl.value;
+    const password = passwordInputEl.value;
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await addNewUserToFirestore(user);
+        const idToken = await user.getIdToken();
+
+        // ✅ Muestra el modal
+        showSignupSuccessModal();
+
+    } catch (error) {
+        const errorCode = error.code;
+
+        if (errorCode === "auth/invalid-email") {
+            errorMsgEmail.textContent = "Correo inválido";
+        } else if (errorCode === "auth/weak-password") {
+            errorMsgPassword.textContent = "Contraseña muy débil (mínimo 6 caracteres)";
+        } else if (errorCode === "auth/email-already-in-use") {
+            errorMsgEmail.textContent = "Ya existe una cuenta con este correo.";
+        } else {
+            console.error("Error al crear cuenta:", error.message);
+        }
+    }
+}
+
 
 
 

@@ -6,7 +6,6 @@
     <title>{% block title %}DreamTeam{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='professor/professor.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/activities.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -40,16 +39,16 @@
     </header>
     
     <div class="mobile-header">
-        <button id="mobile-class-selector-btn" class="btn btn-icon">
+        <a href="{{ url_for('professor.index') }}" class="btn btn-icon">
             <i class="fas fa-graduation-cap"></i>
-        </button>
+        </a>
         <div class="logo">
             <img class="logo-img" src="{{ url_for('static', filename='images/default_logo.png') }}" />
             <span>DreamTeam</span>
         </div>
         <div class="mobile-user-menu">
             <button id="mobile-user-menu-btn" class="avatar-btn">
-                <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="User Avatar" class="avatar">
+                <i class="fas fa-user"></i>
             </button>
             <div id="mobile-user-dropdown" class="mobile-user-dropdown">
                 <a href="{{ url_for('professor.index') }}">

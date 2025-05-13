@@ -7,6 +7,8 @@ from firebase_admin import firestore
 from ml.pipeline_utils import predecir_desempeno_equipo
 from flask import request
 import pandas as pd
+from datetime import datetime
+
 
 professor_bp = Blueprint("professor", __name__)
 
@@ -83,20 +85,21 @@ def class_details(class_id):
         class_data = class_doc.to_dict()
 
         # Consultar las primeras 5 inscripciones (estudiantes) para el resumen
-        enrollments_ref = class_ref.collection('enrollments').limit(5)
+        
+        enrollments_ref = class_ref.collection('enrollments')
         enrollment_docs = enrollments_ref.get()
         enrollments = [doc.to_dict() for doc in enrollment_docs]
 
         # Consultar los primeros 3 equipos para el resumen
-        teams_ref = class_ref.collection('teams').limit(3)
+        teams_ref = class_ref.collection('teams')
         teams_docs = teams_ref.get()
         teams = [doc.to_dict() for doc in teams_docs]
 
         # Renderizar la plantilla y pasar "students" para que el template lo use
         return render_template('professor/class_details.html',
                                selected_class=class_data,
-                               students=enrollments,  # Aquí se pasa la lista de inscripciones como "students"
-                               teams_summary=teams,
+                               students=enrollments[:5],  # Aquí se pasa la lista de inscripciones como "students"
+                               teams=teams[:5],
                                student_count=len(enrollments),
                                team_count=len(teams),
                                classes=[])  # Puedes pasar la lista completa de clases si es necesaria
@@ -698,7 +701,7 @@ def predict_team_performance(team_id):
         
         # Verificar si la coevaluación está habilitada para esta actividad
         if not activity_data.get('enable_coevaluation'):
-            return jsonify({'success': False, 'message': 'Esta actividad no tiene coevaluaciones habilitadas'})
+            return jsonify({'success': False, 'message': 'Esta actividad no tiene evaluaciones del clima del equipo habilitadas'})
         
         # Verificar si este equipo está en el array team_grades de la actividad
         team_grades = activity_data.get('team_grades', [])
@@ -732,7 +735,7 @@ def predict_team_performance(team_id):
                 all_coevaluations.append(coevaluation_data)
         
         if len(completed_evaluators) < len(member_ids):
-            return jsonify({'success': False, 'message': 'No todos los miembros han completado la coevaluación'})
+            return jsonify({'success': False, 'message': 'No todos los miembros han completado la evaluación del clima del equipo'})
         
         # Verificar si todos los miembros han completado los formularios de personalidad y roles
         personality_completed, _ = check_team_forms_completion(team_members, 'personality')
@@ -1195,7 +1198,7 @@ def enable_coevaluation(class_id, activity_id):
         
         # Verificar si la coevaluación ya está habilitada
         if activity_data.get('enable_coevaluation'):
-            flash("La coevaluación ya está habilitada para esta actividad", "info")
+            flash("La evaluación del clima del equipo ya está habilitada para esta actividad", "info")
             return redirect(url_for('professor.activities', class_id=class_id))
         
         # Obtener todos los equipos de la clase
@@ -1222,8 +1225,8 @@ def enable_coevaluation(class_id, activity_id):
                 form_data = {
                     "form_id": form_doc_ref.id,
                     "form_type": "coevaluation",
-                    "title": f"Coevaluación: {activity_data.get('name')}",
-                    "description": f"Evaluación cruzada de trabajo en equipo para la actividad {activity_data.get('name')}",
+                    "title": f"Evaluación del clima del equipo: {activity_data.get('name')}",
+                    "description": f"Evaluación cruzada del clima del equipo para la actividad {activity_data.get('name')}",
                     "url": f"/student/coevaluation/{class_id}/{activity_id}",
                     "activity_id": activity_id,
                     "class_id": class_id,
@@ -1254,11 +1257,11 @@ def enable_coevaluation(class_id, activity_id):
             'coevaluation_enabled_at': firestore.SERVER_TIMESTAMP
         })
         
-        flash("Coevaluación habilitada correctamente para esta actividad", "success")
+        flash("Evaluación del clima del equipo habilitada correctamente para esta actividad", "success")
         return redirect(url_for('professor.activities', class_id=class_id))
     
     except Exception as e:
-        flash(f"Error al habilitar la coevaluación: {e}", "error")
+        flash(f"Error al habilitar la evaluación del clima del equipo: {e}", "error")
         return redirect(url_for('professor.activities', class_id=class_id))
 
 @professor_bp.route('/delete_activity/<class_id>/<activity_id>')
@@ -1285,56 +1288,68 @@ def delete_activity(class_id, activity_id):
 @professor_bp.route('/grade_team/<class_id>/<activity_id>', methods=['POST'])
 def grade_team(class_id, activity_id):
     try:
+        # Obtener datos del formulario
         team_id = request.form.get('team_id')
         grade = request.form.get('grade')
-        feedback = request.form.get('feedback')
-        
+        feedback = request.form.get('feedback', '')
+
         if not team_id or not grade:
-            flash("Missing required fields", "error")
+            flash("Faltan campos requeridos", "error")
             return redirect(url_for('professor.activity_details', class_id=class_id, activity_id=activity_id))
-        
-        # Convert grade to integer
+
         grade = int(grade)
-        
-        # Get activity document
+
+        # Obtener referencias
         class_ref = db.collection('classes').document(class_id)
         activity_ref = class_ref.collection('activities').document(activity_id)
         activity_doc = activity_ref.get()
-        
+
         if not activity_doc.exists:
-            flash("Activity not found", "error")
+            flash("Actividad no encontrada", "error")
             return redirect(url_for('professor.teams', class_id=class_id))
-            
+
         activity_data = activity_doc.to_dict()
-        
-        # Update the team grade in the team_grades array
         team_grades = activity_data.get('team_grades', [])
+
+        # Buscar o insertar calificación del equipo
+        updated = False
         for team_grade in team_grades:
-            if team_grade.get('team_id') == team_id:
+            if str(team_grade.get('team_id')) == str(team_id):
                 team_grade['grade'] = grade
                 team_grade['feedback'] = feedback
                 team_grade['submitted'] = True
-                team_grade['submission_date'] = firestore.SERVER_TIMESTAMP
+                team_grade['submission_date'] = datetime.utcnow()
+                updated = True
                 break
-        
-        # Update the activity document
+
+        if not updated:
+            team_grades.append({
+                'team_id': team_id,
+                'grade': grade,
+                'feedback': feedback,
+                'submitted': True,
+                'submission_date': datetime.utcnow(),
+                'team_name': ''  # opcional
+            })
+
+        # Guardar cambios en la actividad
         activity_ref.update({'team_grades': team_grades})
-        
-        # Update the team document with the latest grade
+
+        # Actualizar documento del equipo (opcional)
         teams_ref = class_ref.collection('teams')
-        team_query = teams_ref.where('id', '==', team_id).limit(1)
-        team_docs = team_query.get()
-        
+        team_docs = teams_ref.where('id', '==', team_id).limit(1).get()
         if team_docs:
-            team_doc = team_docs[0]
-            team_ref = team_doc.reference
-            team_ref.update({'grade': f"{grade}/{activity_data.get('max_grade')}"})
-        
-        flash("Team grade saved successfully", "success")
+            team_docs[0].reference.update({
+                'grade': f"{grade}/{activity_data.get('max_grade')}"
+            })
+
+        flash("¡Calificación guardada correctamente!", "success")
         return redirect(url_for('professor.activity_details', class_id=class_id, activity_id=activity_id))
+
     except Exception as e:
-        flash(f"Error saving team grade: {e}", "error")
+        flash(f"Error al guardar la calificación: {e}", "error")
         return redirect(url_for('professor.activity_details', class_id=class_id, activity_id=activity_id))
+
 
 # Nueva ruta para calificar una actividad desde la vista de equipos
 @professor_bp.route('/team/<team_id>/activity/<activity_id>/grade', methods=['POST'])

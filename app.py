@@ -34,7 +34,14 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Can be 'Strict', 'Lax', or 'Non
 # Decorator for routes that require authentication
 
 
+@app.route('/new_user', methods=['POST'])
+def new_user():
+    data = request.get_json()
+    uid = data.get('uid')
+    email = data.get('email')
+    name = data.get('name', '')
 
+    return jsonify({"success": True})
 @app.route('/auth', methods=['POST'])
 def authorize():
     token = request.headers.get('Authorization')

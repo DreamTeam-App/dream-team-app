@@ -50,7 +50,7 @@
                     </span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Coevaluación:</span>
+                    <span class="info-label">Evaluación del clima del equipo:</span>
                     <span class="info-value">
                         {% if activity.enable_coevaluation %}
                             <span class="badge success">Habilitada</span>
@@ -109,142 +109,67 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary grade-team-btn" data-team-id="{{ team_grade.team_id }}" data-team-name="{{ team_grade.team_name }}">
-                                    <i class="fas fa-edit"></i> Calificar
-                                </button>
+                                {% if not team_grade.submitted %}
+                                    <button class="btn btn-sm btn-primary grade-team-btn"
+                                            data-team-id="{{ team_grade.team_id }}"
+                                            data-team-name="{{ team_grade.team_name }}">
+                                        <i class="fas fa-edit"></i> Calificar
+                                    </button>
+                                {% else %}
+                                    <span class="badge neutral">Ya calificado</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
+
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     
-    <!-- Resumen de Coevaluación -->
-    {% if activity.enable_coevaluation and coevaluation_summary %}
-    <div class="card mt-4">
-        <div class="card-header">
-            <h3>Resumen de Coevaluación</h3>
-        </div>
-        <div class="card-body">
-            <div class="summary-stats">
-                <div class="stat-card">
-                    <div class="stat-value">{{ coevaluation_summary.total_students }}</div>
-                    <div class="stat-label">Total de Estudiantes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{{ coevaluation_summary.submitted_count }}</div>
-                    <div class="stat-label">Entregas</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{{ coevaluation_summary.submission_rate|round(1) }}%</div>
-                    <div class="stat-label">Tasa de Entrega</div>
-                </div>
-            </div>
-            
-            <!-- Promedio por Criterio -->
-            <h4 class="mt-4">Promedio por Criterio</h4>
-            <div class="criteria-chart">
-                {% for criterion_name, data in coevaluation_summary.average_scores.items() %}
-                <div class="criterion-bar">
-                    <div class="criterion-name">{{ criterion_name }}</div>
-                    <div class="progress-bar">
-                        <div class="progress"></div>
-                    </div>
-                    <div class="criterion-score">{{ data.average|round(1) }} / 5</div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <!-- Resumen por Estudiante -->
-            <h4 class="mt-4">Resumen Individual de Estudiantes</h4>
-            <div class="accordion">
-                {% for student in coevaluation_summary.student_summaries %}
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span>{{ student.student_name }}</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="comparison-chart">
-                            <h5>Autoevaluación vs. Evaluación de Pares</h5>
-                            <table class="comparison-table">
-                                <thead>
-                                    <tr>
-                                        <th>Criterio</th>
-                                        <th>Autoevaluación</th>
-                                        <th>Evaluación de Pares</th>
-                                        <th>Diferencia</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for criterion_name, peer_score in student.peer_scores.items() %}
-                                    {% set self_score = student.self_scores.get(criterion_name, 0) %}
-                                    {% set difference = self_score - peer_score %}
-                                    <tr>
-                                        <td>{{ criterion_name }}</td>
-                                        <td>{{ self_score }}</td>
-                                        <td>{{ peer_score|round(1) }}</td>
-                                        <td class="{% if difference > 0 %}positive{% elif difference < 0 %}negative{% endif %}">
-                                            {{ difference|round(1) }}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% elif activity.enable_coevaluation %}
-    <div class="card mt-4">
-        <div class="card-header">
-            <h3>Resumen de Coevaluación</h3>
-        </div>
-        <div class="card-body">
-            <div class="empty-state">
-                <i class="fas fa-clipboard-list"></i>
-                <p>Aún no hay datos de coevaluación disponibles</p>
-                <p class="text-muted-foreground">Los estudiantes no han enviado sus coevaluaciones</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+    
     
     <!-- Modal para Calificar Equipo -->
     <div id="grade-team-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Calificar Equipo: <span id="team-name-display"></span></h3>
-                <button id="close-grade-modal" class="btn btn-icon">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="grade-team-form" action="{{ url_for('professor.grade_team', class_id=selected_class.id, activity_id=activity.id) }}" method="post">
-                    <input type="hidden" id="team_id" name="team_id">
-                    
-                    <div class="form-group">
-                        <label for="grade">Nota (de {{ activity.max_grade }})</label>
-                        <input type="number" id="grade" name="grade" class="form-control" min="0" max="{{ activity.max_grade }}" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="feedback">Retroalimentación</label>
-                        <textarea id="feedback" name="feedback" class="form-control" rows="4"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button id="cancel-grade-btn" class="btn btn-outline">Cancelar</button>
-                <button id="submit-grade-btn" class="btn btn-primary">Guardar Nota</button>
-            </div>
+          <div class="modal-header">
+            <h3>Calificar Equipo: <span id="team-name-display"></span></h3>
+            <button id="close-grade-modal" class="btn btn-icon">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="grade-team-form" action="{{ url_for('professor.grade_team', class_id=selected_class.id, activity_id=activity.id) }}" method="post">
+              <input type="hidden" id="team_id" name="team_id">
+      
+              <div class="form-group">
+                <label for="grade">Nota (de {{ activity.max_grade }})</label>
+                <input type="number"
+                       id="grade"
+                       name="grade"
+                       class="form-control3"
+                       min="0"
+                       max="{{ activity.max_grade }}"
+                       step="1"
+                       required
+                       placeholder="Ingresa un número entero entre 0 y {{ activity.max_grade }}">
+                <small style="color: #555;">Solo se permiten números enteros entre 0 y {{ activity.max_grade }}.</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="feedback">Retroalimentación</label>
+                <textarea id="feedback" name="feedback" class="form-control3" rows="4"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button id="cancel-grade-btn" class="btn btn-outline">Cancelar</button>
+            <button id="submit-grade-btn" class="btn btn-primary">Guardar Nota</button>
+          </div>
         </div>
-    </div>
+      </div>
+      
 </div>
 {% endblock %}
 

@@ -76,10 +76,8 @@
                     <th>Estudiante</th>
                     <th>Email</th>
                     <th>Fecha de Inscripción</th>
-                    <th>Nota</th>
-                    <th>Asistencia</th>
                     <th>Estado</th>
-                    <th>Acción</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -92,7 +90,17 @@
                         <td class="font-medium">{{ student.id }}</td>
                         <td>
                             <div class="user-info">
-                                <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                                <div class="logo2">
+                                    <div class="logo-circle">
+                                        <span>
+                                            {% if student.name %}
+                                                {{ student.name.split()[0][0] }}{{ student.name.split()[-1][0] }}
+                                            {% else %}
+                                                ??
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
                                 <span>{{ student.name }}</span>
                                 {% if student.in_team %}
                                 <span class="badge in-team">En Equipo</span>
@@ -101,16 +109,10 @@
                         </td>
                         <td>{{ student.email }}</td>
                         <td>{{ student.enrollment_date }}</td>
-                        <td>{{ student.grade }}</td>
-                        <td>{{ student.attendance }}</td>
                         <td>
                             <span class="badge {{ student.status|lower }}">{{ student.status }}</span>
                         </td>
-                        <td>
-                            <a href="{{ url_for('professor.delete_student', student_id=student.id, class_id=selected_class.id) }}" class="btn btn-icon">
-                                🗑️
-                            </a>
-                        </td>
+                        
                     </tr>
                     {% endfor %}
                 {% else %}
@@ -128,12 +130,12 @@
         <form id="create-team-form" action="{{ url_for('professor.create_team', class_id=selected_class.id) }}" method="post">
             <div class="form-group">
                 <label for="team_name">Nombre del Equipo</label>
-                <input type="text" id="team_name" name="team_name" class="form-control" required>
+                <input type="text" id="team_name" name="team_name" class="form-control3" required>
             </div>
             
             <div class="form-group">
                 <label for="team_project">Proyecto</label>
-                <input type="text" id="team_project" name="team_project" class="form-control" required>
+                <input type="text" id="team_project" name="team_project" class="form-control3" required>
             </div>
             
             <div class="form-group">
@@ -256,7 +258,7 @@
                         <p class="text-sm text-muted-foreground">${studentEmail}</p>
                     </div>
                     <div class="role-selector">
-                        <select name="student_role_${studentId}" class="form-control" required>
+                        <select name="student_role_${studentId}" class="form-control3" required>
                             <option value="">Select Role</option>
                             ${teamRoles.map(role => `<option value="${role}">${role}</option>`).join('')}
                         </select>

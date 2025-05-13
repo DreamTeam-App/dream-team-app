@@ -5,7 +5,7 @@
 {% block content %}
 <div class="data-container">
   <h2 class="page-title">Equipos - {{ selected_class.name }}</h2>
-  
+
   <!-- Mensajes Flash -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -16,7 +16,7 @@
       </div>
     {% endif %}
   {% endwith %}
-  
+
   <!-- Controles -->
   <div class="controls">
     <div class="rows-selector">
@@ -46,7 +46,7 @@
       </form>
     </div>
   </div>
-  
+
   <div style="margin-bottom:1rem;">
     <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
       <i class="fas fa-plus"></i> Crear nuevo equipo
@@ -75,92 +75,88 @@
               </div>
               <span class="progress-text">{{ team.progress }}%</span>
             </td>
-            
             <td>
-              <!-- <a href="{{ url_for('professor.delete_team', team_id=team.id, class_id=selected_class.id) }}" class="btn btn-icon">🗑️</a> -->
-              <a  class="btn btn-sm btn-primary">
+              <a class="btn btn-sm btn-primary">
                 <i class="fas fa-eye"></i> Ver detalles
-            </a>
+              </a>
             </td>
           </tr>
           <tr class="team-details-row" id="details-{{ team.id }}">
             <td colspan="8" class="team-details">
               <div class="team-details-content">
-                <!-- Miembros del equipo -->
                 <h3>Miembros del equipo</h3>
                 <div class="member-grid">
                   {% for member in team.members %}
                     {% set student = students|selectattr('name','equalto',member.name)|first %}
                     <div class="member-card">
-                      <img src="{{ student.avatar if student else '/static/images/placeholder.png' }}"
-                           alt="{{ member.name }}" class="avatar">
+                      <div class="logo2">
+                        <div class="logo-circle">
+                          <span>
+                            {% if member.name %}
+                              {{ member.name.split()[0][0] }}{{ member.name.split()[-1][0] }}
+                            {% else %}
+                              ??
+                            {% endif %}
+                          </span>
+                        </div>
+                      </div>
                       <div class="member-info">
                         <p class="member-name">
                           {{ member.name }}
                           <span class="role-badge">{{ member.role }}</span>
-                          <button type="button" class="edit-role-btn btn btn-sm btn-outline"
-                                  data-member="{{ member.name }}">
+                          <button type="button" class="edit-role-btn btn btn-sm btn-outline" data-member="{{ member.name }}">
                             <i class="fas fa-edit"></i>
                           </button>
                         </p>
                         <p class="member-email">{{ student.email if student else 'No hay correo disponible' }}</p>
-                        <form action="{{ url_for('professor.update_team_member_role',
-                                                 class_id=selected_class.id,
-                                                 team_id=team.id) }}"
-                              method="post"
-                              class="edit-role-form"
-                              id="edit-role-{{ team.id }}-{{ member.name|replace(' ','-') }}">
+                        <form action="{{ url_for('professor.update_team_member_role', class_id=selected_class.id, team_id=team.id) }}" method="post" class="edit-role-form" id="edit-role-{{ team.id }}-{{ member.name|replace(' ','-') }}">
                           <input type="hidden" name="member_name" value="{{ member.name }}">
-                          <select name="new_role" class="form-control">
+                          <select name="new_role" class="form-control2">
                             <option value="">Seleccionar rol</option>
                             {% for role in ['Team Lead','Project Manager','Frontend Developer',
                                             'Backend Developer','Full Stack Developer','UI/UX Designer',
                                             'Database Administrator','DevOps Engineer','Quality Assurance',
                                             'Data Analyst','Documentation Specialist','Content Creator'] %}
-                              <option value="{{ role }}"
-                                {% if member.role==role %}selected{% endif %}>
-                                {{ role }}
-                              </option>
+                              <option value="{{ role }}" {% if member.role==role %}selected{% endif %}>{{ role }}</option>
                             {% endfor %}
                           </select>
-                          <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
-                          <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancelar</button>
+                          <div>
+                            <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                            <button type="button" class="cancel-edit-btn btn btn-sm btn-outline">Cancelar</button>
+                          </div>
                         </form>
                       </div>
                     </div>
                   {% endfor %}
                 </div>
 
-
-                  <!-- Actividades Asignadas - REDISEÑADO COMO CARDS -->
-                  <div class="activities-section">
-                    <h3>Actividades Asignadas</h3>
-                    {% if team.activities %}
-                      <div class="activities-container">
-                        {% for activity in team.activities %}
-                          <div class="activity-card">
-                            <div class="activity-card-header">
-                              <div class="activity-number">{{ loop.index }}</div>
-                              <div class="activity-title">{{ activity.name }}</div>
-                              <div class="activity-status {{ activity.status|lower }}">{{ activity.status }}</div>
-                            </div>
-                            <div class="activity-card-body">
-                              <div class="activity-description">{{ activity.description }}</div>
-                              <div class="activity-meta">
-                                <div class="activity-date">
-                                  <i class="fas fa-calendar"></i> {{ activity.due_date }}
-                                </div>
-                                <div class="activity-points">
-                                  <i class="fas fa-star"></i> {{ activity.max_grade }}
-                                </div>
+                <div class="activities-section">
+                  <h3>Actividades Asignadas</h3>
+                  {% if team.activities %}
+                    <div class="activities-container">
+                      {% for activity in team.activities %}
+                        <div class="activity-card">
+                          <div class="activity-card-header">
+                            <div class="activity-number">{{ loop.index }}</div>
+                            <div class="activity-title">{{ activity.name }}</div>
+                            <div class="activity-status {{ activity.status|lower }}">{{ activity.status }}</div>
+                          </div>
+                          <div class="activity-card-body">
+                            <div class="activity-description">{{ activity.description }}</div>
+                            <div class="activity-meta">
+                              <div class="activity-date">
+                                <i class="fas fa-calendar"></i> {{ activity.due_date }}
                               </div>
-                              
-                              <div class="activity-sections-container">
-                                <!-- Estado de Coevaluaciones -->
-                                <div class="activity-section-box">
-                                  <h4 class="section-title">Requisitos para predecir desempeño</h4>
-                                  
-                                  
+                              <div class="activity-points">
+                                <i class="fas fa-star"></i> {{ activity.max_grade }}
+                              </div>
+                            </div>
+
+                            <div class="activity-sections-container">
+                              <div class="activity-section-box">
+                                <h4 class="section-title">Requisitos para predecir desempeño</h4>
+
+                                {% if activity.coevaluation_status is defined %}
                                   <div class="progress-section">
                                     <div class="progress-label">Clima del equipo:</div>
                                     <div class="progress-bar">
@@ -171,40 +167,49 @@
                                       ({{ activity.coevaluation_status.percentage }}%)
                                     </span>
                                   </div>
-                                  
-                                  <!-- Test de Personalidad Progress -->
+                                {% else %}
                                   <div class="progress-section">
-                                    <div class="progress-label">Test de Personalidad:</div>
-                                    {% set personality_percentage = 100 if activity.personality_forms_completed else (100 - (activity.personality_pending_members|length / team.members|length * 100))|int %}
-                                    <div class="progress-bar">
-                                      <div class="progress" style="width: {{ personality_percentage }}%" data-percentage="{{ personality_percentage }}"></div>
+                                    <div class="progress-label">Clima del equipo:</div>
+                                    <div class="progress-text">
+                                      La evaluación cruzada del clima del equipo no está habilitada.
                                     </div>
-                                    <span class="progress-text">
-                                      {% if activity.personality_forms_completed %}
-                                        Completado (100%)
-                                      {% else %}
-                                        Pendiente ({{ personality_percentage }}%)
-                                      {% endif %}
-                                    </span>
                                   </div>
-                                  
-                                  <!-- Test de Roles Progress -->
-                                  <div class="progress-section">
-                                    <div class="progress-label">Test de Roles:</div>
-                                    {% set roles_percentage = 100 if activity.team_roles_forms_completed else (100 - (activity.team_roles_pending_members|length / team.members|length * 100))|int %}
-                                    <div class="progress-bar">
-                                      <div class="progress" style="width: {{ roles_percentage }}%" data-percentage="{{ roles_percentage }}"></div>
-                                    </div>
-                                    <span class="progress-text">
-                                      {% if activity.team_roles_forms_completed %}
-                                        Completado (100%)
-                                      {% else %}
-                                        Pendiente ({{ roles_percentage }}%)
-                                      {% endif %}
-                                    </span>
+                                {% endif %}
+
+                                <!-- Test de Personalidad -->
+                                <div class="progress-section">
+                                  <div class="progress-label">Test de Personalidad:</div>
+                                  {% set personality_percentage = 100 if activity.personality_forms_completed else (100 - (activity.personality_pending_members|length / team.members|length * 100))|int %}
+                                  <div class="progress-bar">
+                                    <div class="progress" style="width: {{ personality_percentage }}%" data-percentage="{{ personality_percentage }}"></div>
                                   </div>
-                                  
-                                  <div class="requirements-list">
+                                  <span class="progress-text">
+                                    {% if activity.personality_forms_completed %}
+                                      Completado (100%)
+                                    {% else %}
+                                      Pendiente ({{ personality_percentage }}%)
+                                    {% endif %}
+                                  </span>
+                                </div>
+
+                                <!-- Test de Roles -->
+                                <div class="progress-section">
+                                  <div class="progress-label">Test de Roles:</div>
+                                  {% set roles_percentage = 100 if activity.team_roles_forms_completed else (100 - (activity.team_roles_pending_members|length / team.members|length * 100))|int %}
+                                  <div class="progress-bar">
+                                    <div class="progress" style="width: {{ roles_percentage }}%" data-percentage="{{ roles_percentage }}"></div>
+                                  </div>
+                                  <span class="progress-text">
+                                    {% if activity.team_roles_forms_completed %}
+                                      Completado (100%)
+                                    {% else %}
+                                      Pendiente ({{ roles_percentage }}%)
+                                    {% endif %}
+                                  </span>
+                                </div>
+
+                                <div class="requirements-list">
+                                  {% if activity.coevaluation_status is defined %}
                                     <div class="requirement-item {% if activity.coevaluation_status.all_completed %}completed{% else %}pending{% endif %}">
                                       <i class="fas {% if activity.coevaluation_status.all_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
                                       <span>Evaluaciones cruzadas del Clima del equipo completadas</span>
@@ -212,175 +217,89 @@
                                         <span class="pending-detail">(Faltan: {{ activity.coevaluation_status.pending_members|join(', ') }})</span>
                                       {% endif %}
                                     </div>
-                                    
-                                    <div class="requirement-item {% if activity.personality_forms_completed %}completed{% else %}pending{% endif %}">
-                                      <i class="fas {% if activity.personality_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                                      <span>Test de personalidad completados</span>
-                                      {% if not activity.personality_forms_completed %}
-                                        <span class="pending-detail">(Faltan: {{ activity.personality_pending_members|join(', ') }})</span>
-                                      {% endif %}
-                                    </div>
-                                    
-                                    <div class="requirement-item {% if activity.team_roles_forms_completed %}completed{% else %}pending{% endif %}">
-                                      <i class="fas {% if activity.team_roles_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                                      <span>Test de roles de equipo completados</span>
-                                      {% if not activity.team_roles_forms_completed %}
-                                        <span class="pending-detail">(Faltan: {{ activity.team_roles_pending_members|join(', ') }})</span>
-                                      {% endif %}
-                                    </div>
-                                    
-                                    <div class="requirement-item {% if activity.team_grade.submitted %}completed{% else %}pending{% endif %}">
-                                      <i class="fas {% if activity.team_grade.submitted %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                                      <span>Actividad calificada por el profesor</span>
-                                    </div>
-                                  </div>
-                                  
-                                  {% if activity.coevaluation_status.all_completed 
-                                         and activity.personality_forms_completed 
-                                         and activity.team_roles_forms_completed 
-                                         and activity.team_grade.submitted %}
-                                    <div class="predict-performance">
-                                      <button class="btn btn-success predict-btn"
-                                              data-team-id="{{ team.id }}"
-                                              data-activity-id="{{ activity.id }}">
-                                        <i class="fas fa-chart-line"></i> Predecir Desempeño
-                                      </button>
-                                    </div>
-                                  {% endif %}
-                                </div>
-                                
-                                <!-- Estado de Entrega -->
-                                <div class="activity-section-box">
-                                  <h4 class="section-title">Estado de Entrega</h4>
-                                  {% if activity.team_grade.submitted %}
-                                    <div class="submission-status submitted">
-                                      <i class="fas fa-check-circle"></i> Entregado el {{ activity.team_grade.submission_date }}
-                                    </div>
-                                    <div class="grade-info">
-                                      <span class="grade-label">Calificación:</span>
-                                      <span class="grade-value">{{ activity.team_grade.grade }}/{{ activity.max_grade }}</span>
-                                    </div>
-                                    {% if activity.team_grade.feedback %}
-                                      <div class="feedback">
-                                        <h6>Retroalimentación:</h6>
-                                        <p>{{ activity.team_grade.feedback }}</p>
-                                      </div>
-                                    {% endif %}
                                   {% else %}
-                                    <div class="submission-status pending">
-                                      <i class="fas fa-clock"></i> Pendiente de entrega
-                                    </div>
-                                    <div class="grade-actions">
-                                      <button type="button" class="btn btn-primary open-grade-modal-btn" 
-                                              data-team-id="{{ team.id }}" 
-                                              data-activity-id="{{ activity.id }}"
-                                              data-activity-name="{{ activity.name }}"
-                                              data-max-grade="{{ activity.max_grade }}">
-                                        <i class="fas fa-star"></i> Calificar
-                                      </button>
+                                    <div class="requirement-item pending">
+                                      <i class="fas fa-times-circle"></i>
+                                      <span>La evaluación cruzada del clima del equipo no está habilitada.</span>
                                     </div>
                                   {% endif %}
+
+                                  <div class="requirement-item {% if activity.personality_forms_completed %}completed{% else %}pending{% endif %}">
+                                    <i class="fas {% if activity.personality_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                    <span>Test de personalidad completados</span>
+                                    {% if not activity.personality_forms_completed %}
+                                      <span class="pending-detail">(Faltan: {{ activity.personality_pending_members|join(', ') }})</span>
+                                    {% endif %}
+                                  </div>
+
+                                  <div class="requirement-item {% if activity.team_roles_forms_completed %}completed{% else %}pending{% endif %}">
+                                    <i class="fas {% if activity.team_roles_forms_completed %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                    <span>Test de roles de equipo completados</span>
+                                    {% if not activity.team_roles_forms_completed %}
+                                      <span class="pending-detail">(Faltan: {{ activity.team_roles_pending_members|join(', ') }})</span>
+                                    {% endif %}
+                                  </div>
                                 </div>
+
+                                {% if activity.coevaluation_status is defined and activity.coevaluation_status.all_completed and activity.personality_forms_completed and activity.team_roles_forms_completed %}
+                                  <div class="predict-performance">
+                                    <button class="btn btn-success predict-btn" data-team-id="{{ team.id }}" data-activity-id="{{ activity.id }}">
+                                      <i class="fas fa-chart-line"></i> Predecir Desempeño
+                                    </button>
+                                  </div>
+                                {% endif %}
+                              </div>
+
+                              <!-- Estado de Entrega -->
+                              <div class="activity-section-box">
+                                <h4 class="section-title">Estado de Entrega</h4>
+                                {% if activity.team_grade.submitted %}
+                                  <div class="submission-status submitted">
+                                    <i class="fas fa-check-circle"></i> Entregado el {{ activity.team_grade.submission_date }}
+                                  </div>
+                                  <div class="grade-info">
+                                    <span class="grade-label">Calificación:</span>
+                                    <span class="grade-value">{{ activity.team_grade.grade }}/{{ activity.max_grade }}</span>
+                                  </div>
+                                  {% if activity.team_grade.feedback %}
+                                    <div class="feedback">
+                                      <h6>Retroalimentación:</h6>
+                                      <p>{{ activity.team_grade.feedback }}</p>
+                                    </div>
+                                  {% endif %}
+                                {% else %}
+                                  <div class="submission-status pending">
+                                    <i class="fas fa-clock"></i> Pendiente de entrega
+                                  </div>
+                                {% endif %}
                               </div>
                             </div>
                           </div>
-                        {% endfor %}
-                      </div>
-                    {% else %}
-                      <p class="no-activities">No hay actividades asignadas a este equipo.</p>
-                    {% endif %}
-                  </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <p class="no-activities">No hay actividades asignadas a este equipo.</p>
+                  {% endif %}
                 </div>
-              </td>
-            </tr>
-          {% endfor %}
-        {% else %}
-          <tr><td colspan="8" class="empty-table">No se econtraron teams</td></tr>
-        {% endif %}
-        </tbody>
-      </table>
-    </div>
-
-    {% if teams %}
-      <div class="pagination">
-        <a href="{{ url_for('professor.teams',
-                             class_id=selected_class.id,
-                             rows=rows_per_page,
-                             page=page-1,
-                             search=search_term) }}"
-           class="btn btn-outline {% if page==1 %}disabled{% endif %}">Previous</a>
-        <div class="page-numbers">
-          {% set display_pages=3 %}
-          {% set start_page = page<=2 and 1 or (page>=total_pages-1 and total_pages-2 or page-1) %}
-          {% set end_page = (start_page+display_pages-1)<=total_pages and start_page+display_pages-1 or total_pages %}
-          {% for p in range(start_page, end_page+1) %}
-            <a href="{{ url_for('professor.teams',
-                                 class_id=selected_class.id,
-                                 rows=rows_per_page,
-                                 page=p,
-                                 search=search_term) }}"
-               class="page-number {% if p==page %}active{% endif %}">{{ p }}</a>
-          {% endfor %}
-        </div>
-        <a href="{{ url_for('professor.teams',
-                             class_id=selected_class.id,
-                             rows=rows_per_page,
-                             page=page+1,
-                             search=search_term) }}"
-           class="btn btn-outline {% if page==total_pages %}disabled{% endif %}">Next</a>
-      </div>
-    {% endif %}
-</div>
-
-<!-- Modal para calificar actividad -->
-<div id="gradeActivityModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <h3 id="modal-activity-title">Calificar Actividad</h3>
-    <form id="modal-grade-form" method="post" class="grade-activity-form">
-      <div class="form-group">
-        <label for="modal-grade">Calificación (sobre <span id="modal-max-grade">10</span>):</label>
-        <input type="number" id="modal-grade" name="grade" min="0" step="0.1" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="modal-feedback">Retroalimentación:</label>
-        <textarea id="modal-feedback" name="feedback" class="form-control" rows="3"></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-outline close-modal-btn">Cancelar</button>
-        <button type="submit" class="btn btn-primary grade-submit-btn">
-          <i class="fas fa-save"></i> Guardar Calificación
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal para mostrar resultados de predicción -->
-<div id="predictionModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <div id="predictionResults"></div>
-  </div>
-</div>
-
-<!-- Modal para mostrar mensaje de éxito -->
-<div id="gradeSuccessModal" class="modal">
-  <div class="modal-content">
-    <div class="success-message">
-      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-      <h3>¡Calificación guardada con éxito!</h3>
-      <p>La calificación ha sido registrada correctamente.</p>
-      <button class="btn btn-primary close-success-btn">Cerrar</button>
-    </div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="8" class="empty-table">No se encontraron equipos</td></tr>
+      {% endif %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}
+
 
 {% block styles %}
-
-{% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='professor/teams.css') }}">
+{% endblock %}
+  
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -2,6 +2,7 @@
     --primary: #4f46e5;
     --primary-dark: #4338ca;
     --primary-light: #818cf8;
+    --student-logo: #b1e2f8;
     --secondary: #f3f4f6;
     --secondary-light: #f9fafb;
     --border: #e5e7eb;
@@ -546,7 +547,7 @@ body {
 
 .member-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1rem;
     margin: 1rem 0;
 }
@@ -559,6 +560,25 @@ body {
     background-color: white;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+}
+
+.logo2 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.logo-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--student-logo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: black;
 }
 
 .member-info {
@@ -941,6 +961,15 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+.form-control3 {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -979,13 +1008,13 @@ body {
     color: #333;
 }
 
-.form-control {
+.form-control2 {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-.form-control:focus {
+.form-control2:focus {
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);

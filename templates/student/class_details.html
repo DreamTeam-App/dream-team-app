@@ -93,14 +93,14 @@
                                         <div class="grade-value">{{ activity.teacher_grade }}</div>
                                     </div>
                                     <div class="grade-card grade-peer">
-                                        <div class="grade-title">Nota de coevaluación</div>
+                                        <div class="grade-title">Nota de evaluación del clima del equipo</div>
                                         <div class="grade-value">{{ activity.peer_grade }}</div>
                                     </div>
                                 </div>
                                 
                                 <!-- Coevaluación -->
                                 <div id="evaluation-{{ activity.id }}" style="display: none;">
-                                    <h4 style="margin-top: 1.5rem;">Detalle de Coevaluación</h4>
+                                    <h4 style="margin-top: 1.5rem;">Detalle de evaluación del clima del equipo</h4>
                                     {% if activity.evaluations %}
                                     <table class="evaluation-table">
                                         <thead>
@@ -127,28 +127,23 @@
                                     {% else %}
                                     <div class="empty-state">
                                         <i class="fas fa-clipboard-check"></i>
-                                        <p>No hay datos de coevaluación disponibles</p>
+                                        <p>No hay datos de la evaluación del clima del equipo disponibles</p>
                                     </div>
                                     {% endif %}
                                 </div>
                                 
-                                <div class="evaluation-toggle">
-                                    <button class="button button-outline toggle-evaluation" data-activity="{{ activity.id }}">
-                                        <span class="show-text">Ver coevaluación</span>
-                                        <span class="hide-text" style="display: none;">Ocultar coevaluación</span>
-                                    </button>
-                                </div>
+                                
                                 
                                 <!-- Botón para abrir el modal de coevaluación -->
                                 {% if activity.coevaluation_enabled and not activity.coevaluation_submitted %}
                                 <div class="coevaluation-toggle">
                                     <button class="button button-primary open-coevaluation-modal" data-activity="{{ activity.id }}">
-                                        Realizar coevaluación
+                                        Realizar evaluación del clima del equipo
                                     </button>
                                 </div>
                                 {% elif activity.coevaluation_enabled and activity.coevaluation_submitted %}
                                 <div class="coevaluation-status status-submitted">
-                                    <i class="fas fa-check-circle"></i> Has completado la coevaluación para esta actividad
+                                    <i class="fas fa-check-circle"></i> Has completado la evaluación del clima del equipo para esta actividad
                                 </div>
                                 {% endif %}
                             </div>
@@ -175,7 +170,7 @@
         <div id="coevaluation-modal-{{ activity.id }}" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">Coevaluación: {{ activity.title }}</h3>
+                    <h3 class="modal-title">Evaluación del clima del equipo: {{ activity.title }}</h3>
                     <button class="close-modal" data-activity="{{ activity.id }}">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -238,7 +233,7 @@
                         
                         <div class="modal-footer">
                             <button type="button" class="button button-outline close-modal-btn" data-activity="{{ activity.id }}">Cancelar</button>
-                            <button type="submit" class="button button-primary">Enviar coevaluación</button>
+                            <button type="submit" class="button button-primary">Enviar evaluación del clima del equipo</button>
                         </div>
                     </form>
                 </div>
