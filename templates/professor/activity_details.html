@@ -155,6 +155,7 @@
                        required
                        placeholder="Ingresa un número entero entre 0 y {{ activity.max_grade }}">
                 <small style="color: #555;">Solo se permiten números enteros entre 0 y {{ activity.max_grade }}.</small>
+                <span id="grade-error" style="color: red; display: none;">⚠ La nota debe ser un número entero entre 0 y {{ activity.max_grade }}.</span>
               </div>
       
               <div class="form-group">
@@ -168,7 +169,7 @@
             <button id="submit-grade-btn" class="btn btn-primary">Guardar Nota</button>
           </div>
         </div>
-      </div>
+    </div>
       
 </div>
 {% endblock %}
@@ -234,6 +235,31 @@
                 gradeTeamModal.classList.remove('open');
             }
         });
+
+        const gradeInput = document.getElementById("grade");
+        const submitButton = document.getElementById("submit-grade-btn");
+        const errorSpan = document.getElementById("grade-error");
+        const max = parseInt("{{ activity.max_grade }}");
+
+        function validarNota() {
+        const valor = gradeInput.value.trim();
+        const valorInt = parseInt(valor, 10);
+        const esEntero = /^\d+$/.test(valor); // solo dígitos
+        const dentroDelRango = valorInt >= 0 && valorInt <= max;
+
+        if (esEntero && dentroDelRango) {
+            submitButton.disabled = false;
+            errorSpan.style.display = "none";
+        } else {
+            submitButton.disabled = true;
+            errorSpan.style.display = "inline";
+        }
+        }
+
+        gradeInput.addEventListener("input", validarNota);
+
+        // Llamar al cargar por si hay valores prellenados
+        validarNota();
     });
 </script>
 {% endblock %}

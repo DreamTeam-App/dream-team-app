@@ -291,6 +291,80 @@
       {% endif %}
       </tbody>
     </table>
+    </div>
+
+    {% if teams %}
+      <div class="pagination">
+        <a href="{{ url_for('professor.teams',
+                             class_id=selected_class.id,
+                             rows=rows_per_page,
+                             page=page-1,
+                             search=search_term) }}"
+           class="btn btn-outline {% if page==1 %}disabled{% endif %}">Previous</a>
+        <div class="page-numbers">
+          {% set display_pages=3 %}
+          {% set start_page = page<=2 and 1 or (page>=total_pages-1 and total_pages-2 or page-1) %}
+          {% set end_page = (start_page+display_pages-1)<=total_pages and start_page+display_pages-1 or total_pages %}
+          {% for p in range(start_page, end_page+1) %}
+            <a href="{{ url_for('professor.teams',
+                                 class_id=selected_class.id,
+                                 rows=rows_per_page,
+                                 page=p,
+                                 search=search_term) }}"
+               class="page-number {% if p==page %}active{% endif %}">{{ p }}</a>
+          {% endfor %}
+        </div>
+        <a href="{{ url_for('professor.teams',
+                             class_id=selected_class.id,
+                             rows=rows_per_page,
+                             page=page+1,
+                             search=search_term) }}"
+           class="btn btn-outline {% if page==total_pages %}disabled{% endif %}">Next</a>
+      </div>
+    {% endif %}
+</div>
+
+<!-- Modal para calificar actividad -->
+<div id="gradeActivityModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3 id="modal-activity-title">Calificar Actividad</h3>
+    <form id="modal-grade-form" method="post" class="grade-activity-form">
+      <div class="form-group">
+        <label for="modal-grade">Calificación (sobre <span id="modal-max-grade">10</span>):</label>
+        <input type="number" id="modal-grade" name="grade" min="0" step="0.1" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="modal-feedback">Retroalimentación:</label>
+        <textarea id="modal-feedback" name="feedback" class="form-control" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline close-modal-btn">Cancelar</button>
+        <button type="submit" class="btn btn-primary grade-submit-btn">
+          <i class="fas fa-save"></i> Guardar Calificación
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para mostrar resultados de predicción -->
+<div id="predictionModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="predictionResults"></div>
+  </div>
+</div>
+
+<!-- Modal para mostrar mensaje de éxito -->
+<div id="gradeSuccessModal" class="modal">
+  <div class="modal-content">
+    <div class="success-message">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>¡Calificación guardada con éxito!</h3>
+      <p>La calificación ha sido registrada correctamente.</p>
+      <button class="btn btn-primary close-success-btn">Cerrar</button>
+    </div>
   </div>
 </div>
 {% endblock %}
