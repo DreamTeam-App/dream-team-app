@@ -1,10 +1,10 @@
-{% extends "student/layout.html" %}
+{% extends "professor/layout.html" %}
 
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
     <div class="page-header">
-        <a href="{{ url_for('student.home') }}" class="back-button">
+        <a href="{{ url_for('professor.index') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
         <h1 class="page-title">Mi Perfil</h1>
@@ -23,7 +23,7 @@
         <div class="profile-content">
             <div class="profile-details">
                 <div class="profile-detail">
-                    <label class="profile-label">ID de Estudiante</label>
+                    <label class="profile-label">ID de Profesor</label>
                     <p>{{ user_profile.uid }}</p>
                 </div>
             </div>

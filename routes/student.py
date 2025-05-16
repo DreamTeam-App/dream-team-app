@@ -162,6 +162,7 @@ def profile():
     user_doc = db.collection('users').document(uid).get()
     if user_doc.exists:
         user_profile = user_doc.to_dict()
+        user_profile["uid"] = uid  
     else:
         flash("Perfil del usuario no encontrado.", "error")
         user_profile = {}
@@ -360,17 +361,7 @@ def class_details(class_id):
                 if team_grade_data:
                     if team_grade_data.get("submitted"):
                         submission_date = team_grade_data.get("submission_date")
-                        if submission_date and isinstance(submission_date, datetime.datetime):
-                            if due_date_obj and submission_date > due_date_obj:
-                                status = "late"
-                            else:
-                                status = "completed"
-                        else:
-                            status = "completed"
-                    elif is_past_due:
-                        status = "late"
-            elif is_past_due:
-                status = "late"
+                        
             
             # Nota del profesor (si el equipo tiene una calificación)
             teacher_grade = "-"

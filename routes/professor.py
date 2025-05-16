@@ -27,33 +27,86 @@ def before_request():
 @professor_bp.route('/index')
 def index():
     try:
-        classes_ref = db.collection('classes')
+        # Obtener UID desde sesión
+        if "user" in session and session["user"].get("uid"):
+            uid = session["user"]["uid"]
+        elif "temp_user" in session and session["temp_user"].get("uid"):
+            uid = session["temp_user"]["uid"]
+        else:
+            flash("No se encontró el UID del usuario en la sesión.", "error")
+            return redirect(url_for('home'))
+
+        # Obtener perfil del usuario
+        user_doc = db.collection('users').document(uid).get()
+        if user_doc.exists:
+            user = user_doc.to_dict()
+            user["uid"] = uid
+        else:
+            flash("Perfil del profesor no encontrado.", "error")
+            return redirect(url_for('home'))
+
+        # Obtener solo las clases del profesor
+        classes_ref = db.collection('classes').where('instructor_id', '==', uid)
         docs = classes_ref.get()
         classes = [doc.to_dict() for doc in docs]
+
     except Exception as e:
-        flash(f"Error fetching classes: {e}", "error")
+        flash(f"Error al obtener las clases: {e}", "error")
         classes = []
-    return render_template('professor/index.html', classes=classes)
+        user = {}
+
+    return render_template('professor/index.html', classes=classes, user=user)
+
+
+
+@professor_bp.route('/perfil')
+def profile():
+    # Intentar obtener el UID del usuario desde la sesión registrada o temporal
+    uid = None
+    if "user" in session and session["user"].get("uid"):
+        uid = session["user"]["uid"]
+    elif "temp_user" in session and session["temp_user"].get("uid"):
+        uid = session["temp_user"]["uid"]
+
+    if not uid:
+        flash("No se encontró el UID del profesor en la sesión.", "error")
+        return redirect(url_for('home'))  # Redirige al login o home, según corresponda
+
+    # Consultar el documento del usuario en la colección "users"
+    user_doc = db.collection('users').document(uid).get()
+    if user_doc.exists:
+        user_profile = user_doc.to_dict()
+        user_profile["uid"] = uid  
+    else:
+        flash("Perfil del profesor no encontrado.", "error")
+        user_profile = {}
+
+    return render_template('professor/perfil.html', user_profile=user_profile)
 
 # Ruta para crear una clase (usa formulario enviado vía POST)
 @professor_bp.route('/create_class', methods=['POST'])
 def create_class():
     try:
+        if "user" in session and session["user"].get("uid"):
+            uid = session["user"]["uid"]
         # Se obtienen los datos del formulario
         class_name = request.form.get('class_name')
         instructor = request.form.get('instructor')
-        schedule = request.form.get('schedule')
+        start_time = request.form.get('start_time')
+        end_time = request.form.get('end_time')
         location = request.form.get('location')
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         description = request.form.get('description')
         
+        schedule = f"{start_time} - {end_time}"
         # Generar un join code aleatorio
         join_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
         
         new_class = {
             "name": class_name,
             "instructor": instructor,
+            "instructor_id" : uid,
             "schedule": schedule,
             "location": location,
             "start_date": start_date,
