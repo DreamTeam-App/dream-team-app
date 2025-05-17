@@ -1065,27 +1065,42 @@ def activities(class_id):
     try:
         class_ref = db.collection('classes').document(class_id)
         class_doc = class_ref.get()
-        
+
         if not class_doc.exists:
             flash("Class not found", "error")
             return redirect(url_for('professor.index'))
-            
-        # Get activities for this class
+
+        #  Obtener estudiantes desde la colección enrollments
+        enrollments_docs = class_ref.collection('enrollments').get()
+        students = []
+        for doc in enrollments_docs:
+            data = doc.to_dict()
+            if "student_id" in data and "id" not in data:
+                data["id"] = data["student_id"]
+            students.append(data)
+
+        student_count = len(students)
+
+        #  Obtener actividades
         activities_ref = class_ref.collection('activities')
         activities_docs = activities_ref.get()
         activities = [doc.to_dict() for doc in activities_docs]
-        
-        # Check if all students have teams
+
+        #  Verificar si todos los estudiantes tienen equipo
         all_students_in_team = all_students_have_teams(class_id)
-        
+
         return render_template('professor/activities.html',
-                              selected_class=class_doc.to_dict(),
-                              activities=activities,
-                              all_students_in_team=all_students_in_team,
-                              classes=[])  # If you have a list of classes, pass it here
+                               selected_class=class_doc.to_dict(),
+                               activities=activities,
+                               student_count=student_count,
+                               all_students_in_team=all_students_in_team,
+                               classes=[])  # Si tienes otras clases, pásalas aquí
+
     except Exception as e:
         flash(f"Error fetching activities: {e}", "error")
         return redirect(url_for('professor.index'))
+
+
 
 # Add routes for activities
 @professor_bp.route('/create_activity/<class_id>', methods=['POST'])

@@ -349,16 +349,16 @@
 </div>
 
 <!-- Modal para mostrar resultados de predicción -->
-<div id="predictionModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
+<div id="predictionModal" class="modal2">
+  <div class="modal2-content">
+    <span class="close-modal2">&times;</span>
     <div id="predictionResults"></div>
   </div>
 </div>
 
 <!-- Modal para mostrar mensaje de éxito -->
 <div id="gradeSuccessModal" class="modal">
-  <div class="modal-content">
+  <div class="modal2-content">
     <div class="success-message">
       <div class="success-icon"><i class="fas fa-check-circle"></i></div>
       <h3>¡Calificación guardada con éxito!</h3>
@@ -547,14 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="prediction-title">Predicción de Desempeño del Equipo</div>
                 <div class="prediction-score">${data.new_progress}%</div>
             </div>
-            <div class="prediction-details">
-                ${(data.factors || []).map(f => `
-                    <div class="prediction-factor">
-                        <div class="factor-name">${f.name}</div>
-                        <div class="factor-value">${f.value}</div>
-                    </div>
-                `).join('')}
-            </div>
             <div class="prediction-actions">
                 <button class="btn btn-primary" onclick="document.getElementById('predictionModal').classList.remove('active'); setTimeout(() => { document.getElementById('predictionModal').style.display = 'none'; }, 300);">
                     Cerrar
@@ -566,6 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cerrar modales
     document.querySelectorAll('.close-modal, .close-modal-btn').forEach(el => {
+        el.addEventListener('click', () => {
+            closeModal(gradeModal);
+            closeModal(predictionModal);
+            closeModal(successModal);
+        });
+    });
+
+    document.querySelectorAll('.close-modal2, .close-modal-btn').forEach(el => {
         el.addEventListener('click', () => {
             closeModal(gradeModal);
             closeModal(predictionModal);

@@ -24,10 +24,22 @@
     <!-- Controles -->
     <div class="controls">
         <div class="action-buttons">
-            <button id="create-activity-btn" class="btn btn-success {% if not all_students_in_team %}disabled{% endif %}">
+            <button id="create-activity-btn"
+                    class="btn btn-success"
+                    {% if student_count == 0 or not all_students_in_team %}
+                        disabled
+                        title="{% if student_count == 0 %}No hay estudiantes inscritos.{% else %}Todos los estudiantes deben estar en un equipo.{% endif %}"
+                    {% endif %}>
                 <i class="fas fa-tasks"></i> Crear Actividad
             </button>
         </div>
+
+        <!-- Mensaje aclaratorio -->
+        {% if student_count == 0 %}
+            <p class="text-muted">No puedes crear actividades porque no hay estudiantes inscritos.</p>
+        {% elif not all_students_in_team %}
+            <p class="text-muted">Todos los estudiantes deben estar asignados a un equipo para crear una actividad.</p>
+        {% endif %}
     </div>
     
     <!-- Modal Crear Actividad -->
@@ -141,6 +153,28 @@
         const cancelActivityBtn = document.getElementById('cancel-activity-btn');
         const submitActivityBtn = document.getElementById('submit-activity-btn');
         const createActivityForm = document.getElementById('create-activity-form');
+
+
+        const btn = document.getElementById('create-activity-btn');
+        const modal = document.getElementById('create-activity-modal');
+
+        if (btn) {
+            btn.addEventListener('click', function (e) {
+                if (btn.hasAttribute('disabled')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Si está habilitado, abre el modal
+                modal.classList.add('active');
+                modal.style.display = 'block';
+            });
+        }
+
+        document.getElementById('close-activity-modal')?.addEventListener('click', function () {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        });
 
         if (createActivityBtn && !createActivityBtn.classList.contains('disabled')) {
             createActivityBtn.addEventListener('click', function() {
