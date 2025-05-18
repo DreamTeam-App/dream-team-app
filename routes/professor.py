@@ -763,9 +763,7 @@ def predict_team_performance(team_id):
         if not team_grade_entry:
             return jsonify({'success': False, 'message': 'Este equipo no está asignado a la actividad especificada'})
         
-        # Verificar si la actividad ha sido calificada
-        if not team_grade_entry.get('submitted', False):
-            return jsonify({'success': False, 'message': 'La actividad debe ser calificada antes de predecir el desempeño'})
+        
         
         # Obtener coevaluaciones para esta actividad y equipo
         coevaluations_ref = activity_ref.collection('coevaluations')

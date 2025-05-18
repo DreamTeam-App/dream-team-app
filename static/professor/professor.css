@@ -1258,6 +1258,8 @@ body {
 .modal {
     display: none;
     position: fixed;
+    align-items: center;
+    justify-content: center;
     top: 0;
     left: 0;
     width: 100%;
@@ -1271,6 +1273,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.modal.active {
+    display: flex; /* visible y centrado con flex */
 }
 
 .modal-content {

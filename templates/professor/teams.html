@@ -17,35 +17,6 @@
     {% endif %}
   {% endwith %}
 
-  <!-- Controles -->
-  <div class="controls">
-    <div class="rows-selector">
-      <span>Mostrar</span>
-      <div class="dropdown">
-        <button class="dropdown-btn">
-          {{ rows_per_page }} <i class="fas fa-chevron-down"></i>
-        </button>
-        <div class="dropdown-content">
-          {% for opt in [10,25,50,100] %}
-            <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=opt, page=1, search=search_term) }}">{{ opt }}</a>
-          {% endfor %}
-        </div>
-      </div>
-      <span>equipos</span>
-    </div>
-
-    <div class="search-container">
-      <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
-        <input type="hidden" name="rows" value="{{ rows_per_page }}">
-        <input type="hidden" name="page" value="1">
-        <div class="search-input">
-          <i class="fas fa-search"></i>
-          <input type="text" name="search" placeholder="Buscar..." value="{{ search_term }}">
-        </div>
-        <button type="submit" class="btn btn-primary">Buscar</button>
-      </form>
-    </div>
-  </div>
 
   <div style="margin-bottom:1rem;">
     <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
