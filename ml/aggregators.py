@@ -79,3 +79,31 @@ def co_eval_agg(subdf):
         "WorkSatisfaction", "Autonomy", "ProcessIndicator"
     ]
     return {f"{c}_mean": subdf[c].mean() for c in cols}
+
+# ─── 4) AGGREGATOR: Índice Global de Clima ────────────────────────────────────
+def clima_agg(subdf):
+    """
+    Estandariza las 8 métricas de clima (z-score) y calcula el IGC (media de z-scores).
+    """
+    clima_cols = [
+        "Communication_mean", "Trust_mean", "Motivation_mean",
+        "Commitment_mean", "WorkSatisfaction_mean",
+        "DiversityPerception_mean", "EmotionalIntelligence_mean",
+        "Autonomy_mean"
+    ]
+    # Asegúrate de limpiar primero los NaN / strings
+    clean = subdf.copy()
+    for col in clima_cols:
+        clean[col] = clean[col].apply(to_float_clean)
+
+    # Cálculo de medias y desviaciones por característica
+    means = clean[clima_cols].mean()
+    stds  = clean[clima_cols].std()
+
+    # Z-score por miembro y característica
+    zscores = (clean[clima_cols] - means) / stds
+
+    # IGC: promedio de todos los z-scores
+    igc = zscores.values.mean()
+
+    return {"IGC": igc}
