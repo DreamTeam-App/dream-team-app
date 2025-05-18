@@ -1,0 +1,182 @@
+/* Estilos para la página de registro */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.register-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    max-width: 180px;
+    height: auto;
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+h3 {
+    color: #4a6cf7;
+    font-size: 1.2rem;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #4a6cf7;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+.consent-section {
+    background-color: #f8f9fa;
+    border-left: 4px solid #4a6cf7;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin: 25px 0;
+}
+
+.consent-section p {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.consent-section ul {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+.consent-section li {
+    margin-bottom: 8px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.consent-notice {
+    background-color: #fff8e6;
+    border: 1px solid #ffeeba;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-top: 15px;
+}
+
+.consent-notice p {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.submit-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background-color: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 25px;
+}
+
+.submit-btn:hover {
+    background-color: #3a5bd9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .register-container {
+        padding: 15px;
+    }
+    
+    .register-card {
+        padding: 20px;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .consent-section {
+        padding: 12px 15px;
+    }
+    
+    .consent-section li {
+        font-size: 14px;
+    }
+    
+    .consent-notice {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-card {
+        padding: 15px;
+    }
+    
+    .logo {
+        max-width: 150px;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+    }
+    
+    input[type="text"] {
+        padding: 10px 12px;
+    }
+    
+    .submit-btn {
+        padding: 12px;
+    }
+}

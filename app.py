@@ -34,7 +34,14 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Can be 'Strict', 'Lax', or 'Non
 # Decorator for routes that require authentication
 
 
+@app.route('/new_user', methods=['POST'])
+def new_user():
+    data = request.get_json()
+    uid = data.get('uid')
+    email = data.get('email')
+    name = data.get('name', '')
 
+    return jsonify({"success": True})
 @app.route('/auth', methods=['POST'])
 def authorize():
     token = request.headers.get('Authorization')
@@ -83,7 +90,10 @@ def authorize():
 
 @app.route('/')
 def home():
-    return render_template('public/home2.html')
+    if 'user' in session:
+        return redirect(url_for('student.home'))
+    else:
+        return render_template('public/home2.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -95,10 +105,14 @@ def register():
     uid = session.get("temp_user", {}).get("uid")
     email = session.get("temp_user", {}).get("email")
     name = request.form.get("name")
-    institution_id = request.form.get("institution_id")
 
-    if not uid or not email or not name or not institution_id:
-       return "Faltan datos", 400
+    if not uid or not email or not name:
+        flash("Por favor complete su nombre para continuar.", "error")
+        return redirect(url_for('register'))
+
+    # Generar un ID institucional aleatorio para anonimizar al usuario
+    import uuid
+    anonymous_id = str(uuid.uuid4())[:8].upper()  # Genera un ID alfanumérico de 8 caracteres
 
     # Guardar en Firestore solo si no existe
     user_ref = db.collection("users").document(uid)
@@ -110,7 +124,8 @@ def register():
             "email": email,
             "name": name,
             "role": "student",
-            "institution_id": institution_id
+            "anonymous_id": anonymous_id,  # Guardamos el ID anónimo
+            "consent_given": True  # Asumimos que el usuario dio su consentimiento al hacer clic en "Guardar"
         })
 
         # Aquí asignamos los formularios pendientes al nuevo estudiante
@@ -148,26 +163,30 @@ def register():
     session.pop("temp_user", None)
     session["user"] = {"uid": uid, "email": email, "name": name, "role": "student"}
 
+    flash("Registro completado con éxito. Bienvenido/a a Dream Team.", "success")
     return redirect(url_for('login'))
 
 @app.route('/home')
 def home2():
-    team_members = [
-        {"name": "Sara Suarez", "role": "DEVELOPER", "image": "/static/images/home/woman1.svg"},
-        {"name": "Felipe Bolivar", "role": "DEVELOPER", "image": "/static/images/home/man1.svg"},
-        {"name": "María José Gómez", "role": "DEVELOPER", "image": "/static/images/home/woman2.svg"},
-        {"name": "José Torres", "role": "DEVELOPER", "image": "/static/images/home/man2.svg"}
-    ]
-    
-    partners = [
-        {"name": "Google", "image": "/static/images/placeholder.svg"},
-        {"name": "Microsoft", "image": "/static/images/placeholder.svg"},
-        {"name": "Airbnb", "image": "/static/images/placeholder.svg"},
-        {"name": "Facebook", "image": "/static/images/placeholder.svg"},
-        {"name": "Spotify", "image": "/static/images/placeholder.svg"}
-    ]
-    
-    return render_template('public/home2.html', team_members=team_members, partners=partners)
+    if 'user' in session:
+        return redirect(url_for('student.home'))
+    else:
+        team_members = [
+            {"name": "Sara Suarez", "role": "DEVELOPER", "image": "/static/images/home/woman1.svg"},
+            {"name": "Felipe Bolivar", "role": "DEVELOPER", "image": "/static/images/home/man1.svg"},
+            {"name": "María José Gómez", "role": "DEVELOPER", "image": "/static/images/home/woman2.svg"},
+            {"name": "José Torres", "role": "DEVELOPER", "image": "/static/images/home/man2.svg"}
+        ]
+        
+        partners = [
+            {"name": "Google", "image": "/static/images/placeholder.svg"},
+            {"name": "Microsoft", "image": "/static/images/placeholder.svg"},
+            {"name": "Airbnb", "image": "/static/images/placeholder.svg"},
+            {"name": "Facebook", "image": "/static/images/placeholder.svg"},
+            {"name": "Spotify", "image": "/static/images/placeholder.svg"}
+        ]
+        
+        return render_template('public/home2.html', team_members=team_members, partners=partners)
 
 
 @app.route('/login')

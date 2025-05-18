@@ -3,261 +3,16 @@
 {% block title %}{{ selected_class.name }} - Details{% endblock %}
 
 {% block head %}
-<style>
-    .class-details-container {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
-    }
-    
-    .class-info-card {
-        background-color: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-    }
-    
-    .class-header {
-        padding: 1.5rem;
-        background-color: var(--primary);
-        color: white;
-    }
-    
-    .class-body {
-        padding: 1.5rem;
-    }
-    
-    .class-meta {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .meta-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .meta-label {
-        font-size: 0.875rem;
-        color: var(--muted-foreground);
-        margin-bottom: 0.25rem;
-    }
-    
-    .meta-value {
-        font-weight: 500;
-    }
-    
-    .class-description {
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
-    }
-    
-    .join-code-card {
-        background-color: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .join-code-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .join-code-header i {
-        color: var(--primary);
-        font-size: 1.25rem;
-    }
-    
-    .join-code-display {
-        background-color: var(--secondary);
-        padding: 1rem;
-        border-radius: var(--radius);
-        font-family: monospace;
-        font-size: 1.5rem;
-        font-weight: bold;
-        text-align: center;
-        letter-spacing: 0.25rem;
-        margin-bottom: 1rem;
-        position: relative;
-    }
-    
-    .copy-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        background-color: white;
-        border: none;
-        border-radius: 50%;
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: var(--shadow);
-        transition: background-color 0.2s;
-    }
-    
-    .copy-btn:hover {
-        background-color: var(--secondary-light);
-    }
-    
-    .copy-tooltip {
-        position: absolute;
-        bottom: -2rem;
-        right: 0;
-        background-color: #333;
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: var(--radius);
-        font-size: 0.75rem;
-        opacity: 0;
-        transition: opacity 0.2s;
-        pointer-events: none;
-    }
-    
-    .copy-tooltip.visible {
-        opacity: 1;
-    }
-    
-    .join-code-instructions {
-        font-size: 0.875rem;
-        color: var(--muted-foreground);
-    }
-    
-    .summary-card {
-        background-color: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        margin-bottom: 1.5rem;
-    }
-    
-    .summary-header {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .summary-title {
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .summary-title i {
-        color: var(--primary);
-    }
-    
-    .summary-count {
-        background-color: var(--primary);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 500;
-    }
-    
-    .summary-body {
-        padding: 1rem 1.5rem;
-    }
-    
-    .summary-list {
-        list-style: none;
-    }
-    
-    .summary-list li {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .summary-list li:last-child {
-        border-bottom: none;
-    }
-    
-    .summary-footer {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--border);
-        text-align: center;
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-    
-    .stat-card {
-        background-color: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 1.5rem;
-        text-align: center;
-    }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-        color: var(--muted-foreground);
-        font-size: 0.875rem;
-    }
-    
-    .flash-messages {
-        margin-bottom: 1rem;
-    }
-    
-    .flash-message {
-        padding: 0.75rem 1rem;
-        border-radius: var(--radius);
-        margin-bottom: 0.5rem;
-    }
-    
-    .flash-message.success {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-    
-    .flash-message.error {
-        background-color: #fee2e2;
-        color: #b91c1c;
-    }
-    
-    .flash-message.info {
-        background-color: #e0f2fe;
-        color: #0369a1;
-    }
-    
-    @media (max-width: 768px) {
-        .class-details-container {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='professor/class_details.css') }}">
+
 {% endblock %}
 
 {% block content %}
 <div class="data-container">
     <h2 class="page-title">{{ selected_class.name }}</h2>
     
-    <!-- Flash Messages -->
+    <!-- Mensajes Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <div class="flash-messages">
@@ -270,65 +25,65 @@
         {% endif %}
     {% endwith %}
     
-    <!-- Join Code Card -->
+    <!-- Tarjeta de Código de Ingreso -->
     <div class="join-code-card">
         <div class="join-code-header">
             <i class="fas fa-key"></i>
-            <h3>Class Join Code</h3>
+            <h3>Código de Ingreso a la Clase</h3>
         </div>
         <div class="join-code-display">
             {{ selected_class.join_code }}
             <button class="copy-btn" id="copy-code-btn" data-code="{{ selected_class.join_code }}">
                 <i class="fas fa-copy"></i>
             </button>
-            <span class="copy-tooltip" id="copy-tooltip">Copied!</span>
+            <span class="copy-tooltip" id="copy-tooltip">¡Copiado!</span>
         </div>
         <p class="join-code-instructions">
-            Share this code with your students so they can join this class. 
-            Students will need to enter this code when registering for the class.
+            Comparte este código con tus estudiantes para que puedan unirse a esta clase.  
+            Los estudiantes deberán ingresar este código al registrarse en la clase.
         </p>
     </div>
     
     <div class="class-details-container">
         <div class="class-info-card">
             <div class="class-header">
-                <h3>Class Information</h3>
+                <h3>Información de la Clase</h3>
                 <p>{{ selected_class.instructor }}</p>
             </div>
             <div class="class-body">
                 <div class="class-meta">
                     <div class="meta-item">
-                        <span class="meta-label">Schedule</span>
+                        <span class="meta-label">Horario</span>
                         <span class="meta-value">{{ selected_class.schedule }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Location</span>
+                        <span class="meta-label">Ubicación</span>
                         <span class="meta-value">{{ selected_class.location }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Start Date</span>
+                        <span class="meta-label">Fecha de Inicio</span>
                         <span class="meta-value">{{ selected_class.start_date }}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">End Date</span>
+                        <span class="meta-label">Fecha de Finalización</span>
                         <span class="meta-value">{{ selected_class.end_date }}</span>
                     </div>
                 </div>
                 
                 <div class="class-description">
-                    <h4>Description</h4>
+                    <h4>Descripción</h4>
                     <p>{{ selected_class.description }}</p>
                 </div>
             </div>
         </div>
         
         <div class="summary-container">
-            <!-- Students Summary -->
+            <!-- Resumen de Estudiantes -->
             <div class="summary-card">
                 <div class="summary-header">
                     <h3 class="summary-title">
                         <i class="fas fa-user-graduate"></i>
-                        Students
+                        Estudiantes
                     </h3>
                     <span class="summary-count">{{ student_count }}</span>
                 </div>
@@ -337,7 +92,17 @@
                     <ul class="summary-list">
                         {% for student in students %}
                         <li>
-                            <img src="{{ student.avatar }}" alt="{{ student.name }}" class="avatar">
+                            <div class="logo2">
+                                <div class="logo-circle">
+                                    <span>
+                                        {% if student.name %}
+                                            {{ student.name.split()[0][0] }}{{ student.name.split()[-1][0] }}
+                                        {% else %}
+                                            ??
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
                             <div>
                                 <p class="font-medium">{{ student.name }}</p>
                                 <p class="text-sm text-muted-foreground">{{ student.email }}</p>
@@ -346,27 +111,27 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-muted-foreground">No students enrolled yet.</p>
+                    <p class="text-muted-foreground">Aún no hay estudiantes inscritos.</p>
                     {% endif %}
                 </div>
                 <div class="summary-footer">
                     <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-outline">
-                        View All Students
+                        Ver Todos los Estudiantes
                     </a>
                 </div>
             </div>
             
-            <!-- Teams Summary -->
+            <!-- Resumen de Equipos -->
             <div class="summary-card">
                 <div class="summary-header">
                     <h3 class="summary-title">
                         <i class="fas fa-users"></i>
-                        Teams
+                        Equipos
                     </h3>
                     <span class="summary-count">{{ team_count }}</span>
                 </div>
                 <div class="summary-body">
-                    {% if teams %}
+                    {% if team_count >  0 %}
                     <ul class="summary-list">
                         {% for team in teams %}
                         <li>
@@ -378,58 +143,32 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-muted-foreground">No teams created yet.</p>
+                    <p class="text-muted-foreground">Aún no se han creado equipos.</p>
                     {% endif %}
                 </div>
                 <div class="summary-footer">
                     <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="btn btn-outline">
-                        View All Teams
+                        Ver Todos los Equipos
                     </a>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Stats -->
+    <!-- Estadísticas -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value">{{ student_count }}</div>
-            <div class="stat-label">Total Students</div>
+            <div class="stat-label">Total de Estudiantes</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ team_count }}</div>
-            <div class="stat-label">Total Teams</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if teams %}
-                    {% set total_progress = 0 %}
-                    {% for team in teams %}
-                        {% set progress = team.progress|replace('%', '')|int %}
-                        {% set total_progress = total_progress + progress %}
-                    {% endfor %}
-                    {% set avg_progress = (total_progress / teams|length)|round|int %}
-                    {{ avg_progress }}%
-                {% else %}
-                    0%
-                {% endif %}
-            </div>
-            <div class="stat-label">Average Progress</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {% if students %}
-                    {% set active_students = students|selectattr('status', 'equalto', 'Active')|list|length %}
-                    {{ (active_students / students|length * 100)|round|int }}%
-                {% else %}
-                    0%
-                {% endif %}
-            </div>
-            <div class="stat-label">Active Students</div>
+            <div class="stat-label">Total de Equipos</div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 
 {% block scripts %}
 <script>

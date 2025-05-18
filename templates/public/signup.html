@@ -1,76 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dream Team</title>
+
+    <!-- Fuentes y estilos base -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='public/signup.css') }}" >
+    <link rel="stylesheet" href="{{ url_for('static', filename='public/signup.css') }}">
     {% block extra_css %}
         <link rel="stylesheet" href="{{ url_for('static', filename='public/home2.css') }}">
     {% endblock %}
-    <title>Flask Template</title>
 
-    </head>
-    <body>
-        {% block content %}
-            {% include 'public/navbar_public.html' %}
-        {% endblock %}
-        <main>
+    <!-- CSS del Modal directamente embebido -->
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-            <div class="auth-page_container">
+        .modal.hidden {
+            display: none;
+        }
 
-                <div class="login-form-container">
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
 
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-content button {
+            background-color: #0066ff;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .modal-content button:hover {
+            background-color: #004ecc;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+        {% include 'public/navbar_public.html' %}
+    {% endblock %}
+
+    <main>
+        <div class="auth-page_container">
+            <div class="login-form-container">
                 <div class="login-form">
-
-                    <h2>Sign Up</h2>
+                    <h2>Registrarse</h2>
 
                     <div class="input-group">
-                    <input type="email" id="email-input" name="email" placeholder="Email" required>
-                    <div id="email-error-message" class="error-msg"></div>
+                        <input type="email" id="email-input" name="email" placeholder="Correo" required>
+                        <div id="email-error-message" class="error-msg"></div>
                     </div>
 
                     <div class="input-group">
-                    <input type="password" id="password-input" name="password" placeholder="Password" required>
-                    <div id="password-error-message" class="error-msg"></div>
+                        <input type="password" id="password-input" name="password" placeholder="Contraseña" required>
+                        <div id="password-error-message" class="error-msg"></div>
                     </div>
 
-                    <div id="create-account-btn" class="login-btn">Create Account</div>
+                    <div id="create-account-btn" class="login-btn">Crear cuenta</div>
 
-                    <div class="alt-signin-divider">OR</div>
+                    <div class="alt-signin-divider"></div>
 
                     <button id="sign-up-with-google-btn" class="google-login-btn">
                         <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google Sign Up" class="google-btn-logo">
-                        Sign up with Google
+                        Registrarse con Google
                     </button>
                     <div id="google-signin-error-message" class="error-msg"></div>
 
-                    <div class="signup-link-container">Already have an account? <a href="{{ url_for('login') }}">Login</a></div>
-
+                    <div class="signup-link-container">¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Ingresar</a></div>
                 </div>
-
-                </div>
-
             </div>
+        </div>
+    </main>
 
-        </main>
+    <!-- ✅ Modal de éxito de registro -->
+    <div id="modal-signup" class="modal hidden">
+        <div class="modal-content">
+            <h2>¡Registro exitoso!</h2>
+            <p>Tu cuenta ha sido creada correctamente.</p>
+            <button id="modal-ok-btn">Aceptar</button>
+        </div>
+    </div>
 
-       
+    {% include 'public/footer.html' %}
 
-        {% include 'public/footer.html' %}
-
-        <script src="{{ url_for('static', filename='public/login-auth.js') }}" type="module"></script>
-        <script src="{{ url_for('static', filename='public/scripts.js') }}" type="module"></script>
-        <script>
-            // Mobile menu toggle
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-            });
-        </script>
-    </body>
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='public/login-auth.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='public/scripts.js') }}" type="module"></script>
+</body>
 </html>

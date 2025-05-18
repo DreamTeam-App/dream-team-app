@@ -11,9 +11,9 @@
 {% block content %}
 <div class="classes-container">
     <div class="page-header">
-        <h1>My Classes</h1>
+        <h1>Mis Clases</h1>
         <button id="create-class-btn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create Class
+            <i class="fas fa-plus"></i> Crear Clase
         </button>
     </div>
     
@@ -36,19 +36,19 @@
         <div class="class-card">
             <div class="class-card-header">
                 <h3>{{ class.name }}</h3>
-                <p>{{ class.instructor }}</p>
+                <p>{{ user.name }}</p>
             </div>
             <div class="class-card-body">
                 <div class="class-info">
                     <p><i class="fas fa-calendar"></i> {{ class.schedule }}</p>
                     <p><i class="fas fa-map-marker-alt"></i> {{ class.location }}</p>
                     <p><i class="fas fa-calendar-alt"></i> {{ class.start_date }} - {{ class.end_date }}</p>
-                    <p><i class="fas fa-key"></i> Join Code: <span class="join-code">{{ class.join_code }}</span></p>
+                    <p><i class="fas fa-key"></i> Código de ingreso: <span class="join-code">{{ class.join_code }}</span></p>
                 </div>
                 <p>{{ class.description }}</p>
             </div>
             <div class="class-card-footer">
-                <a href="{{ url_for('professor.class_details', class_id=class.id) }}" class="btn btn-primary">View Class</a>
+                <a href="{{ url_for('professor.class_details', class_id=class.id) }}" class="btn btn-primary">Ver Clase</a>
             </div>
         </div>
         {% endfor %}
@@ -56,10 +56,10 @@
     {% else %}
     <div class="empty-state">
         <i class="fas fa-graduation-cap"></i>
-        <h2>No Classes Yet</h2>
-        <p>Create your first class to get started</p>
+        <h2>Aún no hay clases</h2>
+        <p>Crea tu primera clase para comenzar</p>
         <button id="empty-create-class-btn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create Class
+            <i class="fas fa-plus"></i> Crear Clase
         </button>
     </div>
     {% endif %}
@@ -69,7 +69,7 @@
 <div id="create-class-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Create New Class</h3>
+            <h3>Crear Nueva Clase</h3>
             <button id="close-modal" class="btn btn-icon">
                 <i class="fas fa-times"></i>
             </button>
@@ -79,61 +79,61 @@
                 
                 <!-- Nombre de la Clase -->
                 <div class="form-group">
-                    <label for="class_name">Class Name</label>
+                    <label for="class_name">Nombre de la Clase</label>
                     <input type="text" id="class_name" name="class_name" class="form-control" required>
                 </div>
                 
                 <!-- Instructor (Autocompletado y Deshabilitado) -->
                 <div class="form-group">
                     <label for="instructor">Instructor</label>
-                    <input type="text" id="instructor" name="instructor" class="form-control" required readonly>
+                    <input type="text" id="instructor" name="instructor" value="{{user.name}}" class="form-control" required readonly>
                 </div>
         
                 <!-- Horario (Selector de Rango de Horas) -->
                 <div class="form-group">
-                    <label for="schedule">Schedule</label>
+                    <label for="schedule">Horario</label>
                     <input type="time" id="start_time" name="start_time" class="form-control" required>
-                    <span> to </span>
+                    <span> a </span>
                     <input type="time" id="end_time" name="end_time" class="form-control" required>
                 </div>
                 
                 <!-- Ubicación -->
                 <div class="form-group">
-                    <label for="location">Location</label>
+                    <label for="location">Ubicación</label>
                     <input type="text" id="location" name="location" class="form-control" required>
                 </div>
                 
                 <!-- Fecha de Inicio (Selector de Calendario) -->
                 <div class="form-group">
-                    <label for="start_date">Start Date</label>
+                    <label for="start_date">Fecha de Inicio</label>
                     <input type="date" id="start_date" name="start_date" class="form-control" required>
                 </div>
                 
                 <!-- Fecha de Fin (Selector de Calendario) -->
                 <div class="form-group">
-                    <label for="end_date">End Date</label>
+                    <label for="end_date">Fecha de Fin</label>
                     <input type="date" id="end_date" name="end_date" class="form-control" required>
                 </div>
                 
                 <!-- Descripción -->
                 <div class="form-group">
-                    <label for="description">Description</label>
+                    <label for="description">Descripción</label>
                     <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
                 </div>
         
                 <!-- Nota sobre el Código de Ingreso -->
                 <div class="form-group">
-                    <p><strong>Note:</strong> A unique join code will be automatically generated for your class.</p>
+                    <p><strong>Nota:</strong> Un código único de ingreso será generado automáticamente para tu clase.</p>
                 </div>
         
                 <!-- Botón de Enviar -->
-                <button type="submit" class="btn btn-primary">Create Class</button>
+                <button type="submit" class="btn btn-primary">Crear Clase</button>
         
             </form>
         </div>        
         <div class="modal-footer">
-            <button id="cancel-class-btn" class="btn btn-outline">Cancel</button>
-            <button id="submit-class-btn" class="btn btn-primary">Create Class</button>
+            <button id="cancel-class-btn" class="btn btn-outline">Cancelar</button>
+            <button id="submit-class-btn" class="btn btn-primary">Crear Clase</button>
         </div>
     </div>
 </div>
