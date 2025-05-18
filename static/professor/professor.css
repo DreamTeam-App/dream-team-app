@@ -815,9 +815,10 @@ body {
     font-size: 0.875rem;
 }
 
-.btn.disabled {
-    opacity: 0.5;
+.btn[disabled] {
+    opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* Pagination */
@@ -2019,4 +2020,66 @@ button[disabled]:hover::after {
     background-color: var(--primary);
     color: white;
     border-color: var(--primary);
+}
+
+.predicted-score-box {
+    background-color: #e6fffa;
+    border: 1px solid #2dd4bf;
+    color: #065f46;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.pending-requirements-box {
+    background-color: #fff8dc;
+    border: 1px solid #facc15;
+    color: #92400e;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.centered-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.predict-performance {
+    margin-top: 1rem;
+}
+
+.predicted-score-box {
+    background-color: #e6fffa;
+    border: 1px solid #2dd4bf;
+    color: #065f46;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.pending-requirements-box {
+    background-color: #fff8dc;
+    border: 1px solid #facc15;
+    color: #92400e;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
 }

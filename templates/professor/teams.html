@@ -44,7 +44,7 @@
               <div class="progress-bar">
                   <div class="progress" style="width: {{ team.progress }}%" data-percentage="{{ team.progress }}"></div>
               </div>
-              <span class="progress-text">{{ team.progress }}%</span>
+              <span class="progress-text">{{ team.progress|round(2) }}%</span>
             </td>
             <td>
               <a class="btn btn-sm btn-primary">
@@ -212,13 +212,30 @@
                                   </div>
                                 </div>
 
-                                {% if activity.coevaluation_status is defined and activity.coevaluation_status.all_completed and activity.personality_forms_completed and activity.team_roles_forms_completed %}
-                                  <div class="predict-performance">
-                                    <button class="btn btn-success predict-btn" data-team-id="{{ team.id }}" data-activity-id="{{ activity.id }}">
-                                      <i class="fas fa-chart-line"></i> Predecir Desempeño
-                                    </button>
-                                  </div>
-                                {% endif %}
+                                <div class="predict-performance">
+                                  {% if activity.id in team.predictions %}
+                                    <div class="predicted-score-box">
+                                      <i class="fas fa-chart-line"></i>
+                                      Desempeño Predicho: <strong>{{ team.predictions[activity.id] }}%</strong>
+                                    </div>
+
+                                  {% elif activity.coevaluation_status is defined
+                                      and activity.coevaluation_status.all_completed
+                                      and activity.personality_forms_completed
+                                      and activity.team_roles_forms_completed %}
+                                    <div class="centered-button-container">
+                                      <button class="btn btn-success predict-btn" data-team-id="{{ team.id }}" data-activity-id="{{ activity.id }}">
+                                        <i class="fas fa-chart-line"></i> Predecir Desempeño
+                                      </button>
+                                    </div>
+
+                                  {% else %}
+                                    <div class="pending-requirements-box">
+                                      <i class="fas fa-info-circle"></i>
+                                      No se cumplen todos los requisitos para predecir el desempeño.
+                                    </div>
+                                  {% endif %}
+                                </div>
                               </div>
 
                               <!-- Estado de Entrega -->
