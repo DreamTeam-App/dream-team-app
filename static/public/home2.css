@@ -23,9 +23,16 @@ body {
 }
 
 img {
+    max-width: 100%;
+    height: auto;
+}
+
+.logo-img {
     max-width: 15%;
     height: auto;
 }
+
+
 
 a {
     text-decoration: none;
