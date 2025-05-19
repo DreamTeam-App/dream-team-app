@@ -8,6 +8,7 @@ from ml.pipeline_utils import predecir_desempeno_equipo
 from flask import request
 import pandas as pd
 from datetime import datetime
+from google.cloud.firestore_v1 import FieldFilter
 
 
 professor_bp = Blueprint("professor", __name__)
@@ -46,7 +47,7 @@ def index():
             return redirect(url_for('home'))
 
         # Obtener solo las clases del profesor
-        classes_ref = db.collection('classes').where('instructor_id', '==', uid)
+        classes_ref = db.collection('classes').where(filter=FieldFilter('instructor_id', '==', uid))
         docs = classes_ref.get()
         classes = [doc.to_dict() for doc in docs]
 
@@ -449,7 +450,7 @@ def check_team_forms_completion(team_members, form_type):
             forms_ref = user_ref.collection('forms')
             
             # Consultar si existe un formulario del tipo especificado y si está completado
-            form_query = forms_ref.where('form_type', '==', form_type).limit(1).get()
+            form_query = forms_ref.where(filter=FieldFilter('form_type', '==', form_type)).limit(1).get()
             
             form_completed = False
             if form_query:
@@ -471,7 +472,7 @@ def check_team_forms_completion(team_members, form_type):
 def team_details(team_id):
     try:
         # Se usa una query de grupo para buscar en todas las subcolecciones "teams"
-        teams_query = db.collection_group('teams').where('id', '==', team_id)
+        teams_query = db.collection_group('teams').where(filter=FieldFilter('id', '==', team_id))
         docs = teams_query.get()
         if not docs:
             return jsonify({'error': 'Team not found'}), 404
@@ -610,6 +611,13 @@ def teams(class_id):
             team_data = doc.to_dict()
             team_data['id'] = doc.id
             
+            # Obtener predicciones como diccionario (mapa activity_id -> desempeño)
+            team_predictions = team_data.get('predictions', {})
+
+            # Asegurar que es un dict
+            if not isinstance(team_predictions, dict):
+                team_predictions = {}
+
             # Buscar actividades asignadas a este equipo
             team_activities = []
             for activity in activities:
@@ -668,7 +676,11 @@ def teams(class_id):
                     activity_copy['team_roles_forms_completed'] = team_roles_completed
                     activity_copy['team_roles_pending_members'] = team_roles_pending
                     
+                    activity_id = activity_copy['id']
+                    activity_copy['predicted_performance'] = team_predictions.get(activity_id)
                     team_activities.append(activity_copy)
+                    
+
             
             team_data['activities'] = team_activities
             teams.append(team_data)
@@ -1020,12 +1032,27 @@ def predict_team_performance(team_id):
         except Exception as e:
             # Aquí capturas cualquier error de transformación o del modelo
             print(f" Error al predecir modelo: {e}")
+       # Obtener el mapa de predicciones existente o iniciar uno nuevo
+        team_predictions = team_data.get('predictions', {})
+
+        # Asegurar que es un diccionario
+        if not isinstance(team_predictions, dict):
+            team_predictions = {}
+
+        # Actualizar o insertar la predicción para esta actividad
+        team_predictions[activity_id] = new_progress
+
+        progress_values = list(team_predictions.values())
+        average_progress = sum(progress_values) / len(progress_values) if progress_values else 0
+
+        # Actualizar el equipo
         team_ref.update({
-            'progress': new_progress,
+            'progress': average_progress,
             'last_prediction': firestore.SERVER_TIMESTAMP,
             'performance_metrics': team_metrics,
             'prom_ponderado': prom_ponderado,
-            'last_report_id': report_ref.id
+            'last_report_id': report_ref.id,
+            'predictions': team_predictions
         })
         
         # También actualizar el progreso en la actividad
@@ -1403,7 +1430,7 @@ def grade_team(class_id, activity_id):
 
         # Actualizar documento del equipo (opcional)
         teams_ref = class_ref.collection('teams')
-        team_docs = teams_ref.where('id', '==', team_id).limit(1).get()
+        team_docs = teams_ref.where(filter=FieldFilter('id', '==', team_id)).limit(1).get()
         if team_docs:
             team_docs[0].reference.update({
                 'grade': f"{grade}/{activity_data.get('max_grade')}"
