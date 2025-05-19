@@ -2083,3 +2083,70 @@ button[disabled]:hover::after {
     gap: 0.5rem;
     justify-content: center;
 }
+
+.tabs-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .tabs-desktop {
+        display: none;
+    }
+
+    .tabs-mobile {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        position: fixed;
+        top: 58px; /* debajo del mobile-header si existe */
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .tabs-mobile .tab {
+        flex: 1;
+        text-align: center;
+        color: #555;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .tabs-mobile .tab i {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+        color: #555; /* color por defecto */
+        background: none;
+    }
+
+    .tabs-mobile .tab span {
+        font-size: 0.75rem;
+    }
+
+    .tabs-mobile .tab.active {
+        color: #ffffff; /* texto blanco */
+        
+    }
+
+    .tabs-mobile .tab.active i {
+        color: #ffffff !important;
+        background: none;
+    }
+
+    .main-content {
+        padding-top: 120px;
+    }
+}
+
+.tabs-mobile.hide {
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
