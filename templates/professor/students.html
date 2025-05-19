@@ -187,6 +187,133 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        const liveSearch = document.getElementById('live-search');
+		const rowsSelectLinks = document.querySelectorAll('.dropdown-content a');
+		const rowsCountBtn = document.getElementById('rows-count-btn');
+		const paginationContainer = document.querySelector('.pagination .page-numbers');
+		const paginationWrapper = document.querySelector('.pagination');
+		const previousBtn = document.querySelector('.pagination .btn-outline:first-child');
+		const nextBtn = document.querySelector('.pagination .btn-outline:last-child');
+		const studentRows = Array.from(document.querySelectorAll('.student-row'));
+		const noResultsRow = document.getElementById('no-results-row');
+		const toggleNoTeamBtn = document.getElementById('toggle-no-team-btn');
+
+		let currentPage = 1;
+		let rowsPerPage = 10;
+		let filteredRows = [...studentRows];
+		let hideWithTeam = false;
+
+		toggleNoTeamBtn.addEventListener('click', function () {
+			hideWithTeam = !hideWithTeam;
+			toggleNoTeamBtn.classList.toggle('active', hideWithTeam);
+			toggleNoTeamBtn.textContent = hideWithTeam
+				? 'Mostrar todos los estudiantes'
+				: 'Mostrar solo estudiantes sin equipo';
+			applySearch();
+		});
+
+		function renderTable() {
+			const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+			const start = (currentPage - 1) * rowsPerPage;
+			const end = start + rowsPerPage;
+
+			studentRows.forEach(row => row.style.display = 'none');
+			noResultsRow.style.display = 'none';
+
+			if (filteredRows.length === 0) {
+				noResultsRow.style.display = '';
+				paginationWrapper.style.display = 'none';
+				return;
+			}
+
+			filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+			renderPagination(totalPages);
+
+			// VINCULAR EVENTOS DINÁMICOS
+			getSelectableCheckboxes().forEach(checkbox => {
+				checkbox.addEventListener('change', function () {
+					updateSelectedStudents();
+					selectAllCheckbox.checked = getSelectableCheckboxes().every(cb => cb.checked);
+				});
+			});
+		}
+
+		function renderPagination(totalPages) {
+			paginationContainer.innerHTML = '';
+			if (totalPages <= 1) {
+				paginationWrapper.style.display = 'none';
+				return;
+			}
+
+			paginationWrapper.style.display = 'flex';
+
+			for (let p = 1; p <= totalPages; p++) {
+				const pageLink = document.createElement('a');
+				pageLink.textContent = p;
+				pageLink.className = 'page-number' + (p === currentPage ? ' active' : '');
+				pageLink.href = '#';
+				pageLink.addEventListener('click', function (e) {
+					e.preventDefault();
+					currentPage = p;
+					renderTable();
+				});
+				paginationContainer.appendChild(pageLink);
+			}
+
+			previousBtn.classList.toggle('disabled', currentPage === 1);
+			nextBtn.classList.toggle('disabled', currentPage === totalPages);
+		}
+
+		function applySearch() {
+			const term = liveSearch.value.toLowerCase();
+			filteredRows = studentRows.filter(row => {
+				const name = row.dataset.name || '';
+				const email = row.dataset.email || '';
+				const inTeam = row.dataset.inTeam === '1';
+				const matchesSearch = name.includes(term) || email.includes(term);
+				const passesTeamFilter = hideWithTeam ? !inTeam : true;
+				return matchesSearch && passesTeamFilter;
+			});
+			currentPage = 1;
+			renderTable();
+		}
+
+		function getSelectableCheckboxes() {
+			return Array.from(document.querySelectorAll('.student-checkbox:not(#select-all-students):not([disabled])'));
+		}
+
+		previousBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+			if (currentPage > 1) {
+				currentPage--;
+				renderTable();
+			}
+		});
+
+		nextBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+			const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+			if (currentPage < totalPages) {
+				currentPage++;
+				renderTable();
+			}
+		});
+
+		rowsSelectLinks.forEach(link => {
+			link.addEventListener('click', function (e) {
+				e.preventDefault();
+				rowsPerPage = parseInt(this.dataset.rows);
+				rowsCountBtn.innerHTML = `${rowsPerPage} <i class="fas fa-chevron-down"></i>`;
+				currentPage = 1;
+				renderTable();
+			});
+		});
+
+		liveSearch.addEventListener('input', applySearch);
+		applySearch();
+
         const formTeamBtn = document.getElementById('form-team-btn');
         const teamFormationControls = document.getElementById('team-formation-controls');
         const cancelTeamBtn = document.getElementById('cancel-team-btn');
