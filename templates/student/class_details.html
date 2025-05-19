@@ -73,15 +73,6 @@
                                         <h3 class="activity-title">{{ activity.title }}</h3>
                                         <p class="activity-date">Fecha de entrega: {{ activity.due_date }}</p>
                                     </div>
-                                    <span class="activity-status status-{{ activity.status }}">
-                                        {% if activity.status == 'completed' %}
-                                            Completada
-                                        {% elif activity.status == 'pending' %}
-                                            Pendiente
-                                        {% elif activity.status == 'late' %}
-                                            Entregada tarde
-                                        {% endif %}
-                                    </span>
                                 </div>
                                 
                                 <p>{{ activity.description }}</p>
@@ -89,12 +80,8 @@
                                 <!-- Resumen de notas -->
                                 <div class="grades-summary">
                                     <div class="grade-card grade-teacher">
-                                        <div class="grade-title">Nota del profesor</div>
+                                        <div class="grade-title">Calificación de la actividad</div>
                                         <div class="grade-value">{{ activity.teacher_grade }}</div>
-                                    </div>
-                                    <div class="grade-card grade-peer">
-                                        <div class="grade-title">Nota de evaluación del clima del equipo</div>
-                                        <div class="grade-value">{{ activity.peer_grade }}</div>
                                     </div>
                                 </div>
                                 

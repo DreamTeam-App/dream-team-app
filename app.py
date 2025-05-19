@@ -3,7 +3,7 @@ import secrets
 from functools import wraps
 import firebase_admin
 from firebase_admin import credentials, firestore, auth
-from datetime import timedelta
+from datetime import timedelta, datetime
 import os
 from dotenv import load_dotenv
 from routes.professor import professor_bp
@@ -90,7 +90,10 @@ def authorize():
 
 @app.route('/')
 def home():
-    return render_template('public/home2.html')
+    if 'user' in session:
+        return redirect(url_for('student.home'))
+    else:
+        return redirect(url_for('home2'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -165,22 +168,25 @@ def register():
 
 @app.route('/home')
 def home2():
-    team_members = [
-        {"name": "Sara Suarez", "role": "DEVELOPER", "image": "/static/images/home/woman1.svg"},
-        {"name": "Felipe Bolivar", "role": "DEVELOPER", "image": "/static/images/home/man1.svg"},
-        {"name": "María José Gómez", "role": "DEVELOPER", "image": "/static/images/home/woman2.svg"},
-        {"name": "José Torres", "role": "DEVELOPER", "image": "/static/images/home/man2.svg"}
-    ]
-    
-    partners = [
-        {"name": "Google", "image": "/static/images/placeholder.svg"},
-        {"name": "Microsoft", "image": "/static/images/placeholder.svg"},
-        {"name": "Airbnb", "image": "/static/images/placeholder.svg"},
-        {"name": "Facebook", "image": "/static/images/placeholder.svg"},
-        {"name": "Spotify", "image": "/static/images/placeholder.svg"}
-    ]
-    
-    return render_template('public/home2.html', team_members=team_members, partners=partners)
+    if 'user' in session:
+        return redirect(url_for('student.home'))
+    else:
+        team_members = [
+            {"name": "Sara Suarez", "role": "DEVELOPER", "image": "/static/images/home/woman1.svg"},
+            {"name": "Felipe Bolivar", "role": "DEVELOPER", "image": "/static/images/home/man1.svg"},
+            {"name": "María José Gómez", "role": "DEVELOPER", "image": "/static/images/home/woman2.svg"},
+            {"name": "José Torres", "role": "DEVELOPER", "image": "/static/images/home/man2.svg"}
+        ]
+        
+        partners = [
+            {"name": "Google", "image": "/static/images/placeholder.svg"},
+            {"name": "Microsoft", "image": "/static/images/placeholder.svg"},
+            {"name": "Airbnb", "image": "/static/images/placeholder.svg"},
+            {"name": "Facebook", "image": "/static/images/placeholder.svg"},
+            {"name": "Spotify", "image": "/static/images/placeholder.svg"}
+        ]
+        
+        return render_template('public/home2.html', team_members=team_members, partners=partners, current_year=datetime.now().year )
 
 
 @app.route('/login')

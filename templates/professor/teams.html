@@ -1,6 +1,6 @@
 {% extends "professor/layout.html" %}
 
-{% block title %}Teams - {{ selected_class.name }}{% endblock %}
+{% block title %}Equipos - {{ selected_class.name }}{% endblock %}
 
 {% block content %}
 <div class="data-container">
@@ -17,35 +17,6 @@
     {% endif %}
   {% endwith %}
 
-  <!-- Controles -->
-  <div class="controls">
-    <div class="rows-selector">
-      <span>Mostrar</span>
-      <div class="dropdown">
-        <button class="dropdown-btn">
-          {{ rows_per_page }} <i class="fas fa-chevron-down"></i>
-        </button>
-        <div class="dropdown-content">
-          {% for opt in [10,25,50,100] %}
-            <a href="{{ url_for('professor.teams', class_id=selected_class.id, rows=opt, page=1, search=search_term) }}">{{ opt }}</a>
-          {% endfor %}
-        </div>
-      </div>
-      <span>equipos</span>
-    </div>
-
-    <div class="search-container">
-      <form action="{{ url_for('professor.teams', class_id=selected_class.id) }}" method="get">
-        <input type="hidden" name="rows" value="{{ rows_per_page }}">
-        <input type="hidden" name="page" value="1">
-        <div class="search-input">
-          <i class="fas fa-search"></i>
-          <input type="text" name="search" placeholder="Buscar..." value="{{ search_term }}">
-        </div>
-        <button type="submit" class="btn btn-primary">Buscar</button>
-      </form>
-    </div>
-  </div>
 
   <div style="margin-bottom:1rem;">
     <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="btn btn-primary">
@@ -73,7 +44,7 @@
               <div class="progress-bar">
                   <div class="progress" style="width: {{ team.progress }}%" data-percentage="{{ team.progress }}"></div>
               </div>
-              <span class="progress-text">{{ team.progress }}%</span>
+              <span class="progress-text">{{ team.progress|round(2) }}%</span>
             </td>
             <td>
               <a class="btn btn-sm btn-primary">
@@ -241,13 +212,30 @@
                                   </div>
                                 </div>
 
-                                {% if activity.coevaluation_status is defined and activity.coevaluation_status.all_completed and activity.personality_forms_completed and activity.team_roles_forms_completed %}
-                                  <div class="predict-performance">
-                                    <button class="btn btn-success predict-btn" data-team-id="{{ team.id }}" data-activity-id="{{ activity.id }}">
-                                      <i class="fas fa-chart-line"></i> Predecir Desempeño
-                                    </button>
-                                  </div>
-                                {% endif %}
+                                <div class="predict-performance">
+                                  {% if activity.id in team.predictions %}
+                                    <div class="predicted-score-box">
+                                      <i class="fas fa-chart-line"></i>
+                                      Desempeño Predicho: <strong>{{ team.predictions[activity.id] }}%</strong>
+                                    </div>
+
+                                  {% elif activity.coevaluation_status is defined
+                                      and activity.coevaluation_status.all_completed
+                                      and activity.personality_forms_completed
+                                      and activity.team_roles_forms_completed %}
+                                    <div class="centered-button-container">
+                                      <button class="btn btn-success predict-btn" data-team-id="{{ team.id }}" data-activity-id="{{ activity.id }}">
+                                        <i class="fas fa-chart-line"></i> Predecir Desempeño
+                                      </button>
+                                    </div>
+
+                                  {% else %}
+                                    <div class="pending-requirements-box">
+                                      <i class="fas fa-info-circle"></i>
+                                      No se cumplen todos los requisitos para predecir el desempeño.
+                                    </div>
+                                  {% endif %}
+                                </div>
                               </div>
 
                               <!-- Estado de Entrega -->
@@ -349,16 +337,16 @@
 </div>
 
 <!-- Modal para mostrar resultados de predicción -->
-<div id="predictionModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
+<div id="predictionModal" class="modal2">
+  <div class="modal2-content">
+    <span class="close-modal2">&times;</span>
     <div id="predictionResults"></div>
   </div>
 </div>
 
 <!-- Modal para mostrar mensaje de éxito -->
 <div id="gradeSuccessModal" class="modal">
-  <div class="modal-content">
+  <div class="modal2-content">
     <div class="success-message">
       <div class="success-icon"><i class="fas fa-check-circle"></i></div>
       <h3>¡Calificación guardada con éxito!</h3>
@@ -547,14 +535,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="prediction-title">Predicción de Desempeño del Equipo</div>
                 <div class="prediction-score">${data.new_progress}%</div>
             </div>
-            <div class="prediction-details">
-                ${(data.factors || []).map(f => `
-                    <div class="prediction-factor">
-                        <div class="factor-name">${f.name}</div>
-                        <div class="factor-value">${f.value}</div>
-                    </div>
-                `).join('')}
-            </div>
             <div class="prediction-actions">
                 <button class="btn btn-primary" onclick="document.getElementById('predictionModal').classList.remove('active'); setTimeout(() => { document.getElementById('predictionModal').style.display = 'none'; }, 300);">
                     Cerrar
@@ -566,6 +546,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cerrar modales
     document.querySelectorAll('.close-modal, .close-modal-btn').forEach(el => {
+        el.addEventListener('click', () => {
+            closeModal(gradeModal);
+            closeModal(predictionModal);
+            closeModal(successModal);
+        });
+    });
+
+    document.querySelectorAll('.close-modal2, .close-modal-btn').forEach(el => {
         el.addEventListener('click', () => {
             closeModal(gradeModal);
             closeModal(predictionModal);

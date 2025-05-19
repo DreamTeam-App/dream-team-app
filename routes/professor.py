@@ -8,6 +8,7 @@ from ml.pipeline_utils import predecir_desempeno_equipo
 from flask import request
 import pandas as pd
 from datetime import datetime
+from google.cloud.firestore_v1 import FieldFilter
 
 
 professor_bp = Blueprint("professor", __name__)
@@ -27,33 +28,86 @@ def before_request():
 @professor_bp.route('/index')
 def index():
     try:
-        classes_ref = db.collection('classes')
+        # Obtener UID desde sesión
+        if "user" in session and session["user"].get("uid"):
+            uid = session["user"]["uid"]
+        elif "temp_user" in session and session["temp_user"].get("uid"):
+            uid = session["temp_user"]["uid"]
+        else:
+            flash("No se encontró el UID del usuario en la sesión.", "error")
+            return redirect(url_for('home'))
+
+        # Obtener perfil del usuario
+        user_doc = db.collection('users').document(uid).get()
+        if user_doc.exists:
+            user = user_doc.to_dict()
+            user["uid"] = uid
+        else:
+            flash("Perfil del profesor no encontrado.", "error")
+            return redirect(url_for('home'))
+
+        # Obtener solo las clases del profesor
+        classes_ref = db.collection('classes').where(filter=FieldFilter('instructor_id', '==', uid))
         docs = classes_ref.get()
         classes = [doc.to_dict() for doc in docs]
+
     except Exception as e:
-        flash(f"Error fetching classes: {e}", "error")
+        flash(f"Error al obtener las clases: {e}", "error")
         classes = []
-    return render_template('professor/index.html', classes=classes)
+        user = {}
+
+    return render_template('professor/index.html', classes=classes, user=user)
+
+
+
+@professor_bp.route('/perfil')
+def profile():
+    # Intentar obtener el UID del usuario desde la sesión registrada o temporal
+    uid = None
+    if "user" in session and session["user"].get("uid"):
+        uid = session["user"]["uid"]
+    elif "temp_user" in session and session["temp_user"].get("uid"):
+        uid = session["temp_user"]["uid"]
+
+    if not uid:
+        flash("No se encontró el UID del profesor en la sesión.", "error")
+        return redirect(url_for('home'))  # Redirige al login o home, según corresponda
+
+    # Consultar el documento del usuario en la colección "users"
+    user_doc = db.collection('users').document(uid).get()
+    if user_doc.exists:
+        user_profile = user_doc.to_dict()
+        user_profile["uid"] = uid  
+    else:
+        flash("Perfil del profesor no encontrado.", "error")
+        user_profile = {}
+
+    return render_template('professor/perfil.html', user_profile=user_profile)
 
 # Ruta para crear una clase (usa formulario enviado vía POST)
 @professor_bp.route('/create_class', methods=['POST'])
 def create_class():
     try:
+        if "user" in session and session["user"].get("uid"):
+            uid = session["user"]["uid"]
         # Se obtienen los datos del formulario
         class_name = request.form.get('class_name')
         instructor = request.form.get('instructor')
-        schedule = request.form.get('schedule')
+        start_time = request.form.get('start_time')
+        end_time = request.form.get('end_time')
         location = request.form.get('location')
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         description = request.form.get('description')
         
+        schedule = f"{start_time} - {end_time}"
         # Generar un join code aleatorio
         join_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
         
         new_class = {
             "name": class_name,
             "instructor": instructor,
+            "instructor_id" : uid,
             "schedule": schedule,
             "location": location,
             "start_date": start_date,
@@ -396,7 +450,7 @@ def check_team_forms_completion(team_members, form_type):
             forms_ref = user_ref.collection('forms')
             
             # Consultar si existe un formulario del tipo especificado y si está completado
-            form_query = forms_ref.where('form_type', '==', form_type).limit(1).get()
+            form_query = forms_ref.where(filter=FieldFilter('form_type', '==', form_type)).limit(1).get()
             
             form_completed = False
             if form_query:
@@ -418,7 +472,7 @@ def check_team_forms_completion(team_members, form_type):
 def team_details(team_id):
     try:
         # Se usa una query de grupo para buscar en todas las subcolecciones "teams"
-        teams_query = db.collection_group('teams').where('id', '==', team_id)
+        teams_query = db.collection_group('teams').where(filter=FieldFilter('id', '==', team_id))
         docs = teams_query.get()
         if not docs:
             return jsonify({'error': 'Team not found'}), 404
@@ -557,6 +611,13 @@ def teams(class_id):
             team_data = doc.to_dict()
             team_data['id'] = doc.id
             
+            # Obtener predicciones como diccionario (mapa activity_id -> desempeño)
+            team_predictions = team_data.get('predictions', {})
+
+            # Asegurar que es un dict
+            if not isinstance(team_predictions, dict):
+                team_predictions = {}
+
             # Buscar actividades asignadas a este equipo
             team_activities = []
             for activity in activities:
@@ -615,7 +676,11 @@ def teams(class_id):
                     activity_copy['team_roles_forms_completed'] = team_roles_completed
                     activity_copy['team_roles_pending_members'] = team_roles_pending
                     
+                    activity_id = activity_copy['id']
+                    activity_copy['predicted_performance'] = team_predictions.get(activity_id)
                     team_activities.append(activity_copy)
+                    
+
             
             team_data['activities'] = team_activities
             teams.append(team_data)
@@ -710,9 +775,7 @@ def predict_team_performance(team_id):
         if not team_grade_entry:
             return jsonify({'success': False, 'message': 'Este equipo no está asignado a la actividad especificada'})
         
-        # Verificar si la actividad ha sido calificada
-        if not team_grade_entry.get('submitted', False):
-            return jsonify({'success': False, 'message': 'La actividad debe ser calificada antes de predecir el desempeño'})
+        
         
         # Obtener coevaluaciones para esta actividad y equipo
         coevaluations_ref = activity_ref.collection('coevaluations')
@@ -969,12 +1032,27 @@ def predict_team_performance(team_id):
         except Exception as e:
             # Aquí capturas cualquier error de transformación o del modelo
             print(f" Error al predecir modelo: {e}")
+       # Obtener el mapa de predicciones existente o iniciar uno nuevo
+        team_predictions = team_data.get('predictions', {})
+
+        # Asegurar que es un diccionario
+        if not isinstance(team_predictions, dict):
+            team_predictions = {}
+
+        # Actualizar o insertar la predicción para esta actividad
+        team_predictions[activity_id] = new_progress
+
+        progress_values = list(team_predictions.values())
+        average_progress = sum(progress_values) / len(progress_values) if progress_values else 0
+
+        # Actualizar el equipo
         team_ref.update({
-            'progress': new_progress,
+            'progress': average_progress,
             'last_prediction': firestore.SERVER_TIMESTAMP,
             'performance_metrics': team_metrics,
             'prom_ponderado': prom_ponderado,
-            'last_report_id': report_ref.id
+            'last_report_id': report_ref.id,
+            'predictions': team_predictions
         })
         
         # También actualizar el progreso en la actividad
@@ -1012,27 +1090,42 @@ def activities(class_id):
     try:
         class_ref = db.collection('classes').document(class_id)
         class_doc = class_ref.get()
-        
+
         if not class_doc.exists:
             flash("Class not found", "error")
             return redirect(url_for('professor.index'))
-            
-        # Get activities for this class
+
+        #  Obtener estudiantes desde la colección enrollments
+        enrollments_docs = class_ref.collection('enrollments').get()
+        students = []
+        for doc in enrollments_docs:
+            data = doc.to_dict()
+            if "student_id" in data and "id" not in data:
+                data["id"] = data["student_id"]
+            students.append(data)
+
+        student_count = len(students)
+
+        #  Obtener actividades
         activities_ref = class_ref.collection('activities')
         activities_docs = activities_ref.get()
         activities = [doc.to_dict() for doc in activities_docs]
-        
-        # Check if all students have teams
+
+        #  Verificar si todos los estudiantes tienen equipo
         all_students_in_team = all_students_have_teams(class_id)
-        
+
         return render_template('professor/activities.html',
-                              selected_class=class_doc.to_dict(),
-                              activities=activities,
-                              all_students_in_team=all_students_in_team,
-                              classes=[])  # If you have a list of classes, pass it here
+                               selected_class=class_doc.to_dict(),
+                               activities=activities,
+                               student_count=student_count,
+                               all_students_in_team=all_students_in_team,
+                               classes=[])  # Si tienes otras clases, pásalas aquí
+
     except Exception as e:
         flash(f"Error fetching activities: {e}", "error")
         return redirect(url_for('professor.index'))
+
+
 
 # Add routes for activities
 @professor_bp.route('/create_activity/<class_id>', methods=['POST'])
@@ -1337,7 +1430,7 @@ def grade_team(class_id, activity_id):
 
         # Actualizar documento del equipo (opcional)
         teams_ref = class_ref.collection('teams')
-        team_docs = teams_ref.where('id', '==', team_id).limit(1).get()
+        team_docs = teams_ref.where(filter=FieldFilter('id', '==', team_id)).limit(1).get()
         if team_docs:
             team_docs[0].reference.update({
                 'grade': f"{grade}/{activity_data.get('max_grade')}"

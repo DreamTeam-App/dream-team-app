@@ -293,8 +293,18 @@
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
   
+  .centered-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
   .card-image {
     width: 100%;
     height: auto;

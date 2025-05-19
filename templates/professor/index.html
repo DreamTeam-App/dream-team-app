@@ -36,7 +36,7 @@
         <div class="class-card">
             <div class="class-card-header">
                 <h3>{{ class.name }}</h3>
-                <p>{{ class.instructor }}</p>
+                <p>{{ user.name }}</p>
             </div>
             <div class="class-card-body">
                 <div class="class-info">
@@ -86,7 +86,7 @@
                 <!-- Instructor (Autocompletado y Deshabilitado) -->
                 <div class="form-group">
                     <label for="instructor">Instructor</label>
-                    <input type="text" id="instructor" name="instructor" class="form-control" required readonly>
+                    <input type="text" id="instructor" name="instructor" value="{{user.name}}" class="form-control" required readonly>
                 </div>
         
                 <!-- Horario (Selector de Rango de Horas) -->
