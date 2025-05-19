@@ -281,35 +281,6 @@
     </table>
     </div>
 
-    {% if teams %}
-      <div class="pagination">
-        <a href="{{ url_for('professor.teams',
-                             class_id=selected_class.id,
-                             rows=rows_per_page,
-                             page=page-1,
-                             search=search_term) }}"
-           class="btn btn-outline {% if page==1 %}disabled{% endif %}">Previous</a>
-        <div class="page-numbers">
-          {% set display_pages=3 %}
-          {% set start_page = page<=2 and 1 or (page>=total_pages-1 and total_pages-2 or page-1) %}
-          {% set end_page = (start_page+display_pages-1)<=total_pages and start_page+display_pages-1 or total_pages %}
-          {% for p in range(start_page, end_page+1) %}
-            <a href="{{ url_for('professor.teams',
-                                 class_id=selected_class.id,
-                                 rows=rows_per_page,
-                                 page=p,
-                                 search=search_term) }}"
-               class="page-number {% if p==page %}active{% endif %}">{{ p }}</a>
-          {% endfor %}
-        </div>
-        <a href="{{ url_for('professor.teams',
-                             class_id=selected_class.id,
-                             rows=rows_per_page,
-                             page=page+1,
-                             search=search_term) }}"
-           class="btn btn-outline {% if page==total_pages %}disabled{% endif %}">Next</a>
-      </div>
-    {% endif %}
 </div>
 
 <!-- Modal para calificar actividad -->
@@ -342,6 +313,24 @@
     <span class="close-modal2">&times;</span>
     <div id="predictionResults"></div>
   </div>
+</div>
+
+<!-- Notificación emergente -->
+<div id="savingNotice" style="
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #007bff;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 2000;
+  font-weight: 500;
+">
+  Guardando información...
 </div>
 
 <!-- Modal para mostrar mensaje de éxito -->
@@ -525,25 +514,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function displayPredictionResults(data) {
-        const container = document.getElementById('predictionResults');
-        container.innerHTML = '';
-        
-        const div = document.createElement('div');
-        div.className = 'prediction-result';
-        div.innerHTML = `
-            <div class="prediction-header">
-                <div class="prediction-title">Predicción de Desempeño del Equipo</div>
-                <div class="prediction-score">${data.new_progress}%</div>
-            </div>
-            <div class="prediction-actions">
-                <button class="btn btn-primary" onclick="document.getElementById('predictionModal').classList.remove('active'); setTimeout(() => { document.getElementById('predictionModal').style.display = 'none'; }, 300);">
-                    Cerrar
-                </button>
-            </div>
-        `;
-        container.appendChild(div);
-    }
+      const container = document.getElementById('predictionResults');
+      container.innerHTML = '';
 
+      const div = document.createElement('div');
+      div.className = 'prediction-result';
+      div.innerHTML = `
+          <div class="prediction-header">
+              <div class="prediction-title">Predicción de Desempeño del Equipo</div>
+              <div class="prediction-score">${data.new_progress}%</div>
+          </div>
+          <div class="prediction-actions">
+              <button id="closePredictionBtn" class="btn btn-primary">
+                  Cerrar
+              </button>
+          </div>
+      `;
+      container.appendChild(div);
+
+      // Activar modal
+      const modal = document.getElementById('predictionModal');
+      modal.classList.add('active');
+      modal.style.display = 'block';
+
+      // Eventos de cierre
+      const closeBtn = document.getElementById('closePredictionBtn');
+      const closeIcon = document.querySelector('.close-modal2');
+
+      const handleClose = () => {
+          // Mostrar mensaje
+          const notice = document.getElementById('savingNotice');
+          notice.style.display = 'block';
+
+          // Esperar un segundo antes de recargar (opcional para UX)
+          setTimeout(() => {
+              location.reload(); // recarga la página
+          }, 1000);
+      };
+
+      closeBtn.addEventListener('click', handleClose);
+      closeIcon.addEventListener('click', handleClose);
+  }
     // Cerrar modales
     document.querySelectorAll('.close-modal, .close-modal-btn').forEach(el => {
         el.addEventListener('click', () => {

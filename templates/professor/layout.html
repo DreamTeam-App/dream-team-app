@@ -40,6 +40,22 @@
     </header>
     
     <div class="mobile-header">
+        {% if selected_class is defined %}
+        <div class="tabs-mobile">
+            <a href="{{ url_for('professor.class_details', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'professor.class_details' %}active{% endif %}">
+                <i class="fas fa-info-circle"></i><span>Detalles</span>
+            </a>
+            <a href="{{ url_for('professor.students', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'professor.students' %}active{% endif %}">
+                <i class="fas fa-user-graduate"></i><span>Estudiantes</span>
+            </a>
+            <a href="{{ url_for('professor.teams', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'professor.teams' %}active{% endif %}">
+                <i class="fas fa-users"></i><span>Equipos</span>
+            </a>
+            <a href="{{ url_for('professor.activities', class_id=selected_class.id) }}" class="tab {% if request.endpoint in ['professor.activities', 'professor.activity_details'] %}active{% endif %}">
+                <i class="fas fa-tasks"></i><span>Actividades</span>
+            </a>
+        </div>
+        {% endif %}
         <a href="{{ url_for('professor.index') }}" class="btn btn-icon">
             <i class="fas fa-graduation-cap"></i>
         </a>
@@ -55,7 +71,7 @@
                 <a href="{{ url_for('professor.index') }}">
                     <i class="fas fa-graduation-cap"></i> Inicio
                 </a>
-                <a href="{{ url_for('professor.edit_profile') }}">
+                <a href="{{ url_for('professor.profile') }}">
                     <i class="fas fa-user-edit"></i> Perfil
                 </a>
                 <a href="{{ url_for('logout') }}">
@@ -65,7 +81,10 @@
         </div>
     </div>
 
+
+
     {% if selected_class is defined %}
+    
     <div class="tabs">
         <a href="{{ url_for('professor.class_details', class_id=selected_class.id) }}" class="tab {% if request.endpoint == 'professor.class_details' %}active{% endif %}">
             <i class="fas fa-info-circle"></i>
@@ -84,6 +103,9 @@
             <span>Actividades</span>
         </a>
     </div>
+
+
+    
 
     <div id="class-dropdown" class="class-dropdown">
         <div class="dropdown-header">
@@ -128,6 +150,25 @@
     </main>
 
     <script>
+
+        let lastScrollY = window.scrollY;
+        const tabsMobile = document.querySelector('.tabs-mobile');
+
+        window.addEventListener('scroll', () => {
+            if (!tabsMobile) return;
+
+            const currentScroll = window.scrollY;
+
+            if (currentScroll > lastScrollY) {
+                // Scrolling down
+                tabsMobile.classList.add('hide');
+            } else {
+                // Scrolling up
+                tabsMobile.classList.remove('hide');
+            }
+
+            lastScrollY = currentScroll;
+        });
         // Mobile menu functionality
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileClassSelectorBtn = document.getElementById('mobile-class-selector-btn');
