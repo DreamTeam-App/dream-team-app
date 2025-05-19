@@ -3,7 +3,7 @@ import secrets
 from functools import wraps
 import firebase_admin
 from firebase_admin import credentials, firestore, auth
-from datetime import timedelta
+from datetime import timedelta, datetime
 import os
 from dotenv import load_dotenv
 from routes.professor import professor_bp
@@ -93,7 +93,7 @@ def home():
     if 'user' in session:
         return redirect(url_for('student.home'))
     else:
-        return render_template('public/home2.html')
+        return redirect(url_for('home2'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -186,7 +186,7 @@ def home2():
             {"name": "Spotify", "image": "/static/images/placeholder.svg"}
         ]
         
-        return render_template('public/home2.html', team_members=team_members, partners=partners)
+        return render_template('public/home2.html', team_members=team_members, partners=partners, current_year=datetime.now().year )
 
 
 @app.route('/login')
