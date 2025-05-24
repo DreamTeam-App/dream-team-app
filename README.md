@@ -1,44 +1,47 @@
 
-# Flask Website with Firebase & Machine Learning Integration
-
-🎓 **Proyecto de Tesis - Aplicación Web Inteligente**
-
-Este repositorio contiene una aplicación web desarrollada en **Flask**, que integra autenticación y servicios en la nube mediante **Firebase**, y funcionalidades inteligentes a través de un modelo de **Machine Learning**. Este sistema fue desarrollado como parte de un trabajo de grado universitario.
-
----
-
-## 📌 Objetivo del Proyecto
-
-Desarrollar una plataforma web moderna y segura que permita realizar tareas específicas de análisis o predicción utilizando modelos de machine learning, almacenando resultados y usuarios en Firebase.
-
----
+# Dream Team App
 
 ## 🧠 Tecnologías Utilizadas
 
-- **Python 3.10+**
-- **Flask**
-- **Firebase (Auth, Firestore)**
-- **Machine Learning (modelo empaquetado en `ml.zip`)**
-- **Docker / Containerfile (opcional)**
-- **HTML/CSS/JS (en templates si aplica)**
+> Esta aplicación web integra múltiples tecnologías modernas para lograr una arquitectura escalable, segura y mantenible.
+
+| Tecnología              | Descripción                                                                                             | Badge |
+|------------------------|---------------------------------------------------------------------------------------------------------|--------|
+| **Python 3.10+**        | Lenguaje principal para la lógica del backend                                                           | ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white) |
+| **Flask**              | Framework web ligero utilizado para definir rutas, vistas y lógica del servidor                        | ![Flask](https://img.shields.io/badge/Flask-Web_Framework-black?logo=flask) |
+| **Firebase Admin SDK** | Autenticación de usuarios, conexión a Firestore, y servicios de nube de Google Cloud                    | ![Firebase](https://img.shields.io/badge/Firebase-Admin_SDK-yellow?logo=firebase) |
+| **Google Firestore**    | Base de datos NoSQL escalable usada para almacenar información dinámica del sistema                    | ![Firestore](https://img.shields.io/badge/Google_Firestore-NoSQL_Database-orange?logo=google-cloud) |
+| **Jinja2 + HTML5**      | Sistema de plantillas para generar contenido dinámico en vistas HTML                                    | ![HTML](https://img.shields.io/badge/HTML-Jinja2-blue?logo=html5) |
+| **CSS + JavaScript**    | Estilos personalizados y lógica del frontend para la experiencia del usuario                            | ![CSS](https://img.shields.io/badge/CSS-JS-yellow?logo=css3) |
+| **dotenv**              | Gestión de credenciales y variables de entorno sensibles con archivo `.env`                            | ![dotenv](https://img.shields.io/badge/dotenv-Env_Variables-brightgreen) |
+| **Machine Learning**    | Modelo incluido en `ml.zip`, presumiblemente para predicción o clasificación                           | ![ML](https://img.shields.io/badge/Machine_Learning-Model_Zip-lightgrey) |
+| **Docker / Containerfile** | Despliegue automatizado y aislado en entornos de contenedores                                    | ![Docker](https://img.shields.io/badge/Docker-Containerfile-2496ED?logo=docker&logoColor=white) |
+
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
-```plaintext
-flask-website/
-│
-├── app.py                    # Punto de entrada de la aplicación Flask
-├── firebase_client.py        # Cliente Firebase para autenticación y base de datos
-├── firebase_config.py        # Configuración de claves y servicios de Firebase
-├── firebase-auth.json        # Archivo de credenciales para Firebase
-├── ml.zip                    # Archivo comprimido del modelo de ML (por descomprimir)
-├── requirements.txt          # Dependencias necesarias del proyecto
-├── Containerfile             # Configuración para despliegue en contenedor (Docker)
-├── .env                      # Variables de entorno (no debe compartirse públicamente)
-└── README.md                 # Documentación del proyecto
-```
+> Organización del código y recursos principales del sistema.
+
+| Tipo / Nombre                       | Descripción                                                                 |
+|------------------------------------|-----------------------------------------------------------------------------|
+| ![json](https://img.shields.io/badge/firebase-auth.json-lightgrey)  | Archivo principal de ejecución de la aplicación Flask                        |
+| `firebase-auth.json` | Clave privada de Firebase *(⚠️ No esta en el repositorio por cuestiones de seguridad)* |
+| ![py](https://img.shields.io/badge/firebase_client.py-%20-blue?logo=python&logoColor=white)  | Inicialización del SDK de Firebase                                          |
+| ![py](https://img.shields.io/badge/firebase_config.py-%20-blue?logo=python&logoColor=white)  | Configuraciones de entorno de Firebase                                      |
+| ![txt](https://img.shields.io/badge/firestore_rules_example.txt-%20-lightgrey) | Reglas de seguridad de ejemplo para Firestore                              |
+| ![txt](https://img.shields.io/badge/requirements.txt-%20-critical)  | Dependencias requeridas por la aplicación                                   |
+| ![docker](https://img.shields.io/badge/Containerfile-%20-blue?logo=docker)  | Archivo para crear contenedores (Docker/Podman)                             |
+| ![env](https://img.shields.io/badge/.env-%20-green) | Variables de entorno para ejecución segura                                  |
+| ![gitignore](https://img.shields.io/badge/.gitignore-%20-lightgrey)  | Exclusiones del repositorio                                                 |
+| ![md](https://img.shields.io/badge/README.md-%20-blue?logo=markdown&logoColor=white)  | Documentación principal del proyecto                                        |
+| 📁 `routes/`                        | Módulos de rutas (blueprints) para Flask                                    |
+| 📁 `templates/`                     | Archivos HTML/Jinja2 para renderizado dinámico                              |
+| 📁 `static/`                        | Archivos estáticos (CSS, JS, imágenes)                                      |
+| 📁 `ml/` / `ml.zip`                 | Archivos del modelo de machine learning                                     |
+| 📁 `__pycache__/`                  | Archivos temporales generados por Python *(ignorar en producción)*         |
+
 
 ---
 
@@ -89,15 +92,6 @@ docker run -p 5000:5000 flask-app
 
 ---
 
-## 📄 Licencia
-
-Este proyecto se desarrolló con fines académicos. Su uso y distribución están permitidos bajo licencia MIT si así se define en el archivo `LICENSE`.
-
----
-
-## 🤝 Créditos
-
-Desarrollado por [Tu Nombre Aquí] como parte del trabajo de grado en [Nombre del Programa o Universidad].
 
 
 
