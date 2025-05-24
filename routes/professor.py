@@ -1170,7 +1170,7 @@ def create_activity(class_id):
             'name': activity_name,
             'description': activity_description,
             'due_date': due_date,
-            'max_grade': int(max_grade),
+            'max_grade': float(max_grade),
             'enable_coevaluation': enable_coevaluation,
             'status': 'Open',
             'created_at': firestore.SERVER_TIMESTAMP,
@@ -1320,7 +1320,7 @@ def enable_coevaluation(class_id, activity_id):
                     "form_type": "coevaluation",
                     "title": f"Evaluación del clima del equipo: {activity_data.get('name')}",
                     "description": f"Evaluación cruzada del clima del equipo para la actividad {activity_data.get('name')}",
-                    "url": f"/student/coevaluation/{class_id}/{activity_id}",
+                    "url": f"/student/team-climate/{class_id}/{activity_id}",
                     "activity_id": activity_id,
                     "class_id": class_id,
                     "team_id": team_id,
@@ -1390,7 +1390,7 @@ def grade_team(class_id, activity_id):
             flash("Faltan campos requeridos", "error")
             return redirect(url_for('professor.activity_details', class_id=class_id, activity_id=activity_id))
 
-        grade = int(grade)
+        grade = float(grade)
 
         # Obtener referencias
         class_ref = db.collection('classes').document(class_id)
@@ -1458,6 +1458,7 @@ def grade_activity(team_id, activity_id):
         # Convert grade to float
         try:
             grade = float(grade)
+            grade = round(grade, 2)
         except ValueError:
             return jsonify({'success': False, 'message': 'La calificación debe ser un número válido'}), 400
         

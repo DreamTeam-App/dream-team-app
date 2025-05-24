@@ -35,6 +35,17 @@
                 
                 <p class="required-note">* Obligatorio</p>
             </div>
+
+            <div class="scale-description">
+                <h4>🔹 Escala de respuestas:</h4>
+                <ul>
+                    <li>1️⃣ Totalmente en desacuerdo</li>
+                    <li>2️⃣ En desacuerdo</li>
+                    <li>3️⃣ Ni acuerdo ni en desacuerdo</li>
+                    <li>4️⃣ De acuerdo</li>
+                    <li>5️⃣ Totalmente de acuerdo</li>
+                </ul>
+            </div>
             
             <div id="alert" class="alert hidden">
                 <div class="alert-icon">⚠️</div>
@@ -67,23 +78,17 @@
 
 {% block extra_js %}
 <script>
-    // Datos para el formulario
     const teamMembers = {{ team_members|safe }};
     const currentUserId = "{{ current_user_id }}";
     const classId = "{{ class_id }}";
     const activityId = "{{ activity_id }}";
-    
-    // Add responsive table handling for mobile
-    document.addEventListener('DOMContentLoaded', function() {
-        // This will be called when the form3.js script creates team matrix
-        // We'll add a MutationObserver to detect when tables are added
+
+    document.addEventListener('DOMContentLoaded', function () {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    // Make sure tables are scrollable on mobile
                     const tables = document.querySelectorAll('.team-matrix');
                     tables.forEach(table => {
-                        // Ensure the table is wrapped for horizontal scrolling
                         if (!table.parentElement.classList.contains('table-wrapper')) {
                             const wrapper = document.createElement('div');
                             wrapper.className = 'table-wrapper';
@@ -95,13 +100,37 @@
                 }
             });
         });
-        
-        // Start observing the questions container
+
         observer.observe(document.getElementById('questionsContainer'), { 
             childList: true, 
             subtree: true 
         });
+
+        const nextButton = document.getElementById('nextButton');
+        const alertBox = document.getElementById('alert');
+        const alertMessage = document.getElementById('alertMessage');
+
+        nextButton.addEventListener('click', function (e) {
+            const unanswered = document.querySelector('.question-block:not(.answered)');
+            if (unanswered) {
+                e.preventDefault();
+                showAlert('Por favor responde todas las preguntas antes de continuar.');
+                unanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
     });
+
+    function showAlert(message) {
+        const alertBox = document.getElementById('alert');
+        const alertMessage = document.getElementById('alertMessage');
+        alertMessage.textContent = message;
+        alertBox.classList.remove('hidden');
+    }
+
+    function closeAlert() {
+        const alertBox = document.getElementById('alert');
+        alertBox.classList.add('hidden');
+    }
 </script>
 <script src="{{ url_for('static', filename='student/form3.js') }}"></script>
 {% endblock %}

@@ -671,7 +671,7 @@ def submit_coevaluation(class_id, activity_id):
     except Exception as e:
         return jsonify({"success": False, "message": f"Error al enviar la coevaluación: {str(e)}"})
     
-@student_bp.route('/coevaluation/<string:class_id>/<string:activity_id>')
+@student_bp.route('/team-climate/<string:class_id>/<string:activity_id>')
 def coevaluation_form(class_id, activity_id):
     try:
         # Obtener el ID del estudiante actual

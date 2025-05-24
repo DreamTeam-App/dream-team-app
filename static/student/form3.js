@@ -4,7 +4,7 @@ const evaluationQuestions = [
       id: 1,
       text: "¿Cual es tu promedio ponderado? Recuerda que esta información no va a ser divulgada con nadie y todos los datos estarán anonimizados",
       type: "text",
-      placeholder: "Ingresa tu promedio (ej: 4.2)",
+      placeholder: "Ingresa tu promedio (ej: 4.25)",
       required: true,
       numeric: true,
       min: 0,
@@ -117,97 +117,6 @@ const evaluationQuestions = [
       text: "Se siente motivado(a) y comprometido(a) con las tareas asignadas y los objetivos del equipo",
       type: "matrix",
       required: true,
-    },
-    {
-      id: 20,
-      text: "¿En qué medida lograron completar las tareas o hitos planeados para este periodo?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Se completó menos del 20%",
-        "2 = Se completó entre 20% y 40%",
-        "3 = Se completó entre 40% y 60%",
-        "4 = Se completó entre 60% y 80%",
-        "5 = Se completó entre 80% y 100%",
-      ],
-    },
-    {
-      id: 21,
-      text: "¿Hasta qué punto el equipo cumplió con las fechas límite acordadas (deadline) en este periodo?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = No cumplimos, varias entregas retrasadas (>2 días)",
-        "2 = Entregamos la mayoría con retraso (1–2 días)",
-        "3 = Unas pocas entregas se retrasaron (1 día)",
-        "4 = Entregamos prácticamente todo a tiempo",
-        "5 = Entregamos todo antes o justo en el plazo",
-      ],
-    },
-    {
-      id: 22,
-      text: "¿Con cuánta frecuencia se reunieron (virtual o presencial) para coordinar las tareas en este periodo?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Casi ninguna reunión (0 o 1)",
-        "2 = Pocas reuniones (2)",
-        "3 = Reuniones moderadas (3)",
-        "4 = Reuniones frecuentes (4)",
-        "5 = Bastantes reuniones (5 o más)",
-      ],
-    },
-    {
-      id: 23,
-      text: "¿Qué tan clara y definida estuvo la asignación de tareas y responsabilidades dentro del equipo?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Muy confusa, no sabíamos quién hacía qué",
-        "2 = Un poco confusa, varias dudas sin resolver",
-        "3 = Moderadamente clara, pero con algunos baches",
-        "4 = Bastante clara, muy pocas confusiones",
-        "5 = Claridad total, cada uno sabía exactamente sus tareas",
-      ],
-    },
-    {
-      id: 24,
-      text: "¿Cuántos bloqueos/incidencias relevantes surgieron y cuán eficaz fue su resolución?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Tuvimos varios bloqueos que no se resolvieron a tiempo",
-        "2 = Tuvimos algunos bloqueos, muchos tardaron bastante en resolverse",
-        "3 = Hubo bloqueos moderados, la mayoría se resolvió con cierto retraso",
-        "4 = Pocos bloqueos y se resolvieron relativamente pronto",
-        "5 = Sin bloqueos o se resolvieron de inmediato",
-      ],
-    },
-    {
-      id: 25,
-      text: "¿Cómo calificarías la fluidez de la comunicación diaria (chats, mensajes, etc.) para resolver dudas o coordinar avances?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Casi inexistente, poco contacto",
-        "2 = Se comunicaron, pero a veces fue insuficiente",
-        "3 = Adecuada, aunque con lagunas ocasionales",
-        "4 = Buena comunicación, bastante fluida",
-        "5 = Excelente y constante, sin cuellos de botella",
-      ],
-    },
-    {
-      id: 26,
-      text: "¿Cómo calificarías la capacidad del equipo para responder a cambios o requerimientos imprevistos durante este periodo?",
-      type: "rating",
-      required: true,
-      scaleDescription: [
-        "1 = Extremadamente difícil, no supimos adaptarnos",
-        "2 = Tuvimos muchas complicaciones y retrasos al adaptarnos",
-        "3 = Nos adaptamos con esfuerzos moderados, pero lo logramos",
-        "4 = Nos adaptamos bien y sin grandes retrasos",
-        "5 = Excelente adaptación, sin problemas",
-      ],
     },
   ];
   
@@ -491,44 +400,46 @@ function createQuestionElement(question) {
 }
   
   // Handle answer change for regular questions
-  function handleAnswerChange(questionId, value) {
-    const question = evaluationQuestions.find((q) => q.id === questionId);
-    if (!question) return;
-  
-    // Validate the answer
-    if (!validateAnswer(question, value)) {
-      return;
-    }
-  
-    // Clear any previous errors
-    hideAlert();
-  
-    // Update the answer
-    answers[questionId] = value;
-    localStorage.setItem("teamCrossEvaluationAnswers", JSON.stringify(answers));
-  
-    // Mark the question as completed
-    const questionElement = document.querySelector(`.question[data-id="${questionId}"]`);
-    if (questionElement) {
-      questionElement.classList.add("completed");
-    }
-  
-    // Update progress
-    updateProgressBar();
-  
-    // Find next unanswered question on current page
-    const currentPageQuestions = getCurrentPageQuestions();
-    const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId);
-  
-    if (currentIndex < currentPageQuestions.length - 1) {
-      // Move to next question on this page
-      const nextQuestion = currentPageQuestions[currentIndex + 1];
-      setActiveQuestion(nextQuestion.id);
-    }
-  
-    // Update button states
-    updateButtonStates();
+ function handleAnswerChange(questionId, value) {
+  const question = evaluationQuestions.find((q) => q.id === questionId);
+  if (!question) return;
+
+  // Validate the answer
+  if (!validateAnswer2(question, value)) {
+    return;
   }
+
+  // Clear any previous errors
+  hideAlert();
+
+  // Update the answer
+  answers[questionId] = value;
+  localStorage.setItem("teamCrossEvaluationAnswers", JSON.stringify(answers));
+
+  // Mark the question as completed
+  const questionElement = document.querySelector(`.question[data-id="${questionId}"]`);
+  if (questionElement) {
+    questionElement.classList.add("completed");
+    questionElement.classList.remove("incomplete");  // ✅ Elimina borde rojo si fue respondida
+  }
+
+  // Update progress
+  updateProgressBar();
+
+  // Find next unanswered question on current page
+  const currentPageQuestions = getCurrentPageQuestions();
+  const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId);
+
+  if (currentIndex < currentPageQuestions.length - 1) {
+    // Move to next question on this page
+    const nextQuestion = currentPageQuestions[currentIndex + 1];
+    setActiveQuestion(nextQuestion.id);
+  }
+
+  // Update button states
+  updateButtonStates();
+}
+
   
   // Handle answer change for matrix questions
   function handleMatrixAnswerChange(questionId, memberId, value) {
@@ -582,29 +493,32 @@ function createQuestionElement(question) {
   }
   
   // Validate answer based on question type
-  function validateAnswer(question, value) {
+ function validateAnswer2(question, value) {
     if (value === "") return false;
-  
+
     if (question.type === "text" && question.numeric) {
-      // Check if the value is a number and within range if specified
-      if (!/^\d*\.?\d*$/.test(value)) {
-        showAlert(`La pregunta ${question.id} requiere un valor numérico.`);
+      value = value.trim().replace(",", ".");  // 🔧 Normaliza a punto decimal
+
+      // Check format: sólo dígitos, punto opcional, hasta 2 decimales
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+        showAlert(`La pregunta ${question.id} requiere un número válido (usa máximo 2 decimales, ej: 4.25).`);
         return false;
       }
-  
+
       const numValue = Number.parseFloat(value);
       if (question.min !== undefined && numValue < question.min) {
-        showAlert(`El valor debe ser mayor o igual a ${question.min}.`);
+        showAlert(`El valor del promedio debe ser mayor o igual a ${question.min}.`);
         return false;
       }
       if (question.max !== undefined && numValue > question.max) {
-        showAlert(`El valor debe ser menor o igual a ${question.max}.`);
+        showAlert(`El valor del promedio debe ser menor o igual a ${question.max}.`);
         return false;
       }
     }
-  
+
     return true;
   }
+
   
   // Get current page questions
   function getCurrentPageQuestions() {
@@ -703,11 +617,11 @@ function createQuestionElement(question) {
     if (currentPage < totalPages) {
       nextButton.textContent = "Siguiente";
       nextButton.className = "btn primary";
-      nextButton.disabled = !isCurrentPageComplete();
+      
     } else {
       nextButton.textContent = "Finalizar";
       nextButton.className = "btn success";
-      nextButton.disabled = !isFormComplete();
+      
     }
   }
   
@@ -730,13 +644,36 @@ function createQuestionElement(question) {
   }
   
   // Handle next button click
-  function handleNextButtonClick() {
-    if (currentPage < totalPages) {
-      goToNextPage();
-    } else {
-      submitForm();
+function handleNextButtonClick() {
+  if (currentPage < totalPages) {
+    if (!isCurrentPageComplete()) {
+      const currentPageQuestions = getCurrentPageQuestions();
+      const firstIncomplete = currentPageQuestions.find((q) => {
+        if (q.type === "matrix") {
+          return !teamMembers.every((m) => answers[q.id] && answers[q.id][m.id]);
+        } else {
+          return !answers[q.id];
+        }
+      });
+
+      if (firstIncomplete) {
+        const questionElement = document.querySelector(`.question[data-id="${firstIncomplete.id}"]`);
+        if (questionElement) {
+          questionElement.classList.add("incomplete");
+          questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        showAlert(`⚠ Por favor responde la pregunta ${firstIncomplete.id} antes de continuar.`);
+        return;
+      }
     }
+
+    goToNextPage();
+  } else {
+    submitForm();
   }
+}
+
+
   
   // Go to next page
   function goToNextPage() {
@@ -758,67 +695,76 @@ function createQuestionElement(question) {
   
   // Submit the form
   function submitForm() {
-    // Validate all answers one more time
     for (const question of evaluationQuestions) {
+      const questionElement = document.querySelector(`.question[data-id="${question.id}"]`);
+
       if (question.type === "matrix") {
-        // For matrix questions, check if all team members are rated
-        const allMembersRated = teamMembers.every((member) => {
+        const allRated = teamMembers.every((member) => {
           return member && member.id && answers[question.id] && answers[question.id][member.id];
         });
-        
-        if (!allMembersRated) {
-          showAlert(`Por favor complete todas las evaluaciones para la pregunta ${question.id}.`);
+
+        if (!allRated) {
+          if (questionElement) {
+            questionElement.classList.add("incomplete");
+            questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          showAlert(`⚠ Por favor completa todas las evaluaciones para la pregunta ${question.id}.`);
           return;
         }
-        
-        // Limpiar cualquier respuesta para miembros undefined
+
+        // Limpiar respuestas inválidas
         if (answers[question.id] && answers[question.id]["undefined"]) {
           delete answers[question.id]["undefined"];
         }
+
       } else {
-        // For regular questions
         const answer = answers[question.id];
+
         if (answer === undefined || answer === "") {
-          showAlert(`Por favor responda la pregunta ${question.id}.`);
+          if (questionElement) {
+            questionElement.classList.add("incomplete");
+            questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          showAlert(`⚠ Por favor responde la pregunta ${question.id}.`);
           return;
         }
-  
-        if (question.type === "text" && question.numeric && !validateAnswer(question, answer)) {
+
+        if (question.type === "text" && question.numeric && !validateAnswer2(question, answer)) {
+          if (questionElement) {
+            questionElement.classList.add("incomplete");
+            questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
           return;
         }
       }
-    }
-  
-    // Send the data to the server
-    fetch(`/student/submit-coevaluation/${classId}/${activityId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(answers),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          // Use a custom notification instead of alert
-          showNotification(data.message);
-  
-          // Clear localStorage
-          localStorage.removeItem("teamCrossEvaluationAnswers");
-  
-          // Redirect to class details page after a short delay
-          setTimeout(() => {
-            window.location.href = `/student/clases/${classId}`;
-          }, 1500);
-        } else {
-          showAlert(data.message || "Error al enviar el formulario");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        showAlert("Error al enviar el formulario. Por favor intente nuevamente.");
-      });
   }
+
+  // Si pasa todas las validaciones, enviar
+  fetch(`/student/submit-coevaluation/${classId}/${activityId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(answers),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        showNotification(data.message);
+        localStorage.removeItem("teamCrossEvaluationAnswers");
+        setTimeout(() => {
+          window.location.href = `/student/clases/${classId}`;
+        }, 1500);
+      } else {
+        showAlert(data.message || "Error al enviar el formulario");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      showAlert("Error al enviar el formulario. Por favor intente nuevamente.");
+    });
+}
+
   
   // Show notification message
   function showNotification(message) {
@@ -845,10 +791,16 @@ function createQuestionElement(question) {
   }
   
   // Show alert message
-  function showAlert(message) {
-    alertMessage.textContent = message;
-    alertElement.classList.remove("hidden");
+ function showAlert(message) {
+  alertMessage.textContent = message;
+  alertElement.classList.remove("hidden");
+
+  const alertSound = document.getElementById("alertSound");
+  if (alertSound) {
+    alertSound.currentTime = 0; // reinicia si ya se estaba reproduciendo
+    alertSound.play().catch(e => console.warn("Audio not played:", e));
   }
+}
   
   // Hide alert message
   function hideAlert() {
