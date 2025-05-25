@@ -119,6 +119,14 @@ const evaluationQuestions = [
       required: true,
     },
   ];
+
+  const ratingLabels = [
+    { value: "1", label: "Totalmente en desacuerdo" },
+    { value: "2", label: "En desacuerdo" },
+    { value: "3", label: "Neutral" },
+    { value: "4", label: "De acuerdo" },
+    { value: "5", label: "Totalmente de acuerdo" },
+  ]
   
   // DOM elements
   const questionsContainer = document.getElementById("questionsContainer");

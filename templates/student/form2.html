@@ -3,8 +3,7 @@
 {% block title %}Team Role Experience and Orientation{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='student/form2.css') }}">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='student/form2.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -19,55 +18,78 @@
     <div class="card-header">
         <h2 class="card-title">Team Role Experience and Orientation</h2>
         <p class="card-description">Por favor complete todas las preguntas requeridas.</p>
+        <p style="margin-top: 0.5rem;"><span style="color: red;">*</span> Campos obligatorios</p>
     </div>
     
     <div class="card-content">
         <div id="intro-section" class="intro-section">
-            <h3>📌 Tratamiento de Datos Personales - Proyecto Dream Team</h3>
-            
-            <p>La información proporcionada en este formulario será utilizada <strong>exclusivamente</strong> para el desarrollo del trabajo de grado titulado <strong>Dream Team</strong>, cuyo objetivo es analizar y predecir el desempeño de equipos de trabajo en entornos académicos.</p>
-            
-            <h4>📌 Compromiso con la privacidad:</h4>
+            <!-- Bloque: Tratamiento de Datos -->
+            <h3>📌 Tratamiento de Datos Personales</h3>
+            <p><strong>Estimado estudiante,</strong></p>
+            <p>
+            La información proporcionada en este formulario será utilizada
+            <strong>exclusivamente</strong> para el desarrollo del trabajo de grado
+            titulado <strong>Dream Team</strong>, cuyo objetivo es analizar y predecir
+            el desempeño de equipos de trabajo en entornos académicos.
+            </p>
+
+            <!-- Bloque: Compromiso con la privacidad -->
             <ul>
-                <li>Sus datos serán tratados de manera <strong>confidencial</strong> y no serán divulgados ni compartidos con terceros.</li>
-                <li>La información recopilada se almacenará de forma <strong>segura y anonimizada</strong>, garantizando que los resultados no sean asociados a ninguna persona en particular.</li>
-                <li>La participación en este estudio es <strong>voluntaria</strong> y puede solicitar la eliminación de sus datos en cualquier momento.</li>
+            <li><strong>Anonimato y Privacidad:</strong> Sus datos serán tratados de manera <strong>confidencial</strong> y no serán divulgados ni compartidos con terceros.</li>
+            <li><strong>Almacenamiento seguro:</strong> La información recopilada se almacenará de forma <strong>segura y anonimizada</strong>, garantizando que los resultados no sean asociados a ninguna persona en particular.</li>
+            <li><strong>Participación voluntaria:</strong> Puede solicitar la eliminación de sus datos en cualquier momento.</li>
             </ul>
-            
-            <h4>📌 Uso de la información:</h4>
+
+            <!-- Bloque: Uso de la información -->
             <ul>
-                <li>Los datos serán utilizados <strong>únicamente</strong> con fines académicos e investigativos dentro del marco del trabajo de grado.</li>
-                <li>Los resultados obtenidos podrán ser presentados en la universidad, siempre asegurando la protección de la identidad de los participantes.</li>
+            <li><strong>Fines académicos:</strong> Los datos serán utilizados <strong>únicamente</strong> para fines investigativos dentro del marco del trabajo de grado.</li>
+            <li><strong>Resultados:</strong> Podrán presentarse en la universidad garantizando la protección de su identidad.</li>
             </ul>
-            
-            <p>Si tiene alguna duda sobre el manejo de sus datos personales, puede contactarnos al correo <a href="mailto:dreamteam@example.com">dreamteam@example.com</a></p>
-            <p>🔹 Al continuar con el formulario, usted acepta el tratamiento de sus datos personales bajo los términos descritos.</p>
-            
+
+            <p>
+            Si tiene alguna duda sobre el manejo de sus datos personales, puede
+            contactarnos al correo <a href="mailto:dreamteam@example.com">dreamteam@example.com</a>.
+            </p>
+            <p>
+            🔹 Al continuar con el formulario, usted acepta el tratamiento de sus datos
+            personales bajo los términos descritos.
+            </p>
+
+            <!-- Bloque: Instrucciones -->
             <h3>📌 Instrucciones para Responder el Formulario</h3>
-            
             <p>¡Bienvenido/a al cuestionario del proyecto Dream Team! 🎯</p>
-            
-            <p>Este formulario busca analizar cómo las personas desempeñan diferentes roles dentro de un equipo de trabajo, con el fin de mejorar la conformación y desempeño de los equipos en entornos académicos.</p>
-            
+            <p>
+            Este formulario busca analizar cómo las personas desempeñan diferentes
+            roles dentro de un equipo de trabajo, con el fin de mejorar la conformación
+            y desempeño de los equipos en entornos académicos.
+            </p>
+
+            <!-- Bloque: Cómo responder -->
             <h4>🔹 Cómo responder:</h4>
             <ul>
-                <li>Lea cada enunciado con atención y seleccione la opción que mejor refleje su comportamiento en un equipo.</li>
-                <li>No hay respuestas correctas o incorrectas, solo buscamos entender su forma natural de actuar en equipos de trabajo.</li>
-                <li>Responda con sinceridad, sin intentar ajustarse a lo que considera "ideal".</li>
+            <li>Lea cada enunciado con atención.</li>
+            <li>Seleccione la opción que mejor refleje su comportamiento.</li>
+            <li>Responda con sinceridad, sin ajustarse a lo que considera "ideal".</li>
             </ul>
-            
+
+            <!-- Bloque: Escala de respuestas -->
             <h4>🔹 Escala de respuestas:</h4>
-            <p>Cada enunciado tiene una escala de 1 a 5, donde:</p>
+            <p>Cada enunciado tiene una escala del 1 al 5, donde:</p>
             <ul>
-                <li>1️⃣ Totalmente en desacuerdo → No me identifico con esta afirmación.</li>
-                <li>2️⃣ En desacuerdo → Me sucede ocasionalmente.</li>
-                <li>3️⃣ Neutral → Me ocurre con frecuencia moderada.</li>
-                <li>4️⃣ De acuerdo → Me representa la mayoría de las veces.</li>
-                <li>5️⃣ Totalmente de acuerdo → Refleja totalmente mi comportamiento.</li>
+            <li>1️⃣ Totalmente en desacuerdo – No me identifico con esta afirmación.</li>
+            <li>2️⃣ En desacuerdo – Me sucede ocasionalmente.</li>
+            <li>3️⃣ Neutral – Me ocurre con frecuencia moderada.</li>
+            <li>4️⃣ De acuerdo – Me representa la mayoría de las veces.</li>
+            <li>5️⃣ Totalmente de acuerdo – Refleja totalmente mi comportamiento.</li>
             </ul>
-            
+
+            <!-- Bloque: Cierre -->
             <h4>🔹 Importancia de la sinceridad:</h4>
-            <p>Para que los resultados sean útiles en el estudio, es fundamental que responda con honestidad. Sus respuestas serán tratadas de manera confidencial y utilizadas exclusivamente para fines académicos.</p>
+            <p>
+            Para que los resultados sean útiles, es fundamental que responda con honestidad.
+            Sus respuestas serán tratadas de forma confidencial y utilizadas exclusivamente
+            con fines académicos.
+            </p>
             <p>¡Gracias por su participación! 🚀</p>
         </div>
         
