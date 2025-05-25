@@ -1917,6 +1917,31 @@ body {
     border-bottom: 2px solid #e0e0e0;
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
+    border-radius: 8px;
+    padding: 1rem;
+}
+/* === Colores de categoría según desempeño === */
+.prediction-header.rojo {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+.prediction-header.amarillo {
+  background-color: #fff8dc;
+  color: #92400e;
+}
+
+.prediction-header.verde {
+  background-color: #ecfdf5;
+  color: #065f46;
+}
+
+.prediction-legend {
+    width: 100%;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.75rem;
+    padding-top: 0.25rem;
 }
 
 .prediction-title {
@@ -2069,6 +2094,24 @@ button[disabled]:hover::after {
     align-items: center;
     gap: 0.5rem;
     justify-content: center;
+}
+
+.predicted-score-box.rojo {
+  background-color: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.predicted-score-box.amarillo {
+  background-color: #fff8dc;
+  border: 1px solid #facc15;
+  color: #92400e;
+}
+
+.predicted-score-box.verde {
+  background-color: #ecfdf5;
+  border: 1px solid #10b981;
+  color: #065f46;
 }
 
 .pending-requirements-box {

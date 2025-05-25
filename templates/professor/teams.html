@@ -214,11 +214,26 @@
 
                                 <div class="predict-performance">
                                   {% if activity.id in team.predictions %}
-                                    <div class="predicted-score-box">
-                                      <i class="fas fa-chart-line"></i>
-                                      Desempeño Predicho: <strong>{{ team.predictions[activity.id] }}%</strong>
-                                    </div>
+                                    {% set score = team.predictions[activity.id]|float %}
 
+                                    {% if score < 60 %}
+                                        {% set categoria = "rojo" %}
+                                        {% set mensaje = "Recomendación: Tutoría o revisión (<48 h)" %}
+                                    {% elif score < 80 %}
+                                        {% set categoria = "amarillo" %}
+                                        {% set mensaje = "Recomendación: Monitoreo quincenal" %}
+                                    {% else %}
+                                        {% set categoria = "verde" %}
+                                        {% set mensaje = "Recomendación: Refuerzo y retos extra" %}
+                                    {% endif %}
+
+                                    <div class="predicted-score-box {{ categoria }}">
+                                        <i class="fas fa-chart-line"></i>
+                                        <div>
+                                            Desempeño Predicho: <strong>{{ score }}%</strong><br>
+                                            {{ mensaje }}
+                                        </div>
+                                    </div>
                                   {% elif activity.coevaluation_status is defined
                                       and activity.coevaluation_status.all_completed
                                       and activity.personality_forms_completed
@@ -512,17 +527,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-
+    
     function displayPredictionResults(data) {
       const container = document.getElementById('predictionResults');
       container.innerHTML = '';
 
+      const score = parseFloat(data.new_progress);  // Asegura número
+
+      // Determina clase y mensaje según score
+      let categoria = '';
+      let leyenda = '';
+
+      if (score < 60) {
+        categoria = 'rojo';
+        leyenda = 'Categoría: Rojo · Tutoría o revisión (<48 h)';
+      } else if (score < 80) {
+        categoria = 'amarillo';
+        leyenda = 'Categoría: Amarillo · Monitoreo quincenal';
+      } else {
+        categoria = 'verde';
+        leyenda = 'Categoría: Verde · Refuerzo y retos extra';
+      }
+
       const div = document.createElement('div');
       div.className = 'prediction-result';
       div.innerHTML = `
-          <div class="prediction-header">
-              <div class="prediction-title">Predicción de Desempeño del Equipo</div>
-              <div class="prediction-score">${data.new_progress}%</div>
+          <div class="prediction-header ${categoria}">
+              <div>
+                  <div class="prediction-title">Predicción de Desempeño del Equipo</div>
+                  <div class="prediction-legend">${leyenda}</div>
+              </div>
+              <div class="prediction-score">${score}%</div>
           </div>
           <div class="prediction-actions">
               <button id="closePredictionBtn" class="btn btn-primary">
@@ -530,6 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </button>
           </div>
       `;
+
       container.appendChild(div);
 
       // Activar modal
@@ -542,19 +578,19 @@ document.addEventListener('DOMContentLoaded', function() {
       const closeIcon = document.querySelector('.close-modal2');
 
       const handleClose = () => {
-          // Mostrar mensaje
-          const notice = document.getElementById('savingNotice');
-          notice.style.display = 'block';
+        // Mostrar mensaje
+        const notice = document.getElementById('savingNotice');
+        if (notice) notice.style.display = 'block';
 
-          // Esperar un segundo antes de recargar (opcional para UX)
-          setTimeout(() => {
-              location.reload(); // recarga la página
-          }, 1000);
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
       };
 
       closeBtn.addEventListener('click', handleClose);
       closeIcon.addEventListener('click', handleClose);
-  }
+    }
+
     // Cerrar modales
     document.querySelectorAll('.close-modal, .close-modal-btn').forEach(el => {
         el.addEventListener('click', () => {

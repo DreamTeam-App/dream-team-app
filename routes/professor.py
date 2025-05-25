@@ -9,7 +9,7 @@ from flask import request
 import pandas as pd
 from datetime import datetime
 from google.cloud.firestore_v1 import FieldFilter
-
+import traceback
 
 professor_bp = Blueprint("professor", __name__)
 
@@ -853,10 +853,6 @@ def predict_team_performance(team_id):
                             except (ValueError, TypeError):
                                 # Ignorar valores no numéricos
                                 pass
-                        if item_id > 19:
-                            score = float(answers.get(item_id_str, {}))
-                            total_score += score
-                            count += 1
 
                     # Si hay al menos un ítem válido, calcular el promedio
                     if count > 0:
@@ -1083,6 +1079,7 @@ def predict_team_performance(team_id):
         })
     except Exception as e:
         print(f"Error en predict_team_performance: {e}")
+        traceback.print_exc()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
     
 @professor_bp.route('/class/<class_id>/activities')

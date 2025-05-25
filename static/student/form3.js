@@ -650,36 +650,60 @@ function createQuestionElement(question) {
       window.scrollTo(0, 0);
     }
   }
+function scrollToQuestion(questionId) {
+  const questionElement = document.querySelector(`.question[data-id="${questionId}"]`);
+  if (questionElement) {
+    questionElement.classList.add("incomplete", "shake");
+
+    questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Eliminar la clase después de la animación
+    setTimeout(() => {
+      questionElement.classList.remove("shake");
+    }, 400);
+  }
+}
+
   
+
   // Handle next button click
 function handleNextButtonClick() {
-  if (currentPage < totalPages) {
-    if (!isCurrentPageComplete()) {
-      const currentPageQuestions = getCurrentPageQuestions();
-      const firstIncomplete = currentPageQuestions.find((q) => {
-        if (q.type === "matrix") {
-          return !teamMembers.every((m) => answers[q.id] && answers[q.id][m.id]);
-        } else {
-          return !answers[q.id];
-        }
-      });
+  const currentPageQuestions = getCurrentPageQuestions();
 
-      if (firstIncomplete) {
-        const questionElement = document.querySelector(`.question[data-id="${firstIncomplete.id}"]`);
-        if (questionElement) {
-          questionElement.classList.add("incomplete");
-          questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-        showAlert(`⚠ Por favor responde la pregunta ${firstIncomplete.id} antes de continuar.`);
+  for (const question of currentPageQuestions) {
+    const value = answers[question.id];
+
+    if (question.type === "matrix") {
+      const isComplete = teamMembers.every(
+        (m) => answers[question.id] && answers[question.id][m.id]
+      );
+      if (!isComplete) {
+        scrollToQuestion(question.id);
+        showAlert(`⚠ Por favor completa todas las evaluaciones de la pregunta ${question.id}.`);
         return;
       }
-    }
+    } else {
 
+      if (!validateAnswer2(question, value)) {
+        showAlert(`⚠ Por favor valide que su promedio este entre 0 y 5. Solo use máximo dos decimales. ${question.id}.`);
+        scrollToQuestion(question.id);
+        return;
+      }
+      if (value === undefined || value === "") {
+        scrollToQuestion(question.id);
+        showAlert(`⚠ Por favor responde la pregunta ${question.id}.`);
+        return;
+      }  
+    }
+  }
+
+  if (currentPage < totalPages) {
     goToNextPage();
   } else {
     submitForm();
   }
 }
+
 
 
   
