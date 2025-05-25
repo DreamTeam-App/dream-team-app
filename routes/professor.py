@@ -9,7 +9,7 @@ from flask import request
 import pandas as pd
 from datetime import datetime
 from google.cloud.firestore_v1 import FieldFilter
-
+import traceback
 
 professor_bp = Blueprint("professor", __name__)
 
@@ -853,10 +853,6 @@ def predict_team_performance(team_id):
                             except (ValueError, TypeError):
                                 # Ignorar valores no numéricos
                                 pass
-                        if item_id > 19:
-                            score = float(answers.get(item_id_str, {}))
-                            total_score += score
-                            count += 1
 
                     # Si hay al menos un ítem válido, calcular el promedio
                     if count > 0:
@@ -1083,6 +1079,7 @@ def predict_team_performance(team_id):
         })
     except Exception as e:
         print(f"Error en predict_team_performance: {e}")
+        traceback.print_exc()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
     
 @professor_bp.route('/class/<class_id>/activities')
@@ -1170,7 +1167,7 @@ def create_activity(class_id):
             'name': activity_name,
             'description': activity_description,
             'due_date': due_date,
-            'max_grade': int(max_grade),
+            'max_grade': float(max_grade),
             'enable_coevaluation': enable_coevaluation,
             'status': 'Open',
             'created_at': firestore.SERVER_TIMESTAMP,
@@ -1320,7 +1317,7 @@ def enable_coevaluation(class_id, activity_id):
                     "form_type": "coevaluation",
                     "title": f"Evaluación del clima del equipo: {activity_data.get('name')}",
                     "description": f"Evaluación cruzada del clima del equipo para la actividad {activity_data.get('name')}",
-                    "url": f"/student/coevaluation/{class_id}/{activity_id}",
+                    "url": f"/student/team-climate/{class_id}/{activity_id}",
                     "activity_id": activity_id,
                     "class_id": class_id,
                     "team_id": team_id,
@@ -1390,7 +1387,7 @@ def grade_team(class_id, activity_id):
             flash("Faltan campos requeridos", "error")
             return redirect(url_for('professor.activity_details', class_id=class_id, activity_id=activity_id))
 
-        grade = int(grade)
+        grade = float(grade)
 
         # Obtener referencias
         class_ref = db.collection('classes').document(class_id)
@@ -1458,6 +1455,7 @@ def grade_activity(team_id, activity_id):
         # Convert grade to float
         try:
             grade = float(grade)
+            grade = round(grade, 2)
         except ValueError:
             return jsonify({'success': False, 'message': 'La calificación debe ser un número válido'}), 400
         

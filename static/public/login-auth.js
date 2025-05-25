@@ -245,6 +245,7 @@ function loginUser(user, idToken) {
         if (data.new_user) {
             window.location.href = '/register';
         } else {
+            if(data.role == "admin") window.location.href = '/admin/';
             if (data.role === "professor") {
                 window.location.href = '/professor/index';
             } else {

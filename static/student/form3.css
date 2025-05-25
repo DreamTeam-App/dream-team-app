@@ -440,3 +440,18 @@ input[type="radio"]:checked + .radio-label {
         font-size: 18px;
     }
 }
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+.question.incomplete {
+  border: 2px solid red;
+  border-radius: 8px;
+  padding: 10px;
+  animation: shake 0.4s ease;
+  scroll-margin-top: 80px;
+}
