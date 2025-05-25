@@ -75,23 +75,26 @@
             </button>
         </div>
         <div class="modal-body">
+
+            <p style="margin-bottom: 1rem;"><span style="color: red;">*</span> Campos obligatorios</p>
+
             <form id="create-class-form" action="{{ url_for('professor.create_class') }}" method="post">
                 
                 <!-- Nombre de la Clase -->
                 <div class="form-group">
-                    <label for="class_name">Nombre de la Clase</label>
+                    <label for="class_name">Nombre de la Clase <span style="color: red;">*</span></label>
                     <input type="text" id="class_name" name="class_name" class="form-control" required>
                 </div>
                 
                 <!-- Instructor (Autocompletado y Deshabilitado) -->
                 <div class="form-group">
-                    <label for="instructor">Instructor</label>
+                    <label for="instructor">Instructor <span style="color: red;">*</span></label>
                     <input type="text" id="instructor" name="instructor" value="{{user.name}}" class="form-control" required readonly>
                 </div>
         
                 <!-- Horario (Selector de Rango de Horas) -->
                 <div class="form-group">
-                    <label for="schedule">Horario</label>
+                    <label for="schedule">Horario <span style="color: red;">*</span></label>
                     <input type="time" id="start_time" name="start_time" class="form-control" required>
                     <span> a </span>
                     <input type="time" id="end_time" name="end_time" class="form-control" required>
@@ -99,25 +102,25 @@
                 
                 <!-- Ubicación -->
                 <div class="form-group">
-                    <label for="location">Ubicación</label>
+                    <label for="location">Ubicación <span style="color: red;">*</span></label>
                     <input type="text" id="location" name="location" class="form-control" required>
                 </div>
                 
                 <!-- Fecha de Inicio (Selector de Calendario) -->
                 <div class="form-group">
-                    <label for="start_date">Fecha de Inicio</label>
+                    <label for="start_date">Fecha de Inicio <span style="color: red;">*</span></label>
                     <input type="date" id="start_date" name="start_date" class="form-control" required>
                 </div>
                 
                 <!-- Fecha de Fin (Selector de Calendario) -->
                 <div class="form-group">
-                    <label for="end_date">Fecha de Fin</label>
+                    <label for="end_date">Fecha de Fin <span style="color: red;">*</span></label>
                     <input type="date" id="end_date" name="end_date" class="form-control" required>
                 </div>
                 
                 <!-- Descripción -->
                 <div class="form-group">
-                    <label for="description">Descripción</label>
+                    <label for="description">Descripción <span style="color: red;">*</span></label>
                     <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
                 </div>
         
@@ -125,9 +128,6 @@
                 <div class="form-group">
                     <p><strong>Nota:</strong> Un código único de ingreso será generado automáticamente para tu clase.</p>
                 </div>
-        
-                <!-- Botón de Enviar -->
-                <button type="submit" class="btn btn-primary">Crear Clase</button>
         
             </form>
         </div>        
@@ -137,6 +137,7 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
