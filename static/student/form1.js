@@ -329,70 +329,92 @@ const personalityTypes = [
   
   // Handle answer change
   function handleAnswerChange(questionId, value) {
-    const question = initialQuestions.find((q) => q.id === questionId)
-    if (!question) return
-  
-    // Validate the answer
+    const question = initialQuestions.find((q) => q.id === questionId);
+    if (!question) return;
+
+    const container = document.querySelector(`.question[data-id="${questionId}"]`);
+    const input = container?.querySelector(".input-field") || container?.querySelector(".radio-group");
+
+    // Limpiar cualquier alerta previa y errores visuales
+    hideAlert();
+    if (input) input.classList.remove("invalid");
+
+    // Validar la respuesta
     if (!validateAnswer(question, value)) {
-      return
+      if (input) input.classList.add("invalid");
+      return;
     }
-  
-    // Clear any previous errors
-    hideAlert()
-  
-    // Update the answer
-    answers[questionId] = value
-    localStorage.setItem("personalityTypeAnswers", JSON.stringify(answers))
-  
-    // Mark the question as completed
-    const questionElement = document.querySelector(`.question[data-id="${questionId}"]`)
-    if (questionElement) {
-      questionElement.classList.add("completed")
+
+    // Guardar la respuesta
+    answers[questionId] = value;
+    localStorage.setItem("personalityTypeAnswers", JSON.stringify(answers));
+
+    // Marcar la pregunta como completada visualmente
+    if (container) {
+      container.classList.add("completed");
     }
-  
-    // Update progress
-    updateProgressBar()
-  
-    // Find next unanswered question on current page
-    const currentPageQuestions = getCurrentPageQuestions()
-    const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId)
-  
+
+    // Actualizar barra de progreso
+    updateProgressBar();
+
+    // Buscar siguiente pregunta no respondida en esta página
+    const currentPageQuestions = getCurrentPageQuestions();
+    const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId);
+
     if (currentIndex < currentPageQuestions.length - 1) {
-      // Move to next question on this page
-      const nextQuestion = currentPageQuestions[currentIndex + 1]
-      setActiveQuestion(nextQuestion.id)
+      const nextQuestion = currentPageQuestions[currentIndex + 1];
+      setActiveQuestion(nextQuestion.id);
     }
-  
-    // Update button states
-    updateButtonStates()
+
+    // Enfocar el botón "Siguiente" o "Finalizar" si ya todo está completo
+    if (isCurrentPageComplete()) {
+      nextButton.focus();
+    }
+    if (currentPage === totalPages && isFormComplete()) {
+      nextButton.focus();
+    }
+
+    // Actualizar estado del botón
+    updateButtonStates();
   }
+
   
   // Validate answer based on question type
-  function validateAnswer(question, value) {
-    if (value === "") return false
-  
-    if (question.type === "text") {
-      if (question.numeric) {
-        // Check if the value is a number and within range if specified
-        if (!/^\d+$/.test(value)) {
-          showAlert(`La pregunta ${question.id} requiere un valor numérico.`)
-          return false
-        }
-  
-        const numValue = Number.parseInt(value)
-        if (question.min !== undefined && numValue < question.min) {
-          showAlert(`El valor debe ser mayor o igual a ${question.min}.`)
-          return false
-        }
-        if (question.max !== undefined && numValue > question.max) {
-          showAlert(`El valor debe ser menor o igual a ${question.max}.`)
-          return false
-        }
-      }
-    }
-  
-    return true
+function validateAnswer(question, value) {
+  // Limpiar clase de error previa
+  const container = document.querySelector(`.question[data-id="${question.id}"]`);
+  const input = container?.querySelector(".input-field") || container?.querySelector(".radio-group");
+  input?.classList.remove("invalid");
+
+  if (value === "") {
+    showAlert(`Por favor responda la pregunta ${question.id}.`);
+    if (input) input.classList.add("invalid");
+    return false;
   }
+
+  if (question.type === "text" && question.numeric) {
+    if (!/^\d+$/.test(value)) {
+      showAlert(`La pregunta ${question.id} requiere un número válido.`);
+      if (input) input.classList.add("invalid");
+      return false;
+    }
+
+    const numValue = Number.parseInt(value);
+    if (question.min !== undefined && numValue < question.min) {
+      showAlert(`El valor debe ser mayor o igual a ${question.min}.`);
+      if (input) input.classList.add("invalid");
+      return false;
+    }
+    if (question.max !== undefined && numValue > question.max) {
+      showAlert(`El valor debe ser menor o igual a ${question.max}.`);
+      if (input) input.classList.add("invalid");
+      return false;
+    }
+  }
+
+  return true;
+}
+
   
   // Get current page questions
   function getCurrentPageQuestions() {
@@ -461,11 +483,11 @@ const personalityTypes = [
     if (currentPage < totalPages) {
       nextButton.textContent = "Siguiente"
       nextButton.className = "button"
-      nextButton.disabled = !isCurrentPageComplete()
+      nextButton.disabled = false
     } else {
       nextButton.textContent = "Finalizar"
       nextButton.className = "button"
-      nextButton.disabled = !isFormComplete()
+      nextButton.disabled = false
     }
   }
   
@@ -486,15 +508,34 @@ const personalityTypes = [
       window.scrollTo(0, 0)
     }
   }
-  
-  // Handle next button click
-  function handleNextButtonClick() {
-    if (currentPage < totalPages) {
-      goToNextPage()
-    } else {
-      submitForm()
+
+function getFirstIncompleteQuestion(questionsArray) {
+  for (const question of questionsArray) {
+    const value = answers[question.id];
+    if (value === undefined || value === "") {
+      return question;
     }
   }
+  return null;
+}
+
+
+  // Handle next button click
+function handleNextButtonClick() {
+  if (currentPage < totalPages) {
+    const firstIncomplete = getFirstIncompleteQuestion(getCurrentPageQuestions());
+    if (firstIncomplete) {
+      setActiveQuestion(firstIncomplete.id);
+      showAlert(`Por favor responde la pregunta ${firstIncomplete.id}.`);
+      shakeQuestion(firstIncomplete.id);
+      return;
+    }
+    goToNextPage();
+  } else {
+    submitForm();
+  }
+}
+
   
   // Go to next page
   function goToNextPage() {
@@ -513,15 +554,24 @@ const personalityTypes = [
       window.scrollTo(0, 0)
     }
   }
-  
+  function shakeQuestion(id) {
+    const questionElement = document.querySelector(`.question[data-id="${id}"]`);
+    if (!questionElement) return;
+    questionElement.classList.add("shake");
+    setTimeout(() => {
+      questionElement.classList.remove("shake");
+    }, 400);
+  }
   // Submit the form
   function submitForm() {
     // Validate all answers one more time
     for (const question of initialQuestions) {
       const answer = answers[question.id]
       if (answer === undefined || answer === "") {
-        showAlert(`Por favor responda la pregunta ${question.id}.`)
-        return
+        showAlert(`Por favor responda la pregunta ${question.id}.`);
+        setActiveQuestion(question.id);
+        shakeQuestion(question.id);  
+        return;
       }
   
       if (!validateAnswer(question, answer)) {

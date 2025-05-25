@@ -3,7 +3,7 @@
 {% block title %}Formulario de Personalidad{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='student/form1.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='student/form1.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -18,15 +18,16 @@
     <div class="card-header">
         <h2 class="card-title">Collaborative Team Formation Form – PART 1</h2>
         <p class="card-description">Por favor complete todas las preguntas requeridas.</p>
+        <p style="margin-top: 0.5rem;"><span style="color: red;">*</span> Campos obligatorios</p>
     </div>
-    
+
     <div class="card-content">
         <div id="intro-section" class="intro-section">
             <h3>📌 Tratamiento de Datos Personales</h3>
-            
+
             <p><strong>Estimado estudiante,</strong></p>
             <p>Al completar este formulario, aceptas que la información proporcionada será utilizada exclusivamente para la conformación de equipos dentro de la plataforma <strong>Dream Team</strong>.</p>
-            
+
             <ul>
                 <li><strong>Anonimato y Privacidad:</strong> Tu identidad será protegida. Solo el profesor del curso tendrá acceso a tu nombre, mientras que el sistema utilizará únicamente tu <strong>ID universitario</strong> para procesar los datos.</li>
                 <li><strong>Uso de Datos:</strong> La información que proporciones será analizada por un algoritmo con el objetivo de optimizar la conformación de equipos de trabajo.</li>
@@ -34,13 +35,13 @@
                 <li><strong>Derechos del Estudiante:</strong> Puedes solicitar la eliminación o modificación de tus datos en cualquier momento comunicándote con el profesor o el equipo de desarrollo de la plataforma.</li>
             </ul>
         </div>
-        
+
         <div id="alert" class="alert hidden">
             <div class="alert-icon">⚠️</div>
             <div id="alertMessage"></div>
             <button class="close-btn" onclick="closeAlert()">×</button>
         </div>
-        
+
         <div class="progress-container">
             <div class="progress-bar">
                 <div id="progressBar" class="progress-fill" style="width: 0%"></div>
@@ -50,12 +51,12 @@
                 <span id="pageIndicator">Página 1 de 2</span>
             </div>
         </div>
-        
+
         <div id="questionsContainer">
             <!-- Questions will be dynamically inserted here -->
         </div>
     </div>
-    
+
     <div class="card-footer">
         <button id="prevButton" class="button button-outline" disabled>Anterior</button>
         <button id="nextButton" class="button">Siguiente</button>

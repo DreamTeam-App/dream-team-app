@@ -468,37 +468,65 @@ const ratingQuestions = [
   
     return questionDiv
   }
-  
+  function validateAnswer(question, value) {
+    const container = document.querySelector(`.question[data-id="${question.id}"]`);
+    const inputGroup = container?.querySelector(".question-content");
+    container?.classList.remove("invalid");
+
+    if (value === "") {
+      showAlert(`Por favor responde la pregunta ${question.id}.`);
+      container?.classList.add("invalid");
+      return false;
+    }
+
+    return true;
+  }
   // Handle answer change
   function handleAnswerChange(questionId, value) {
-    // Clear any previous errors
-    hideAlert()
-  
-    // Update the answer
-    answers[questionId] = value
-    localStorage.setItem("teamRoleAnswers", JSON.stringify(answers))
-  
-    // Mark the question as completed
-    const questionElement = document.querySelector(`.question[data-id="${questionId}"]`)
-    if (questionElement) {
-      questionElement.classList.add("completed")
+    const question = ratingQuestions.find((q) => q.id === questionId);
+    if (!question) return;
+
+    const container = document.querySelector(`.question[data-id="${questionId}"]`);
+    const input = container?.querySelector(".rating-table") || container?.querySelector(".rating-radio");
+
+    // Limpiar errores anteriores visuales
+    hideAlert();
+    input?.classList.remove("invalid");
+
+    // Validar (valor numérico entre 1 y 5)
+    if (!value || !["1", "2", "3", "4", "5"].includes(value)) {
+      showAlert(`Por favor seleccione una opción válida en la pregunta ${question.id}.`);
+      if (input) input.classList.add("invalid");
+      return;
     }
-  
-    // Update progress
-    updateProgressBar()
-  
-    // Find next unanswered question on current page
-    const currentPageQuestions = getCurrentPageQuestions()
-    const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId)
-  
+
+    // Guardar la respuesta
+    answers[questionId] = value;
+    localStorage.setItem("teamRoleAnswers", JSON.stringify(answers));
+
+    // Marcar como completada
+    if (container) container.classList.add("completed");
+
+    // Actualizar progreso
+    updateProgressBar();
+
+    // Ir a la siguiente pregunta en la página si existe
+    const currentPageQuestions = getCurrentPageQuestions();
+    const currentIndex = currentPageQuestions.findIndex((q) => q.id === questionId);
     if (currentIndex < currentPageQuestions.length - 1) {
-      // Move to next question on this page
-      const nextQuestion = currentPageQuestions[currentIndex + 1]
-      setActiveQuestion(nextQuestion.id)
+      setActiveQuestion(currentPageQuestions[currentIndex + 1].id);
     }
-  
-    // Update button states
-    updateButtonStates()
+
+    // Si todas están completas en esta página o formulario, enfocar el botón
+    if (isCurrentPageComplete()) {
+      nextButton.focus();
+    }
+    if (currentPage === totalPages && isFormComplete()) {
+      nextButton.focus();
+    }
+
+    // Actualizar botones
+    updateButtonStates();
   }
   
   // Get current page questions
@@ -568,11 +596,11 @@ const ratingQuestions = [
     if (currentPage < totalPages) {
       nextButton.textContent = "Siguiente"
       nextButton.className = "button button-primary"
-      nextButton.disabled = !isCurrentPageComplete()
+      nextButton.disabled = false
     } else {
       nextButton.textContent = "Finalizar"
       nextButton.className = "button button-success"
-      nextButton.disabled = !isFormComplete()
+      nextButton.disabled = false
     }
   }
   
@@ -593,15 +621,38 @@ const ratingQuestions = [
       window.scrollTo(0, 0)
     }
   }
-  
+  function getFirstIncompleteQuestion(questionsArray) {
+    for (const question of questionsArray) {
+      if (!answers[question.id] || answers[question.id] === "") {
+        return question;
+      }
+    }
+    return null;
+  }
+  function shakeQuestion(id) {
+    const el = document.querySelector(`.question[data-id="${id}"]`);
+    if (!el) return;
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 400);
+  }
+
+
   // Handle next button click
   function handleNextButtonClick() {
     if (currentPage < totalPages) {
-      goToNextPage()
+      const firstIncomplete = getFirstIncompleteQuestion(getCurrentPageQuestions());
+      if (firstIncomplete) {
+        setActiveQuestion(firstIncomplete.id);
+        showAlert(`Por favor responde la pregunta ${firstIncomplete.id}.`);
+        shakeQuestion(firstIncomplete.id);
+        return;
+      }
+      goToNextPage();
     } else {
-      submitForm()
+      submitForm();
     }
   }
+
   
   // Go to next page
   function goToNextPage() {
@@ -623,45 +674,48 @@ const ratingQuestions = [
   
   // Submit the form
   function submitForm() {
-    // Validate all answers one more time
     for (const question of ratingQuestions) {
-      const answer = answers[question.id]
-      if (answer === undefined || answer === "") {
-        showAlert(`Por favor responda la pregunta ${question.id - 13}.`)
-        return
+      const answer = answers[question.id];
+      const questionElement = document.querySelector(`.question[data-id="${question.id}"]`);
+      const input = questionElement?.querySelector(".rating-row");
+
+      // Validación
+      if (!answer || answer === "") {
+        showAlert(`Por favor responde la pregunta ${question.id}.`);
+        if (input) input.classList.add("invalid");
+        setActiveQuestion(question.id);
+        shakeQuestion(question.id);
+        return;
       }
+
+      // Limpia errores si se ha completado correctamente
+      input?.classList.remove("invalid");
     }
-  
-    // Send the data to the server
+
+    // Enviar al servidor
     fetch("/student/submit_form2", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(answers),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Use a custom notification instead of alert
-          showNotification(data.message)
-  
-          // Clear localStorage
-          localStorage.removeItem("teamRoleAnswers")
-  
-          // Redirect to home page after a short delay
+          showNotification(data.message);
+          localStorage.removeItem("teamRoleAnswers");
           setTimeout(() => {
-            window.location.href = "/student/"
-          }, 1500)
+            window.location.href = "/student/";
+          }, 1500);
         } else {
-          showAlert(data.message || "Error al enviar el formulario")
+          showAlert(data.message || "Error al enviar el formulario");
         }
       })
       .catch((error) => {
-        console.error("Error:", error)
-        showAlert("Error al enviar el formulario. Por favor intente nuevamente.")
-      })
+        console.error("Error:", error);
+        showAlert("Error al enviar el formulario. Por favor intente nuevamente.");
+      });
   }
+
   
   // Show notification message
   function showNotification(message) {

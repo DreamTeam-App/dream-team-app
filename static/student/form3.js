@@ -66,7 +66,7 @@ const evaluationQuestions = [
     },
     {
       id: 11,
-      text: "El compañero procpicia oportunidades para que cada miembro aporte su perspectiva sin sentirse excluido(a)",
+      text: "El compañero(a) fomenta espacios donde cada integrante puede aportar su perspectiva sin sentirse excluido(a)",
       type: "matrix",
       required: true,
     },
