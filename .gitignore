@@ -4,3 +4,5 @@ routes/__pycache__/
 venv/
 reports/
 *.pyc
+firebase-auth.json
+firebase_config.py
